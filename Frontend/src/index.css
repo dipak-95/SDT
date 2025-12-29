@@ -1,0 +1,160 @@
+@import "tailwindcss";
+/* Image reflection animation */
+.glass-img {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-img::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg);
+  transition: 0.8s ease-in-out;
+}
+
+.glass-img:hover::after {
+  left: 120%;
+}
+/* Hide scrollbar but keep scroll functionality */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+.glass-item {
+  @apply flex items-start gap-3 p-4 bg-white/60 backdrop-blur-md rounded-xl border border-white/60;
+}
+
+.glass-box {
+  @apply p-4 bg-white/40 backdrop-blur-md rounded-xl border border-white/50;
+}
+
+.label {
+  @apply text-xs text-gray-600;
+}
+
+.value {
+  @apply font-semibold text-gray-800;
+}
+
+.icon-orange {
+  @apply text-[#F4612B] text-xl p-2 bg-white/50 rounded-lg;
+}
+
+.btn-white {
+  @apply px-4 py-2 rounded-full border text-[#F4612B] 
+         font-semibold text-center bg-white hover:bg-gray-100;
+}
+
+.btn-orange {
+  @apply px-4 py-2 rounded-full bg-[#F4612B] text-white font-semibold;
+}
+/* ✅ react-slick mobile fix */
+.slick-slider {
+  width: 100%;
+}
+
+.slick-track {
+  display: flex;
+}
+
+.slick-slide {
+  display: flex !important;
+  height: auto !important;
+}
+
+.slick-slide > div {
+  width: 100%;
+}
+.input {
+  @apply w-full border border-gray-300 rounded-lg px-3 py-2
+         focus:outline-none focus:border-[#F4612B];
+}
+/* ===== CUSTOM DAY PICKER THEME ===== */
+/* ===== FIXED & COMPACT DAY PICKER ===== */
+
+.rdp {
+  --rdp-accent-color: #F4612B;
+  --rdp-background-color: transparent;
+  font-family: inherit;
+}
+
+.rdp-month {
+  width: 100%;
+  max-width: 320px;
+  margin: auto;
+  background: white;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.rdp-caption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.rdp-nav_button {
+  color: #F4612B;
+  width: 28px;
+  height: 28px;
+}
+
+.rdp-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rdp-head_row,
+.rdp-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.rdp-head_cell {
+  font-size: 12px;
+  text-align: center;
+  color: #6b7280;
+  padding: 6px 0;
+}
+
+.rdp-day {
+  height: 38px;
+  width: 38px;
+  margin: auto;
+  font-size: 13px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.rdp-day:hover:not(.rdp-day_disabled) {
+  background: #fff1e8;
+}
+
+.rdp-day_selected {
+  background: #F4612B !important;
+  color: white !important;
+}
+
+.rdp-day_disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  filter: blur(1px);
+  cursor: not-allowed;
+}
