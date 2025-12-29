@@ -33,7 +33,7 @@ app.use("/order", require("./routes/orderroute"));
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 1005;
 
-app.listen(PORT, "0.0.0.0/0", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server started on port ${PORT}`);
   console.log("=== REGISTERED MODELS ===");
   mongoose.modelNames().forEach((name) => {
