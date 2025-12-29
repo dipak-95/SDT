@@ -18,6 +18,10 @@ app.use(cors({ origin: "*" }));
 connectDB();
 
 /* ================= ROUTES ================= */
+app.get("/", (req, res) => {
+  res.send("🚀 Backend is running successfully");
+});
+
 app.use("/admin", require("./routes/route"));
 app.use("/bookingtour", require("./routes/Bookingroute"));
 app.use("/group-tours", require("./routes/GroupTourroute"));
