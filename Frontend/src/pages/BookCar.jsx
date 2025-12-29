@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 export default function BookCar() {
-    const BASE_URL = "http://localhost:1005";
+    const BASE_URL = "https://sdt-7.onrender.com";
   const { id } = useParams();
 
   const [car, setCar] = useState(null);

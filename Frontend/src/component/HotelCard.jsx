@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { FaN } from "react-icons/fa6";
 
 
-const API_BASE = "http://127.0.0.1:1005";
+const API_BASE = "https://sdt-7.onrender.com";
 
 /* ===== CUSTOM SLIDER ARROWS ===== */
 function PrevArrow({ onClick }) {

@@ -6,7 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { DayPicker } from "react-day-picker";
 
-const API_BASE = "http://127.0.0.1:1005";
+const API_BASE = "https://sdt-7.onrender.com";
 
 export default function BookingHotel() {
   const { hotelId } = useParams();

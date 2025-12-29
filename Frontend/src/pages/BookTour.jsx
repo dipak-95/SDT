@@ -4,7 +4,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "https://sdt-7.onrender.com";
 
 /* ===== HELPER ===== */
 const getDaysNights = (startDate, endDate) => {

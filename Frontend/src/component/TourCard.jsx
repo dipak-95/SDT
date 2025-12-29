@@ -92,33 +92,14 @@ const TourCard = ({ tour,type }) => {
    
   "
     >
-
-
-
-      {/* IMAGE SLIDER */}
-      {/* <div className="relative w-full h-[260px] sm:min-h-[260px]">
-  {tour.images?.length > 0 && (
-    <Slider {...sliderSettings} className="h-full">
-      {tour.images.map((img, i) => (
-        <div key={i} className="h-[260px] sm:min-h-[260px]">
-          <img
-            src={`http://localhost:1005${img}`}
-            alt={tour.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      ))}
-    </Slider>
-  )}
-</div> */}
-      {/* IMAGE SLIDER */}
+    {/* IMAGE SLIDER */}
       <div className="relative w-full h-[260px] sm:h-[260px]">
         {tour.images?.length > 0 && (
           <Slider {...sliderSettings}>
             {tour.images.map((img, i) => (
               <div key={i} className=" h-[240px] sm:h-[240px]">
                 <img
-                  src={`http://localhost:1005${img}`}
+                  src={`https://sdt-7.onrender.com${img}`}
                   alt={tour.title}
                   className="rounded-xl w-full h-full object-cover"
                 />

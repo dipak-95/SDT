@@ -11,7 +11,7 @@ import {
 import { toast } from "react-toastify";
 import AdminItinerary from "../components/Adminiteranary";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "https://sdt-7.onrender.com";
 
 /* ================= IMAGE SLIDER ================= */
 const AdminImageSlider = ({ images }) => {

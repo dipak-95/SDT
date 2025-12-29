@@ -18,7 +18,7 @@ const TourImageSlider = ({ images = [] }) => {
       <AnimatePresence mode="wait">
         <motion.img
           key={index}
-          src={`http://localhost:1005${images[index]}`}
+          src={`https://sdt-7.onrender.com${images[index]}`}
           alt=""
           className="h-full w-full object-cover"
           initial={{ opacity: 0, x: 40 }}

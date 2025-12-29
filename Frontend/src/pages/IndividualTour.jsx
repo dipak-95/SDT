@@ -5,7 +5,7 @@ import TourCard from "../component/TourCard";
 
 const IndividualTour = () => {
   const [tours, setTours] = useState([]);
-   const BASE_URL = "http://localhost:1005";
+   const BASE_URL = "https://sdt-7.onrender.com";
 
   useEffect(() => {
     axios.get(`${BASE_URL}/individual-tours`)

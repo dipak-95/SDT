@@ -7,7 +7,7 @@ import {
   IoIosArrowForward
 } from "react-icons/io";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "https://sdt-7.onrender.com";
 
 /* ---------- SLIDER ARROWS ---------- */
 const PrevArrow = ({ onClick }) => (

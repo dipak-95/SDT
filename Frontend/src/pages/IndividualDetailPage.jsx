@@ -5,7 +5,7 @@ import DayAccordion from "../component/DayAccordian";
 import WhyChooseUs from "../component/WhyChooseUs";
 import { motion } from "framer-motion";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "https://sdt-7.onrender.com";
 
 const IndividualDetailPage = () => {
   const { id } = useParams();

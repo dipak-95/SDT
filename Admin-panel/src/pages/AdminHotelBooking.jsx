@@ -13,7 +13,7 @@ import {
   IndianRupee
 } from "lucide-react";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "https://sdt-7.onrender.com";
 
 export default function AdminHotelBooking() {
   const [bookings, setBookings] = useState([]);

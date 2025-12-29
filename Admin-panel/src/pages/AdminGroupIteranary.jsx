@@ -11,7 +11,7 @@ const AdminGroupIteranary = ({ tourId }) => {
   });
 
   const fetchDays = async () => {
-    const res = await axios.get(`/group-tours/${tourId}`);
+    const res = await axios.get(`https://sdt-7.onrender.com/group-tours/${tourId}`);
     setDays(res.data.itinerary);
   };
 
@@ -22,7 +22,7 @@ const AdminGroupIteranary = ({ tourId }) => {
   /* DELETE */
   const deleteDay = async (id) => {
     if (!window.confirm("Delete this day?")) return;
-    await axios.delete(`/group-tours/itinerary/${id}`);
+    await axios.delete(`https://sdt-7.onrender.com/group-tours/itinerary/${id}`);
     fetchDays();
   };
 
@@ -36,7 +36,7 @@ const AdminGroupIteranary = ({ tourId }) => {
   };
 
   const updateDay = async () => {
-    await axios.put(`/group-tours/itinerary/${editing}`, {
+    await axios.put(`https://sdt-7.onrender.com/group-tours/itinerary/${editing}`, {
       title: form.title,
       points: form.points.split("\n")
     });
