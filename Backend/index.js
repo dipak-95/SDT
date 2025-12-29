@@ -1,36 +1,23 @@
-require("dotenv").config();
+require("dotenv").config(); // works locally, ignored on Render
 
 const express = require("express");
-const port = 1005;
 const connectDB = require("./config/db");
 const cors = require("cors");
 const path = require("path");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 const app = express();
 
+/* ================= MIDDLEWARE ================= */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// app.use(cors({
-//   origin: function (origin, callback) {
-//     const allowedOrigins = [
-//       process.env.CLIENT_URL,
-//       process.env.ADMIN_URL
-//     ];
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("CORS error"));
-//     }
-//   },
-//   credentials: true
-// }));
 app.use(cors({ origin: "*" }));
 
+/* ================= DB CONNECTION ================= */
 connectDB();
 
+/* ================= ROUTES ================= */
 app.use("/admin", require("./routes/route"));
 app.use("/bookingtour", require("./routes/Bookingroute"));
 app.use("/group-tours", require("./routes/GroupTourroute"));
@@ -43,11 +30,13 @@ app.use("/Enquiry", require("./routes/QiuckEnquiryroute"));
 app.use("/Dashboard", require("./routes/Dashboardroute"));
 app.use("/order", require("./routes/orderroute"));
 
+/* ================= SERVER ================= */
+const PORT = process.env.PORT || 1005;
 
-app.listen(port,"0.0.0.0", () => {
-  console.log(`Server Started Successfully on port ${port}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server started on port ${PORT}`);
   console.log("=== REGISTERED MODELS ===");
-  mongoose.modelNames().forEach(name => {
+  mongoose.modelNames().forEach((name) => {
     const m = mongoose.model(name);
     console.log(`${name} -> ${m.collection.name}`);
   });
