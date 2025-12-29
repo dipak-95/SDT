@@ -22,11 +22,11 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    if (!process.env.URL) {
+    if (!process.env.Mongodb_URI) {
       throw new Error("URL not found in environment variables");
     }
 
-    await mongoose.connect(process.env.URL, {
+    await mongoose.connect(process.env.Mongodb_URI, {
       serverSelectionTimeoutMS: 10000
     });
 
