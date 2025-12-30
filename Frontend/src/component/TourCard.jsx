@@ -11,6 +11,8 @@ import {
   FaCalendarAlt
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import QuickEnquiryModal from "./QuickEnquiryModal";
+import { useState } from "react";
 
 
 
@@ -65,10 +67,10 @@ const daysNights = (start, end) => {
   return `${days} Days / ${days - 1} Nights`;
 };
 
-const TourCard = ({ tour,type }) => {
+const TourCard = ({ tour, type }) => {
   const navigate = useNavigate();
 
-    
+
 
   const handleView = () => {
     navigate(
@@ -77,6 +79,8 @@ const TourCard = ({ tour,type }) => {
         : `/individual-tour/${tour._id}`
     );
   };
+  const [openEnquiry, setOpenEnquiry] = useState(false);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -92,7 +96,7 @@ const TourCard = ({ tour,type }) => {
    
   "
     >
-    {/* IMAGE SLIDER */}
+      {/* IMAGE SLIDER */}
       <div className="relative w-full h-[260px] sm:h-[260px]">
         {tour.images?.length > 0 && (
           <Slider {...sliderSettings}>
@@ -115,22 +119,22 @@ const TourCard = ({ tour,type }) => {
           {tour.title}
         </div>
 
-        
- <div className="mt-4 px-1">
-  <div className="flex justify-between items-center text-sm font-medium text-gray-700">
-    {/* Date */}
-    <div className="flex items-center gap-2">
-      <FaCalendarAlt className="text-[#F4612B]" />
-      {formatDate(tour.startDate)} – {formatDate(tour.endDate)}
-    </div>
 
-    {/* Location */}
-    <div className="flex items-center gap-2">
-      <FaMapMarkerAlt className="text-[#F4612B]" />
-      {tour.location}
-    </div>
-  </div>
-</div>
+        <div className="mt-4 px-1">
+          <div className="flex justify-between items-center text-sm font-medium text-gray-700">
+            {/* Date */}
+            <div className="flex items-center gap-2">
+              <FaCalendarAlt className="text-[#F4612B]" />
+              {formatDate(tour.startDate)} – {formatDate(tour.endDate)}
+            </div>
+
+            {/* Location */}
+            <div className="flex items-center gap-2">
+              <FaMapMarkerAlt className="text-[#F4612B]" />
+              {tour.location}
+            </div>
+          </div>
+        </div>
 
 
 
@@ -185,22 +189,31 @@ const TourCard = ({ tour,type }) => {
         </div>
 
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
-          <button className="w-full sm:w-1/2 py-2 border border-[#F4612B]
-                             text-[#F4612B] rounded-full
-                             hover:bg-[#F4612B] hover:text-white transition">
+          <button
+            onClick={() => setOpenEnquiry(true)}
+            className="w-full sm:w-1/2 py-2 border border-[#F4612B]
+             text-[#F4612B] rounded-full
+             hover:bg-[#F4612B] hover:text-white transition"
+          >
             Quick Inquiry
           </button>
 
-               <button
-        onClick={handleView}
-        className=" sm:w-1/2 w-full py-2 bg-[#F4612B] text-white
+
+          <button
+            onClick={handleView}
+            className=" sm:w-1/2 w-full py-2 bg-[#F4612B] text-white
                    border border-[#F4612B] rounded-full
                    hover:bg-white hover:text-[#F4612B] transition"
-      >
-        View Tour
-      </button>
+          >
+            View Tour
+          </button>
         </div>
       </div>
+      <QuickEnquiryModal
+  open={openEnquiry}
+  onClose={() => setOpenEnquiry(false)}
+/>
+
     </motion.div>
   );
 };

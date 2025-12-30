@@ -93,7 +93,7 @@ export default function BookingHotel() {
     nights > 0 ? nights * room.price * form.rooms : 0;
 
   /* ✅ CONFIRM BOOKING */
-  
+
   //   if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
   //     toast.error("Please fill all required fields");
   //     return;
@@ -135,59 +135,59 @@ export default function BookingHotel() {
   // };
 
   const confirmBooking = async () => {
-  if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
-    toast.error("Please fill all required fields");
-    return;
-  }
+    if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
+      toast.error("Please fill all required fields");
+      return;
+    }
 
-  if (hasBlockedDate) {
-    toast.error("Selected dates include already booked days");
-    return;
-  }
+    if (hasBlockedDate) {
+      toast.error("Selected dates include already booked days");
+      return;
+    }
 
-  if (form.rooms > availableRooms) {
-    toast.error("Not enough rooms available");
-    return;
-  }
+    if (form.rooms > availableRooms) {
+      toast.error("Not enough rooms available");
+      return;
+    }
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    // 1️⃣ CREATE HOTEL BOOKING (EXISTING)
-    const res = await axios.post(`${API_BASE}/bookings/create`, {
-      hotelId: hotel._id,
-      roomType: room.type,
-      roomsBooked: form.rooms,
-      checkIn: form.checkIn,
-      checkOut: form.checkOut,
-      user: {
-        name: form.name,
-        email: form.email,
-        phone: form.phone
-      }
-    });
+      // 1️⃣ CREATE HOTEL BOOKING (EXISTING)
+      const res = await axios.post(`${API_BASE}/bookings/create`, {
+        hotelId: hotel._id,
+        roomType: room.type,
+        roomsBooked: form.rooms,
+        checkIn: form.checkIn,
+        checkOut: form.checkOut,
+        user: {
+          name: form.name,
+          email: form.email,
+          phone: form.phone
+        }
+      });
 
-    // 🔥 2️⃣ CREATE ORDER FOR DASHBOARD
-    await axios.post(`${API_BASE}/order/create`, {
-      serviceType: "hotel",
-      status: "confirmed",          // IMPORTANT
-      amount: Number(res.data.totalAmount || room.price * form.rooms)
-    });
+      // 🔥 2️⃣ CREATE ORDER FOR DASHBOARD
+      await axios.post(`${API_BASE}/order/create`, {
+        serviceType: "hotel",
+        status: "confirmed",          // IMPORTANT
+        amount: Number(res.data.totalAmount || room.price * form.rooms)
+      });
 
-    toast.success("Booking confirmed 🎉");
-    navigate("/hotels");
+      toast.success("Booking confirmed 🎉");
+      navigate("/hotels");
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Booking failed");
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (err) {
+      console.error(err);
+      toast.error("Booking failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    
-    
+
+
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
@@ -209,7 +209,7 @@ export default function BookingHotel() {
           </h1>
         </div>
       </div>
-      
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
@@ -221,7 +221,7 @@ export default function BookingHotel() {
             <h2 className="text-xl font-bold">{hotel.name}</h2>
             <p className="flex items-center gap-1 text-gray-500 text-sm">
               <MapPin size={16} className="text-[#F4612B]" />
-               {hotel.location}
+              {hotel.location}
             </p>
             <p className="mt-2 text-sm">
               Room Type:
@@ -232,11 +232,10 @@ export default function BookingHotel() {
             <p className="text-sm">
               Available Rooms:
               <span
-                className={`ml-1 font-semibold ${
-                  availableRooms === 0
+                className={`ml-1 font-semibold ${availableRooms === 0
                     ? "text-red-500"
                     : "text-green-600"
-                }`}
+                  }`}
               >
                 {availableRooms}
               </span>
@@ -347,40 +346,34 @@ export default function BookingHotel() {
           </div>
 
           {/* ROOMS */}
-          {/* <input
-            type="number"
-            min={1}
-            max={availableRooms}
-            className="input w-32"
-            value={form.rooms}
-            onChange={e =>
-              setForm({ ...form, rooms: Number(e.target.value) })
-            }
-          /> */}
+
           <div className="space-y-1">
-  <label className="text-sm font-semibold text-gray-700">
-    Number of Rooms
-  </label>
+            <label className="text-sm font-semibold text-gray-700">
+              Number of Rooms
+            </label>
 
-  <input
-    type="number"
-    min={1}
-    max={availableRooms}
-    className="input w-40"
-    value={form.rooms}
-    onChange={e =>
-      setForm({
-        ...form,
-        rooms: Number(e.target.value)
-      })
-    }
-  />
+            <input
+              type="number"
+              min={0}
+              max={availableRooms}
+              className="input w-40"
+              value={form.rooms}                 // 👈 string allowed
+              onChange={(e) => {
+                const value = e.target.value;
 
-  <p className="text-xs text-gray-500">
-    Maximum available: {availableRooms} rooms
-  </p>
-</div>
-    
+                // allow empty input
+                if (value === "") {
+                  setForm({ ...form, rooms: "" });
+                } else {
+                  setForm({ ...form, rooms: value }); // keep as string
+                }
+              }}
+            />
+            <p className="text-xs text-gray-500">
+              Maximum available: <span className="font-semibold">{availableRooms}</span> rooms
+            </p>
+          </div>
+
         </div>
 
         {/* ================= RIGHT ================= */}
