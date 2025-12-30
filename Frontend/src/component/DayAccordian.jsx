@@ -104,16 +104,20 @@ const AccordionItem = ({ day, isOpen, onToggle }) => {
                   <button onClick={scrollRight} style={arrowStyle("right")}>
                     <IoIosArrowForward style={arrowIconStyle} />
                   </button>
-
                   <div
                     ref={sliderRef}
+                    className="hide-scrollbar"
                     style={{
                       display: "flex",
                       gap: 12,
                       overflowX: "auto",
-                      scrollSnapType: "x mandatory"
+                      scrollSnapType: "x mandatory",
+                      WebkitOverflowScrolling: "touch", // smooth mobile scroll
+                      scrollbarWidth: "none", // Firefox
+                      msOverflowStyle: "none" // IE / Edge
                     }}
                   >
+
                     {day.images.map((img, i) => (
                       <div
                         key={i}
@@ -131,7 +135,7 @@ const AccordionItem = ({ day, isOpen, onToggle }) => {
                           style={{
                             width: "100%",
                             height: "100%",
-                            objectFit: "cover"
+                            objectFit: "center"
                           }}
                         />
                       </div>
