@@ -46,32 +46,18 @@ export default function QuickEnquiryModal({ open, onClose }) {
     return Object.keys(err).length === 0;
   };
 
-  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validate()) {
-      toast.error("Please fix the errors");
-      return;
-    }
+    if (!validate()) return toast.error("Please fix the errors");
 
     try {
       setLoading(true);
-
       await axios.post(
         "https://sdt-7.onrender.com/Enquiry/quick-enquiry",
         form
       );
-
       toast.success("Enquiry submitted successfully");
-
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        message: ""
-      });
-
+      setForm({ name: "", email: "", phone: "", message: "" });
       setErrors({});
       onClose();
     } catch {
@@ -83,119 +69,127 @@ export default function QuickEnquiryModal({ open, onClose }) {
 
   if (!open) return null;
 
+   const whatsappMessage = encodeURIComponent(
+    "Hello! I want to enquire about your tour packages."
+  );
+
   return (
     <AnimatePresence>
       <motion.div
         className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm
-                   flex items-center justify-center px-4"
+                   flex items-center justify-center px-3 sm:px-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
       >
-        {/* MODAL CARD */}
+        {/* MODAL */}
         <motion.div
-          initial={{ scale: 0.9, y: 30 }}
+          initial={{ scale: 0.95, y: 40 }}
           animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.9, y: 30 }}
+          exit={{ scale: 0.95, y: 40 }}
           transition={{ type: "spring", stiffness: 120 }}
           onClick={(e) => e.stopPropagation()}
-          className="relative w-full max-w-5xl rounded-2xl shadow-2xl
-                     overflow-hidden grid grid-cols-1 md:grid-cols-2
-                     bg-gradient-to-br from-white via-orange-50 to-orange-100"
+          className="
+            relative
+            w-full max-w-5xl
+            max-h-[90vh] overflow-y-auto
+            rounded-2xl shadow-2xl
+            bg-gradient-to-br from-white via-orange-50 to-orange-100
+            grid grid-cols-1 md:grid-cols-2
+          "
         >
           {/* CLOSE */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-20
-                       bg-white/90 hover:bg-white
-                       text-[#F4612B] p-2 rounded-full
-                       shadow transition"
+            className="absolute top-3 right-3 z-30
+                       bg-white text-[#F4612B]
+                       p-2 rounded-full shadow"
           >
             <FiX />
           </button>
 
-          {/* ================= LEFT INFO ================= */}
-          <div className="p-8 flex flex-col justify-between">
+          {/* LEFT INFO */}
+          <div className="p-5 sm:p-8 flex flex-col justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
                 Trusted Travel Experts
               </h2>
 
-              <p className="text-gray-600 text-sm leading-relaxed mb-6">
+              <p className="text-gray-600 text-sm leading-relaxed mb-5">
                 With <span className="font-semibold text-[#F4612B]">8+ years</span>{" "}
-                of experience, we offer tours, hotels & car rentals.
+                experience, we offer tours, hotels & car rentals.
               </p>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <Info icon={<FiBriefcase />} title="Tour Packages" text="Group & private tours" />
                 <Info icon={<FiHome />} title="Hotel Bookings" text="Budget to luxury stays" />
                 <Info icon={<Car size={20} />} title="Car Rentals" text="Vehicles with drivers" />
                 <Info icon={<FiClock />} title="Quick Support" text="Fast response team" />
               </div>
             </div>
+ <motion.a
+  href={`https://wa.me/919979922797?text=${whatsappMessage}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  whileHover={{ scale: 1.03 }}
+  whileTap={{ scale: 0.97 }}
+  className="
+    relative
+    w-full
+    mt-6
+    bg-green-500 hover:bg-green-600
+    text-white
+    py-3
+    rounded-xl
+    shadow-lg
+    overflow-hidden
+    flex items-center justify-center gap-3
+  "
+>
+  {/* SHINE EFFECT */}
+  <motion.div
+    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
+    initial={{ x: "-120%" }}
+    animate={{ x: "120%" }}
+    transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+  />
 
-            <a
-              href="https://wa.me/919979922797"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 flex items-center justify-center gap-3
-                         bg-green-500 hover:bg-green-600
-                         text-white py-3 rounded-xl
-                         font-semibold transition shadow"
-            >
-              <FaWhatsapp className="text-xl" />
-              Chat on WhatsApp
-            </a>
+  <FaWhatsapp className="text-xl relative z-10" />
+
+  <span className="text-sm sm:text-base font-semibold relative z-10">
+    Discuss on WhatsApp
+  </span>
+</motion.a>
+
           </div>
 
-          {/* ================= RIGHT FORM ================= */}
-          <div className="bg-white border-l">
-            <div className="bg-[#F4612B] px-6 py-4 text-white">
-              <h2 className="text-xl font-bold">Quick Enquiry</h2>
-              <p className="text-sm text-white/90">
+          {/* RIGHT FORM */}
+          <div className="bg-white border-t md:border-t-0 md:border-l">
+            <div className="bg-[#F4612B] px-5 py-4 text-white">
+              <h2 className="text-lg font-bold">Quick Enquiry</h2>
+              <p className="text-xs text-white/90">
                 Get expert help for your journey
               </p>
             </div>
 
-            <form className="p-6 space-y-4" onSubmit={handleSubmit}>
-              {/* NAME */}
-              <Input
-                icon={<FiUser />}
-                placeholder="Your Name"
-                value={form.name}
-                error={errors.name}
-                onChange={(v) => setForm({ ...form, name: v })}
-              />
+            <form className="p-5 space-y-4" onSubmit={handleSubmit}>
+              <Input icon={<FiUser />} placeholder="Your Name" value={form.name}
+                error={errors.name} onChange={(v) => setForm({ ...form, name: v })} />
 
-              {/* EMAIL */}
-              <Input
-                icon={<FiMail />}
-                placeholder="Email Address"
-                value={form.email}
-                error={errors.email}
-                onChange={(v) => setForm({ ...form, email: v })}
-              />
+              <Input icon={<FiMail />} placeholder="Email Address" value={form.email}
+                error={errors.email} onChange={(v) => setForm({ ...form, email: v })} />
 
-              {/* PHONE */}
-              <Input
-                icon={<FiPhone />}
-                placeholder="Phone Number"
-                value={form.phone}
-                error={errors.phone}
-                onChange={(v) => setForm({ ...form, phone: v })}
-              />
+              <Input icon={<FiPhone />} placeholder="Phone Number" value={form.phone}
+                error={errors.phone} onChange={(v) => setForm({ ...form, phone: v })} />
 
-              {/* MESSAGE */}
               <div className="relative">
                 <FiMessageSquare className="absolute left-3 top-3.5 text-gray-400" />
                 <textarea
                   rows="3"
                   placeholder="Your Message"
                   value={form.message}
-                  onChange={(e) =>
-                    setForm({ ...form, message: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, message: e.target.value })}
                   className="w-full pl-10 pr-4 py-3 border rounded-lg
                              focus:ring-2 focus:ring-[#F4612B]
                              outline-none resize-none"
@@ -205,13 +199,11 @@ export default function QuickEnquiryModal({ open, onClose }) {
               <motion.button
                 type="submit"
                 disabled={loading}
-                whileHover={!loading ? { scale: 1.03 } : {}}
-                whileTap={!loading ? { scale: 0.97 } : {}}
+                whileTap={{ scale: 0.97 }}
                 className={`w-full py-3 rounded-full font-semibold shadow transition
-                  ${
-                    loading
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-[#F4612B] text-white hover:bg-orange-600"
+                  ${loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#F4612B] text-white hover:bg-orange-600"
                   }`}
               >
                 {loading ? "Submitting..." : "Submit Enquiry"}
@@ -228,13 +220,13 @@ export default function QuickEnquiryModal({ open, onClose }) {
 
 function Info({ icon, title, text }) {
   return (
-    <div className="flex items-center gap-4">
-      <div className="p-3 rounded-xl bg-orange-50 text-[#F4612B] text-xl">
+    <div className="flex items-center gap-3">
+      <div className="p-3 rounded-xl bg-orange-50 text-[#F4612B] text-lg">
         {icon}
       </div>
       <div>
-        <h4 className="font-semibold text-gray-800">{title}</h4>
-        <p className="text-sm text-gray-500">{text}</p>
+        <h4 className="font-semibold text-gray-800 text-sm">{title}</h4>
+        <p className="text-xs text-gray-500">{text}</p>
       </div>
     </div>
   );
@@ -244,17 +236,13 @@ function Input({ icon, placeholder, value, onChange, error }) {
   return (
     <div>
       <div className="relative">
-        <span className="absolute left-3 top-3.5 text-gray-400">
-          {icon}
-        </span>
+        <span className="absolute left-3 top-3.5 text-gray-400">{icon}</span>
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           className={`w-full pl-10 pr-4 py-3 border rounded-lg
-            ${
-              error ? "border-red-500" : "border-gray-300"
-            }
+            ${error ? "border-red-500" : "border-gray-300"}
             focus:ring-2 focus:ring-[#F4612B] outline-none`}
         />
       </div>

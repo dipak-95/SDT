@@ -1,167 +1,205 @@
-import { useState } from "react";
-import Slider from "react-slick";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IoIosArrowDown,
   IoIosArrowBack,
   IoIosArrowForward
 } from "react-icons/io";
+import { FiCheckCircle } from "react-icons/fi";
 
 const BASE_URL = "https://sdt-7.onrender.com";
 
-/* ---------- SLIDER ARROWS ---------- */
-const PrevArrow = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="absolute left-2 top-1/2 -translate-y-1/2 z-10
-               bg-white/90 shadow p-2 rounded-full"
-  >
-    <IoIosArrowBack className="text-[#F4612B] text-xl" />
-  </button>
-);
-
-const NextArrow = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="absolute right-2 top-1/2 -translate-y-1/2 z-10
-               bg-white/90 shadow p-2 rounded-full"
-  >
-    <IoIosArrowForward className="text-[#F4612B] text-xl" />
-  </button>
-);
-
-const sliderSettings = {
-  dots: false,
-  infinite: true,
-  speed: 500,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  arrows: true,
-  prevArrow: <PrevArrow />,
-  nextArrow: <NextArrow />
-};
-
-/* ---------- MAIN ACCORDION ---------- */
 const DayAccordion = ({ data = [] }) => {
   const [openDay, setOpenDay] = useState(null);
 
-  /* ---------- SAFETY ---------- */
-  if (!Array.isArray(data) || data.length === 0) {
-    return (
-      <div className="py-12 text-center text-gray-500">
-        <p className="text-lg font-medium">
-          Itinerary details will be updated soon.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-
-      {/* ---------- HEADING ---------- */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        viewport={{ once: true }}
-        className="text-center mb-8"
-      >
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-          Tour Itinerary
-        </h2>
-
-        <div className="flex justify-center mt-2">
-          <span className="h-1 w-20 bg-[#F4612B] rounded-full"></span>
-        </div>
-
-        <p className="mt-3 text-sm md:text-base text-gray-500">
-          Explore a thoughtfully planned day-wise journey with sightseeing and stays.
-        </p>
-      </motion.div>
-
-      {/* ---------- DAYS ---------- */}
+    <div style={{ width: "100%" }}>
       {data.map((day) => (
-        <div
+        <AccordionItem
           key={day.day}
-          className="bg-white rounded-xl shadow-lg overflow-hidden"
-        >
-          {/* ---------- HEADER ---------- */}
-          <button
-            onClick={() =>
-              setOpenDay(openDay === day.day ? null : day.day)
-            }
-            className="w-full flex justify-between items-center
-                       px-5 py-4 text-left"
-          >
-            <h3 className="font-bold text-base text-gray-800">
-              Day {String(day.day).padStart(2, "0")}: {day.title}
-            </h3>
-
-            <IoIosArrowDown
-              className={`text-[#F4612B] text-xl transition-transform
-                ${openDay === day.day ? "rotate-180" : ""}`}
-            />
-          </button>
-
-          {/* ---------- CONTENT ---------- */}
-          <AnimatePresence>
-            console.log(
-            "day.day:", day.day,
-            "typeof:", typeof day.day,
-            "points:", day.points
-            );
-
-            {openDay === day.day && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.35 }}
-                className="overflow-hidden"
-              >
-                <div className="px-5 pb-6 space-y-4">
-
-                  {/* ---------- IMAGE SLIDER ---------- */}
-                  {Array.isArray(day.images) && day.images.length > 0 && (
-                    <div className="relative rounded-xl overflow-hidden">
-                      <Slider {...sliderSettings}>
-                        {day.images.map((img, i) => (
-                          <div key={i} className="h-[220px]">
-                            <img
-                              src={`${BASE_URL}${img}`}
-                              alt={`Day ${day.day}`}
-                              className="w-full h-full object-center rounded-xl"
-                            />
-                          </div>
-                        ))}
-                      </Slider>
-                    </div>
-                  )}
-
-                  {/* ---------- POINTS ---------- */}
-                  {Array.isArray(day.points) && (
-                    <ul className="ml-5 space-y-2 list-disc">
-                      {day.points.map((point, idx) => (
-                        <li
-                          key={idx}
-                          className="text-sm text-gray-600"
-                        >
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+          day={day}
+          isOpen={openDay === day.day}
+          onToggle={() =>
+            setOpenDay(openDay === day.day ? null : day.day)
+          }
+        />
       ))}
     </div>
   );
 };
 
-export default DayAccordion;
+const AccordionItem = ({ day, isOpen, onToggle }) => {
+  const sliderRef = useRef(null);
 
+  const scrollLeft = () => {
+    sliderRef.current.scrollBy({
+      left: -sliderRef.current.offsetWidth,
+      behavior: "smooth"
+    });
+  };
+
+  const scrollRight = () => {
+    sliderRef.current.scrollBy({
+      left: sliderRef.current.offsetWidth,
+      behavior: "smooth"
+    });
+  };
+
+  return (
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: 16,
+        boxShadow: "0 6px 16px rgba(0,0,0,0.08)",
+        marginBottom: 20,
+        overflow: "hidden"
+      }}
+    >
+      {/* HEADER */}
+      <button
+        onClick={onToggle}
+        style={{
+          width: "100%",
+          padding: 16,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "transparent",
+          border: "none",
+          cursor: "pointer"
+        }}
+      >
+        <strong>
+          Day {String(day.day).padStart(2, "0")}: {day.title}
+        </strong>
+
+        <IoIosArrowDown
+          style={{
+            color: "#F4612B",
+            fontSize: 20,
+            transition: "0.3s",
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)"
+          }}
+        />
+      </button>
+
+      {/* CONTENT */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            style={{ overflow: "hidden" }}
+          >
+            <div style={{ padding: 16 }}>
+
+              {/* IMAGE SLIDER */}
+              {day.images?.length > 0 && (
+                <div style={{ position: "relative", marginBottom: 14 }}>
+                  <button onClick={scrollLeft} style={arrowStyle("left")}>
+                    <IoIosArrowBack style={arrowIconStyle} />
+                  </button>
+                  <button onClick={scrollRight} style={arrowStyle("right")}>
+                    <IoIosArrowForward style={arrowIconStyle} />
+                  </button>
+
+                  <div
+                    ref={sliderRef}
+                    style={{
+                      display: "flex",
+                      gap: 12,
+                      overflowX: "auto",
+                      scrollSnapType: "x mandatory"
+                    }}
+                  >
+                    {day.images.map((img, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          minWidth: "100%",
+                          height: 220,
+                          scrollSnapAlign: "center",
+                          borderRadius: 14,
+                          overflow: "hidden"
+                        }}
+                      >
+                        <img
+                          src={`${BASE_URL}${img}`}
+                          alt=""
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover"
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* POINTS WITH ICON */}
+              <ul style={{ padding: 0, margin: 0 }}>
+                {day.points?.map((p, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 8,
+                      marginBottom: 10,
+                      listStyle: "none"
+                    }}
+                  >
+                    <FiCheckCircle
+                      style={{
+                        color: "#F4612B",
+                        fontSize: 16,
+                        marginTop: 3,
+                        flexShrink: 0
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 14,
+                        lineHeight: 1.6,
+                        color: "#444"
+                      }}
+                    >
+                      {p}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* ---------- INLINE ARROW STYLES ---------- */
+const arrowStyle = (side) => ({
+  position: "absolute",
+  top: "50%",
+  [side]: 8,
+  transform: "translateY(-50%)",
+  zIndex: 5,
+  background: "#fff",
+  borderRadius: "50%",
+  padding: 6,
+  border: "none",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+  cursor: "pointer"
+});
+
+const arrowIconStyle = {
+  color: "#F4612B",
+  fontSize: 20
+};
+
+export default DayAccordion;

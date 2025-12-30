@@ -448,7 +448,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 25 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center text-3xl md:text-4xl font-bold mb-10 text-[#f64f12] font-sans-serif"
+          className="text-center text-[26px] md:text-4xl font-bold mb-10 text-[#f64f12] font-sans-serif"
         >
           Popular Tours & Packages
         </motion.h2>
@@ -544,7 +544,7 @@ export default function Home() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center text-[#f4612b] text-3xl md:text-4xl font-bold mt-10 mb-14 font-sans-serif"
+          className="text-center text-[#f4612b] text-[26px] md:text-4xl font-bold mt-10 mb-14 font-sans-serif"
         >
           Popular Destinations We Offer To All
         </motion.h2>
