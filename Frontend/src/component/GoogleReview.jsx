@@ -157,14 +157,14 @@ function ReviewCard({ review, faded }) {
           <div className="mt-6 flex justify-between text-xs text-gray-500">
   <span className="flex items-center gap-0 text-[17px] font-medium">
   <span className="text-[#4285F4]">G</span>
-  <span className="text-[#EA4335] hidden sm:inline">o</span>
-  <span className="text-[#FBBC05] hidden sm:inline">o</span>
-  <span className="text-[#4285F4] hidden sm:inline">g</span>
-  <span className="text-[#34A853] hidden sm:inline">l</span>
-  <span className="text-[#EA4335] hidden sm:inline">e</span>
+  <span className="text-[#EA4335]  sm:inline">o</span>
+  <span className="text-[#FBBC05]  sm:inline">o</span>
+  <span className="text-[#4285F4]  sm:inline">g</span>
+  <span className="text-[#34A853]  sm:inline">l</span>
+  <span className="text-[#EA4335]  sm:inline">e</span>
 </span>
 
-            <span className="text-[15px]">{review.location}</span>
+            <span className="text-[13px] lg:text-[15px]">{review.location}</span>
           </div>
         </div>
       </div>
