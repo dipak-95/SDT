@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { toast } from "react-toastify";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
 
 /*
   type = "individual" | "group"
@@ -15,10 +15,12 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
       ? "/individual-tours/individualitinerary"
       : "/group-tours/itinerary";
 
+  /* ✅ ADD stay FIELD */
   const [daysData, setDaysData] = useState(
     Array.from({ length: totalDays }, (_, i) => ({
       day: i + 1,
       title: "",
+      stay: "",        // 👈 NEW
       points: "",
       images: null
     }))
@@ -26,7 +28,7 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
 
   const [loading, setLoading] = useState(false);
 
-  /* ---------------- UPDATE DAY (IMMUTABLE) ---------------- */
+  /* ---------------- UPDATE DAY ---------------- */
   const updateDay = (index, field, value) => {
     setDaysData(prev =>
       prev.map((d, i) =>
@@ -37,7 +39,6 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
 
   /* ---------------- SUBMIT ITINERARY ---------------- */
   const submitItinerary = async () => {
-    // 🔒 VALIDATION
     const invalid = daysData.some(
       d => !d.title.trim() || !d.points.trim()
     );
@@ -50,17 +51,17 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
     setLoading(true);
 
     try {
-      /* -------- FORMAT JSON -------- */
+      /* ✅ INCLUDE stay */
       const itineraryPayload = daysData.map(d => ({
         day: d.day,
         title: d.title.trim(),
+        stay: d.stay.trim(),        // 👈 SENT TO BACKEND
         points: d.points
           .split("\n")
           .map(p => p.trim())
           .filter(Boolean)
       }));
 
-      /* -------- FORM DATA -------- */
       const fd = new FormData();
       fd.append("tourId", tourId);
       fd.append("itinerary", JSON.stringify(itineraryPayload));
@@ -72,8 +73,6 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
           });
         }
       });
-
-      console.log("POSTING TO:", `${BASE_URL}${endpoint}`);
 
       await axios.post(`${BASE_URL}${endpoint}`, fd);
 
@@ -119,6 +118,7 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
                   Day {day.day}
                 </h3>
 
+                {/* DAY TITLE */}
                 <input
                   placeholder="Day Title"
                   value={day.title}
@@ -128,6 +128,17 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
                   className="w-full border p-2 rounded mb-3"
                 />
 
+                {/* 🏨 HOTEL / STAY (THIS WAS MISSING) */}
+                <input
+                  placeholder="Hotel / Stay (e.g. Hotel Somnath Inn)"
+                  value={day.stay}
+                  onChange={e =>
+                    updateDay(index, "stay", e.target.value)
+                  }
+                  className="w-full border p-2 rounded mb-3"
+                />
+
+                {/* POINTS */}
                 <textarea
                   placeholder="Points (one per line)"
                   value={day.points}
@@ -138,6 +149,7 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
                   className="w-full border p-2 rounded mb-3"
                 />
 
+                {/* IMAGES */}
                 <input
                   type="file"
                   multiple

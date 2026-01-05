@@ -4,7 +4,7 @@ import { Trash2, User, Phone, Mail, MessageSquare, Bell } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
 
 export default function QuickEnquiry() {
   const [enquiries, setEnquiries] = useState([]);
@@ -75,7 +75,7 @@ export default function QuickEnquiry() {
                 onClick={() => deleteEnquiry(e._id)}
                 className="flex gap-1 px-4 py-2 bg-red-100 text-red-700 rounded-lg"
               >
-                <Trash2 size={16} /> Delete
+                <Trash2 className="mt-1" size={16} /> Delete
               </button>
             </div>
           </motion.div>

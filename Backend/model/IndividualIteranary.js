@@ -13,6 +13,10 @@ const daySchema = new mongoose.Schema({
     type: [String],
     required: true
   },
+   stay: {
+  type: String,
+  default: ""
+},
   images: {
     type: [String],
     default: []

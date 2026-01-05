@@ -2,3 +2,18 @@
 .input {
   @apply w-full border px-3 py-2 rounded focus:outline-none focus:border-[#F4612B];
 }
+.input-field {
+  @apply w-full border border-gray-300 rounded-lg px-4 py-3
+    focus:outline-none focus:ring-2 focus:ring-[#F4612B]
+    focus:border-[#F4612B] transition;
+}
+/* Hide scrollbar but keep scroll */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE & Edge */
+  scrollbar-width: none;     /* Firefox */
+}

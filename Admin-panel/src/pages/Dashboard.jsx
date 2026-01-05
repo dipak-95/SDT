@@ -75,7 +75,7 @@ const Dashboard = () => {
       setLoading(true);
 
       const res = await axios.get(
-        "https://sdt-7.onrender.com/Dashboard/dashboard-stats"
+        "http://localhost:1005/Dashboard/dashboard-stats"
       );
 
       setStats(res.data);

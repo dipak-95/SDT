@@ -40,7 +40,8 @@ exports.saveFullItinerary = async (req, res) => {
       day: dayObj.day,
       title: dayObj.title,
       points: dayObj.points,
-      images: imagesMap[dayObj.day] || []
+      images: imagesMap[dayObj.day] || [],
+      stay: dayObj.stay
     }));
 
     const saved = await IndividualTourItinerary.findOneAndUpdate(

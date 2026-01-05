@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import TourCard from "../component/TourCard";
+import TourCardSkeleton from "../component/TourCardSkeleton";
 
 const IndividualTour = () => {
   const [tours, setTours] = useState([]);
-   const BASE_URL = "https://sdt-7.onrender.com";
+   const [loading, setLoading] = useState(true);
+   const BASE_URL = "http://localhost:1005";
 
   useEffect(() => {
     axios.get(`${BASE_URL}/individual-tours`)
@@ -89,12 +91,19 @@ const IndividualTour = () => {
   sm:grid-cols-2
   lg:grid-cols-3
   gap-8
-  px-6 md:px-16 lg:px-32
+  px-6 md:px-16 lg:px-12
   items-stretch
-">
-          {tours.map(tour => (
-            <TourCard key={tour._id} tour={tour}  type="individual" />
-          ))}
+">{/* ================= SKELETON ================= */}
+          {loading &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <TourCardSkeleton key={i} />
+            ))}
+
+          {/* ================= TOUR CARDS ================= */}
+          {!loading &&
+            tours.map(tour => (
+              <TourCard key={tour._id} tour={tour} type="group" />
+            ))}
         </div>
       </div>
     </div>

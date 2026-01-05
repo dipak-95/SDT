@@ -48,7 +48,8 @@ const Sidebar = ({ open, setOpen }) => {
         <Menu link="/admin/hotel-booking" icon={<ClipboardList />} text="Hotel Booking" setOpen={setOpen} />
         <Menu link="/admin/ContactEnquiry" icon={<MessageSquare />} text="Contact Enquiry" setOpen={setOpen} />
         <Menu link="/admin/QuickEnquiry" icon={<Bell />} text="Quick Enquiry" setOpen={setOpen} />
-        <Menu link="/admin/car-bookings" icon={<CarTaxiFront />} text="Car Rental" setOpen={setOpen} />
+        <Menu link="/admin/Car" icon={<CarTaxiFront />} text="Car Rental" setOpen={setOpen} />
+        <Menu link="/admin/car-bookings" icon={<ClipboardList />} text="CarRental Booking" setOpen={setOpen} />
       </nav>
     </div>
   );

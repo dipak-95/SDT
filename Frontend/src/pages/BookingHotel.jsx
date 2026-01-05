@@ -1,15 +1,18 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import { CalendarDays, BedDouble } from "lucide-react";
 
-const API_BASE = "https://sdt-7.onrender.com";
+import HotelCancel from "../component/HotelCancel";
+
+const API_BASE = "http://localhost:1005";
 
 export default function BookingHotel() {
-  const { hotelId } = useParams();
   const { state } = useLocation();
   const navigate = useNavigate();
 
@@ -17,7 +20,11 @@ export default function BookingHotel() {
   const room = state?.room;
 
   const [bookedDates, setBookedDates] = useState([]);
+  const [priceMap, setPriceMap] = useState({});
   const [loading, setLoading] = useState(false);
+  const [availableroom, setavailableRoom] = useState(null);
+
+
 
   const [form, setForm] = useState({
     name: "",
@@ -28,120 +35,102 @@ export default function BookingHotel() {
     rooms: 1
   });
 
-  /* 🔒 PROTECT PAGE */
+  /* ===== PROTECT ===== */
   useEffect(() => {
-    if (!hotel || !room) {
-      navigate("/hotels");
-    }
+    if (!hotel || !room) navigate("/hotels");
   }, [hotel, room, navigate]);
 
-  /* 📅 FETCH BOOKED DATES */
+  /* ===== BOOKED DATES ===== */
   useEffect(() => {
     if (!hotel?._id) return;
 
     axios
-      .get(`${API_BASE}/bookings/booked-dates/${hotel._id}/${room.type}`)
-      .then(res => {
-        setBookedDates(res.data.map(d => new Date(d)));
+      .get(`${API_BASE}/hotels/calendar`, {
+        params: { hotelId: hotel._id, roomType: room.type }
       })
+      .then(res => setBookedDates(res.data.map(d => new Date(d))))
       .catch(() => toast.error("Failed to load booked dates"));
-  }, [hotel?._id]);
+  }, [hotel?._id, room?.type]);
 
-  if (!hotel || !room) return null;
+  /* ===== MONTH PRICES ===== */
+  useEffect(() => {
+    if (!hotel?._id) return;
 
-  /* 🏨 AVAILABLE ROOMS */
-  const availableRooms =
-    room.totalRooms - room.bookedRooms;
+    const ref = form.checkIn || new Date();
 
-  /* 📆 CALENDAR LOGIC */
-  const today = new Date();
+    axios
+      .get(`${API_BASE}/hotels/month-prices`, {
+        params: {
+          hotelId: hotel._id,
+          roomType: room.type,
+          month: ref.getMonth() + 1,
+          year: ref.getFullYear()
+        }
+      })
+      .then(res => {
+        const map = {};
+        (res.data.prices || res.data).forEach(p => {
+          map[new Date(p.date).toDateString()] = Number(p.price);
+        });
+        setPriceMap(map);
+      })
+      .catch(() => toast.error("Failed to load prices"));
+  }, [hotel?._id, room?.type, form.checkIn]);
 
-  const disabledDays = [
-    { before: today },
-    ...bookedDates
-  ];
+  useEffect(() => {
+    if (!form.checkIn || !form.checkOut) return;
 
-  /* ❌ CHECK RANGE OVERLAP */
-  const hasBlockedDate = useMemo(() => {
-    if (!form.checkIn || !form.checkOut) return false;
+    axios
+      .get(`${API_BASE}/hotels/availability`, {
+        params: {
+          hotelId: hotel._id,
+          roomType: room.type,
+          checkIn: form.checkIn,
+          checkOut: form.checkOut
+        }
+      })
+      .then(res => {
+        setavailableRoom(res.data.availableRooms);
+      })
+      .catch(err => {
+        console.error(err);
+        toast.error("Failed to fetch available rooms");
+      });
+  }, [form.checkIn, form.checkOut, hotel._id, room.type]);
 
-    let d = new Date(form.checkIn);
-    while (d < form.checkOut) {
-      if (
-        bookedDates.some(
-          bd => bd.toDateString() === d.toDateString()
-        )
-      ) {
-        return true;
-      }
-      d.setDate(d.getDate() + 1);
-    }
-    return false;
-  }, [form.checkIn, form.checkOut, bookedDates]);
 
-  /* 🌙 NIGHTS */
+
+  const getPrice = (date) =>
+    priceMap[date.toDateString()] ?? room.price;
+
   const nights = useMemo(() => {
     if (!form.checkIn || !form.checkOut) return 0;
-    return (
-      (form.checkOut - form.checkIn) /
-      (1000 * 60 * 60 * 24)
-    );
+    return (form.checkOut - form.checkIn) / 86400000;
   }, [form.checkIn, form.checkOut]);
 
-  /* 💰 BILL */
-  const totalAmount =
-    nights > 0 ? nights * room.price * form.rooms : 0;
+  const availableRooms = useMemo(() => {
+    if (!room) return 0;
+    return Math.max(0, room.totalRooms - room.bookedRooms);
+  }, [availableroom]);
 
-  /* ✅ CONFIRM BOOKING */
 
-  //   if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
-  //     toast.error("Please fill all required fields");
-  //     return;
-  //   }
+  const totalAmount = useMemo(() => {
+    if (!form.checkIn || !form.checkOut) return 0;
+    let sum = 0;
+    let d = new Date(form.checkIn);
+    while (d < form.checkOut) {
+      sum += getPrice(d);
+      d.setDate(d.getDate() + 1);
+    }
+    return sum * Number(form.rooms || 1);
+  }, [form.checkIn, form.checkOut, form.rooms, priceMap]);
 
-  //   if (hasBlockedDate) {
-  //     toast.error("Selected dates include already booked days");
-  //     return;
-  //   }
+  const disabledDays = [{ before: new Date() }, ...bookedDates];
 
-  //   if (form.rooms > availableRooms) {
-  //     toast.error("Not enough rooms available");
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-
-  //     await axios.post(`${API_BASE}/bookings/create`, {
-  //       hotelId: hotel._id,
-  //       roomType: room.type,
-  //       roomsBooked: form.rooms,
-  //       checkIn: form.checkIn,
-  //       checkOut: form.checkOut,
-  //       user: {
-  //         name: form.name,
-  //         email: form.email,
-  //         phone: form.phone
-  //       }
-  //     });
-
-  //     toast.success("Booking confirmed 🎉");
-  //     navigate("/hotels");
-  //   } catch (err) {
-  //     toast.error("Booking failed");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
+  /* ===== BOOK ===== */
   const confirmBooking = async () => {
     if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
-      toast.error("Please fill all required fields");
-      return;
-    }
-
-    if (hasBlockedDate) {
-      toast.error("Selected dates include already booked days");
+      toast.error("Fill all required fields");
       return;
     }
 
@@ -153,8 +142,7 @@ export default function BookingHotel() {
     try {
       setLoading(true);
 
-      // 1️⃣ CREATE HOTEL BOOKING (EXISTING)
-      const res = await axios.post(`${API_BASE}/bookings/create`, {
+      await axios.post(`${API_BASE}/bookings/create`, {
         hotelId: hotel._id,
         roomType: room.type,
         roomsBooked: form.rooms,
@@ -167,245 +155,320 @@ export default function BookingHotel() {
         }
       });
 
-      // 🔥 2️⃣ CREATE ORDER FOR DASHBOARD
-      await axios.post(`${API_BASE}/order/create`, {
-        serviceType: "hotel",
-        status: "confirmed",          // IMPORTANT
-        amount: Number(res.data.totalAmount || room.price * form.rooms)
-      });
-
       toast.success("Booking confirmed 🎉");
-      navigate("/hotels");
-
+      navigate("/admin/hotel-booking");
     } catch (err) {
-      console.error(err);
-      toast.error("Booking failed");
+      toast.error(err.response?.data?.msg || "Booking failed");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
 
+
+  return (
 
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-8xl mx-auto px-0 py-0"
+      className="max-w-8xl mx-auto p-0"
     >
-      <div className="relative h-[65vh]">
+      {/* ================= HERO ================= */}
+      <div className="relative h-[65vh] w-full">
         <img
-          src="/BookCar.webp"
-          alt="Car Booking"
-          className="absolute inset-0 w-full h-full object-center"
+          src="/BookHotel.webp"
+          alt={hotel.name}
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10 h-full flex items-center justify-center text-white text-center">
-          <h1 className="text-4xl md:text-5xl font-bold">
-            Book Your Hotel
-            <span className="block text-orange-500 mt-2 text-[25px]">
-              {hotel.name}
-            </span>
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* CENTERED CONTENT */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-[#f46b12]">
+            {hotel.name}
           </h1>
+
+
+
+          <p className="flex items-center gap-1 mt-3 text-sm md:text-base">
+            <MapPin size={18} className="text-[#f46b12]" />
+            {hotel.location}
+          </p>
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-10 max-sm:p-2.5">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* LEFT */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow p-6 border space-y-5">
 
-        {/* ================= LEFT ================= */}
-        <div className="lg:m-10 lg:col-span-2 bg-white rounded-2xl shadow p-6 space-y-6">
+          {/* HOTEL INFO + ROOMS AVAILABLE */}
+          <div className="flex items-start justify-between">
 
-          {/* HOTEL INFO */}
-          <div className="border-b pb-4">
-            <h2 className="text-xl font-bold">{hotel.name}</h2>
-            <p className="flex items-center gap-1 text-gray-500 text-sm">
-              <MapPin size={16} className="text-[#F4612B]" />
-              {hotel.location}
-            </p>
-            <p className="mt-2 text-sm">
-              Room Type:
-              <span className="ml-1 font-semibold text-[#F4612B]">
-                {room.type}
-              </span>
-            </p>
-            <p className="text-sm">
-              Available Rooms:
-              <span
-                className={`ml-1 font-semibold ${availableRooms === 0
-                    ? "text-red-500"
-                    : "text-green-600"
-                  }`}
-              >
-                {availableRooms}
-              </span>
-            </p>
-          </div>
+            {/* LEFT CONTENT */}
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">
+                bjkb
+              </h2>
 
-          {/* USER INFO */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input
-              className="input"
-              placeholder="Full Name"
-              value={form.name}
-              onChange={e =>
-                setForm({ ...form, name: e.target.value })
-              }
-            />
-            <input
-              className="input"
-              placeholder="Email"
-              value={form.email}
-              onChange={e =>
-                setForm({ ...form, email: e.target.value })
-              }
-            />
-            <input
-              className="input"
-              placeholder="Phone"
-              value={form.phone}
-              onChange={e =>
-                setForm({ ...form, phone: e.target.value })
-              }
-            />
-          </div>
-
-          {/* 📅 CALENDAR */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-            {/* CHECK-IN */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white border rounded-xl p-4 shadow-sm"
-            >
-              <p className="text-sm font-semibold mb-3">
-                Check-in Date
+              <p className="flex items-center gap-1 text-sm text-gray-500 mt-1">
+                <MapPin size={14} className="text-[#F4612B]" />
+                nkn
               </p>
-              <DayPicker
-                mode="single"
-                selected={form.checkIn}
-                onSelect={date =>
-                  setForm({ ...form, checkIn: date, checkOut: null })
-                }
-                disabled={disabledDays}
-                className="rdp-sm"
-                modifiersClassNames={{
-                  disabled:
-                    "opacity-40 blur-[1px] cursor-not-allowed",
-                  selected:
-                    "bg-[#F4612B] text-white"
-                }}
-              />
-            </motion.div>
+            </div>
 
-            {/* CHECK-OUT */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white border rounded-xl p-4 shadow-sm"
+            {/* RIGHT BADGE */}
+            <span
+              className="
+      flex items-center gap-2
+      px-4 py-1.5
+      text-sm font-semibold
+      text-[#F4612B]
+      bg-[#F4612B]/20
+      rounded-full
+      whitespace-nowrap
+    "
             >
-              <p className="text-sm font-semibold mb-3">
-                Check-out Date
-              </p>
-              <DayPicker
-                mode="single"
-                selected={form.checkOut}
-                onSelect={date =>
-                  setForm({ ...form, checkOut: date })
-                }
-                disabled={[
-                  ...disabledDays,
-                  { before: form.checkIn || today }
-                ]}
-                className="rdp-sm"
-                modifiersClassNames={{
-                  disabled:
-                    "opacity-40 blur-[1px] cursor-not-allowed",
-                  selected:
-                    "bg-[#F4612B] text-white"
-                }}
+              <BedDouble size={16} />
+              {room.type}
+            </span>
+
+
+          </div>
+
+          {/* USER DETAILS */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Guest Details</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={form.name}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2
+                   focus:outline-none focus:ring-2
+                   focus:ring-[#f46b12]"
               />
-            </motion.div>
+
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                value={form.phone}
+                onChange={e => setForm({ ...form, phone: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2
+                   focus:outline-none focus:ring-2
+                   focus:ring-[#f46b12]"
+              />
+
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={form.email}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+                className="w-full border rounded-lg px-4 py-2
+                   focus:outline-none focus:ring-2
+                   focus:ring-[#f46b12]"
+              />
+            </div>
           </div>
 
-          {/* LEGEND */}
-          <div className="flex gap-4 text-xs text-gray-500">
-            <div className="flex items-center gap-1">
-              <span className="w-3 h-3 bg-[#F4612B] rounded"></span>
-              Selected
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-3 h-3 bg-gray-300 rounded blur-[1px]"></span>
-              Booked
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="w-3 h-3 bg-gray-100 rounded"></span>
-              Available
-            </div>
+          {/* DATE PICKERS */}
+
+
+          <div className="flex justify-end">
+            <span
+              className="
+      flex items-center gap-2
+      text-sm font-semibold
+      px-5 py-2 rounded-full
+      bg-[#f46b12]/20 text-[#f46b12]
+      transition-all duration-300
+    "
+            >
+              {availableroom === null ? (
+                <>
+                  <CalendarDays size={16} />
+                  Select dates
+                </>
+              ) : (
+                <>
+                  <BedDouble size={16} />
+                  {availableroom} rooms available
+                </>
+              )}
+            </span>
           </div>
 
-          {/* ROOMS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <DayPicker
+              className="border border-[#f46b12] rounded-2xl lg:pl-7 max-sm:pl-0 md:pl-0"
+              mode="single"
+              selected={form.checkIn}
+              onSelect={d => setForm({ ...form, checkIn: d, checkOut: null })}
+              disabled={disabledDays}
+              formatters={{
+                formatDay: (date) => (
+                  <div className="flex flex-col items-center justify-center leading-none">
+                    <span className="text-[13px] text-[#f46b12] font-semibold">
+                      {date.getDate()}
+                    </span>
+                    <span className="text-[10px] font-medium">
+                      ₹{getPrice(date)}
+                    </span>
+                  </div>
+                )
+              }}
 
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-gray-700">
+            />
+            <DayPicker
+              mode="single"
+              className="border border-[#f46b12] rounded-2xl lg:pl-7 max-sm:pl-0 md:pl-0"
+              selected={form.checkOut}
+              onSelect={d => setForm({ ...form, checkOut: d })}
+              disabled={[...disabledDays, { before: form.checkIn }]}
+              formatters={{
+                formatDay: (date) => (
+                  <div className="flex flex-col items-center justify-center leading-none">
+                    <span className="text-[13px] text-[#f46b12] font-semibold">
+                      {date.getDate()}
+                    </span>
+                    <span className="text-[10px] font-medium">
+                      ₹{getPrice(date)}
+                    </span>
+                  </div>
+                )
+              }}
+
+            />
+          </div>
+
+
+          {/* ROOMS INPUT */}
+          <div className="max-w-4xl">
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
               Number of Rooms
             </label>
 
             <input
+              className="w-full border rounded-lg px-4 py-2  focus:outline-none focus:ring-2 focus:ring-[#f46b12]"
               type="number"
-              min={0}
-              max={availableRooms}
-              className="input w-40"
-              value={form.rooms}                 // 👈 string allowed
-              onChange={(e) => {
-                const value = e.target.value;
-
-                // allow empty input
-                if (value === "") {
-                  setForm({ ...form, rooms: "" });
-                } else {
-                  setForm({ ...form, rooms: value }); // keep as string
+              min={1}
+              max={availableroom || 1}
+              value={form.rooms}
+              onChange={e => {
+                const val = Number(e.target.value);
+                if (!isNaN(val)) {
+                  setForm({
+                    ...form,
+                    rooms: Math.min(availableroom || 1, Math.max(1, val))
+                  });
                 }
               }}
             />
-            <p className="text-xs text-gray-500">
-              Maximum available: <span className="font-semibold">{availableRooms}</span> rooms
+
+
+
+            <p className="text-xs text-gray-500 mt-1">
+              Maximum {availableroom ?? 0} rooms allowed
+            </p>
+          </div>
+
+        </div>
+        {/* RIGHT */}
+        <div className="space-y-6">
+
+          {/* ================= BOOKING SUMMARY ================= */}
+          <div className="bg-white rounded-xl shadow border overflow-hidden">
+            <div className="p-6">
+              <h2 className="text-lg font-bold mb-4">Booking Summary</h2>
+
+              {form.checkIn && form.checkOut && (
+                <>
+                  {/* DATE WISE PRICE */}
+                  <div className="text-sm space-y-2">
+                    {(() => {
+                      let d = new Date(form.checkIn);
+                      const rows = [];
+                      while (d < form.checkOut) {
+                        rows.push(
+                          <div
+                            key={d.toDateString()}
+                            className="flex justify-between text-gray-600"
+                          >
+                            <span>{d.toDateString()}</span>
+                            <span>₹{getPrice(d)}</span>
+                          </div>
+                        );
+                        d.setDate(d.getDate() + 1);
+                      }
+                      return rows;
+                    })()}
+                  </div>
+
+                  {/* TOTAL */}
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-red-300">
+                    <span className="font-semibold text-[#F4612B]">Total</span>
+                    <span className="font-bold text-[#F4612B] text-lg">
+                      ₹{totalAmount}
+                    </span>
+                  </div>
+                </>
+              )}
+
+              {/* CONFIRM BUTTON */}
+              <button
+                onClick={confirmBooking}
+                disabled={loading || totalAmount === 0}
+                className="mt-6 w-full bg-[#F4612B] text-white py-3 rounded-lg
+                   font-semibold text-sm hover:bg-[#e85f0f]
+                   transition disabled:opacity-60"
+              >
+                {loading ? "Booking..." : "Confirm Booking"}
+              </button>
+            </div>
+          </div>
+
+          {/* ================= CANCELLATION POLICY ================= */}
+          <div className="bg-white rounded-xl shadow border p-6">
+            <h3 className="text-lg font-bold text-center text-[#F4612B] mb-5">
+              Cancellation Policy
+            </h3>
+
+            {/* FULL REFUND */}
+            <div className="flex gap-3 p-4 rounded-lg bg-orange-50 border-l-4 border-[#F4612B] mb-4">
+              <span className="text-[#F4612B] font-bold">✓</span>
+              <p className="text-sm text-gray-700">
+                Cancel the hotel <b>7 days or more</b> before the departure date and get
+                a <span className="text-green-600 font-semibold">100% refund</span>.
+              </p>
+            </div>
+
+            {/* PARTIAL REFUND */}
+            <div className="flex gap-3 p-4 rounded-lg bg-red-50 border-l-4 border-red-400 mb-4">
+              <span className="text-red-500 font-bold">!</span>
+              <p className="text-sm text-gray-700">
+                If you cancel the hotel <b>7 days or less</b> before departure,
+                <span className="text-red-600 font-semibold">
+                  {" "}
+                  30% of the total amount
+                </span>{" "}
+                will be deducted as cancellation charges.
+              </p>
+            </div>
+
+            <p className="text-xs text-center text-gray-500">
+              Refunds will be processed within <b>7–10 working days</b> to the original
+              payment method.
             </p>
           </div>
 
         </div>
 
-        {/* ================= RIGHT ================= */}
-        <div className="bg-white rounded-2xl shadow p-6 h-fit lg:mt-10 mr-5 lg:ml-[-30px] m-5 ">
-          <h2 className="text-xl font-bold mb-4">
-            Booking Summary
-          </h2>
 
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span>Room Price</span>
-              <span>₹{room.price}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Nights</span>
-              <span>{nights}</span>
-            </div>
-            <div className="flex justify-between font-bold text-[#F4612B]">
-              <span>Total</span>
-              <span>₹{totalAmount}</span>
-            </div>
-          </div>
 
-          <button
-            onClick={confirmBooking}
-            disabled={loading || hasBlockedDate || totalAmount === 0}
-            className="mt-6 w-full bg-[#F4612B] text-white py-3 rounded-lg
-                       disabled:opacity-50"
-          >
-            {loading ? "Booking..." : "Confirm Booking"}
-          </button>
-        </div>
       </div>
     </motion.div>
   );

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Edit, Trash2 } from "lucide-react";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
 
 const AdminIndividualIteranary = ({ tourId }) => {
   const [days, setDays] = useState([]);

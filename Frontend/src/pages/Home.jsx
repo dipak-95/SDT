@@ -21,19 +21,19 @@ export default function Home() {
     {
       id: 1,
       title: "Years Experience",
-      value: "12+",
+      value: "8+",
       icon: <Award size={28} />,
     },
     {
       id: 2,
       title: "Happy Travellers",
-      value: "25,000+",
+      value: "18,000+",
       icon: <Users size={28} />,
     },
     {
       id: 3,
       title: "Tours Completed",
-      value: "1,200+",
+      value: "300+",
       icon: <MapPin size={28} />,
     },
     {
@@ -61,13 +61,21 @@ export default function Home() {
 
   const navigate = useNavigate();
   const [openEnquiry, setOpenEnquiry] = useState(false);
-  const handleBookTour = (tour) => {
-    if (tour.type === "group") {
-      navigate("/tours/group");
-    } else if (tour.type === "individual") {
-      navigate("/tours/indivisual");
-    }
-  };
+const handleBookTour = (tour) => {
+  const tourId = tour?._id || tour?.id;
+
+  if (!tourId) {
+    console.error("Tour ID missing", tour);
+    return;
+  }
+
+  if (tour.type === "group") {
+    navigate(`/group-tour/${tourId}`);
+  } else if (tour.type === "individual") {
+    navigate(`/individual-tour/${tourId}`);
+  }
+};
+
   const activityRoutes = {
     "Religious Sites": "/activities/Relligious-site",
     "Beaches": "/activities/Beaches",
@@ -108,6 +116,7 @@ export default function Home() {
   /* ---- Tours Data ---- */
   const tours = [
     {
+      id:"694e240af79325fb3586dd9e",
       title: "Saurashtra Darshan Group Tour",
       type: "group",
       images: ["/somnathmandir.webp", "/statueofunity2.webp", "/Dwarkamandir.webp", "/junglesafari.webp"],
@@ -122,6 +131,7 @@ export default function Home() {
       newPrice: "17000",
     },
     {
+      id:"694e2818f79325fb3586ddcd",
       title: "Saurashtra Darshan Group Tour",
       type: "group",
       images: ["/narmadaAarti2.webp", "/AkshardhamTemple.webp", "/GomtiGhat.webp", "/NagvaBeachDiu.webp"],
@@ -136,10 +146,11 @@ export default function Home() {
       newPrice: "16200",
     },
     {
-      title: "Saurashtra Darshan Indivisual Tour",
+      id:"694e2bc8f79325fb3586dde2",
+      title: "Saurashtra Darshan group Tour",
       type: "individual",
       images: ["/BetDwarka.webp", "/gangeshvermahadev.webp", "/shivVillaresort.webp", "/Nageshwar.webp"],
-      days: "5 Days / 4 Night",
+      days: "7 Days / 6 Night",
       location: "Gujarat",
       hotel: true,
       meals: true,
@@ -150,9 +161,10 @@ export default function Home() {
       newPrice: "17000",
     },
     {
-      title: "Gujarat Desert-Beach Tour",
-      type: "group",
-      images: ["/ran.webp", "/Mandavibeach2.webp", "/Somnathbeach.webp", "/shivrajpurbeach.webp"],
+      id:"694e3ba8f79325fb3586de0e",
+      title: "Saurashtra Darshan Individual Tour",
+      type: "individual",
+      images: ["/DiuFort.webp", "/junglesafari.webp", "/somnathmandir.webp", "/shivVillaresort.webp"],
       days: "5 Days / 4 Night",
       location: "Gujarat",
       hotel: true,

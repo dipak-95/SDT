@@ -11,7 +11,7 @@ import {
   CalendarDays
 } from "lucide-react";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
 
 export default function AdminContactEnquiry() {
   const [enquiries, setEnquiries] = useState([]);

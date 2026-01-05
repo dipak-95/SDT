@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import HotelCard from "../component/HotelCard";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
-const API_BASE = "https://sdt-7.onrender.com";
+import HotelCard from "../component/HotelCard";
+import HotelCardSkeleton from "../component/HotelCardSkeleton";
+
+const API_BASE = "http://localhost:1005";
 
 export default function Hotel() {
   const { city } = useParams();
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  /* ================= HERO IMAGES ================= */
   const CITY_HERO_IMAGES = {
     dwarka: "/Hero2.jpg",
     somnath: "/Hero5.jpg",
@@ -22,12 +25,14 @@ export default function Hotel() {
 
   const DEFAULT_HERO = "/Hero.jpg";
 
+  /* ================= FETCH HOTELS ================= */
   useEffect(() => {
     fetchHotels();
   }, []);
 
   const fetchHotels = async () => {
     try {
+      setLoading(true);
       const res = await axios.get(`${API_BASE}/hotels`);
       setHotels(res.data);
     } catch (err) {
@@ -37,14 +42,16 @@ export default function Hotel() {
     }
   };
 
+  /* ================= FILTER BY CITY ================= */
   const filteredHotels = city
     ? hotels.filter(
-        (h) =>
+        h =>
           h.city &&
           h.city.trim().toLowerCase() === city.trim().toLowerCase()
       )
     : hotels;
 
+  /* ================= HERO IMAGE ================= */
   const heroImage = city
     ? CITY_HERO_IMAGES[city.toLowerCase()] || DEFAULT_HERO
     : DEFAULT_HERO;
@@ -84,32 +91,34 @@ export default function Hotel() {
         </motion.div>
       </motion.div>
 
-      {/* ================= LOADING ================= */}
-      {loading && (
-        <p className="text-center py-10 text-gray-500">
-          Loading hotels...
-        </p>
-      )}
-
-      {/* ================= EMPTY ================= */}
-      {!loading && filteredHotels.length === 0 && (
-        <p className="text-center py-10 text-gray-500">
-          No hotels found in this city
-        </p>
-      )}
-
       {/* ================= HOTEL GRID ================= */}
       <div className="m-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredHotels.map((hotel, index) => (
-          <motion.div
-            key={hotel._id}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.08 }}
-          >
-            <HotelCard hotel={hotel} />
-          </motion.div>
-        ))}
+
+        {/* SKELETON LOADER */}
+        {loading &&
+          Array.from({ length: 6 }).map((_, i) => (
+            <HotelCardSkeleton key={i} />
+          ))}
+
+        {/* EMPTY STATE */}
+        {!loading && filteredHotels.length === 0 && (
+          <p className="col-span-full text-center py-12 text-gray-500">
+            No hotels found in this city
+          </p>
+        )}
+
+        {/* HOTEL CARDS */}
+        {!loading &&
+          filteredHotels.map((hotel, index) => (
+            <motion.div
+              key={hotel._id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.08 }}
+            >
+              <HotelCard hotel={hotel} />
+            </motion.div>
+          ))}
       </div>
     </div>
   );

@@ -15,6 +15,10 @@ const daySchema = new mongoose.Schema({
     required: true,
     validate: [arr => arr.length > 0, "At least one point is required"]
   },
+  stay: {
+    type: String,
+    default: ""
+  },
   images: {
     type: [String],
     default: []

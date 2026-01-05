@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import TourCancel from "../component/TourCancel";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
+
+
 
 /* ===== HELPER ===== */
 const getDaysNights = (startDate, endDate) => {
@@ -17,6 +20,7 @@ const getDaysNights = (startDate, endDate) => {
 };
 
 export default function BookTour() {
+
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const type = searchParams.get("type"); // group | individual
@@ -32,9 +36,10 @@ export default function BookTour() {
     name: "",
     email: "",
     phone: "",
-    persons: 1,
+    persons: "",
     note: ""
   });
+
 
   const [errors, setErrors] = useState({});
 
@@ -94,7 +99,7 @@ export default function BookTour() {
     paymentType === "full" ? 0 : totalAmount - advanceAmount;
 
   /* ===== SUBMIT ===== */
-  // const handleSubmit = async () => {
+
   //   if (!validateForm()) {
   //     toast.error("Please fix form errors");
   //     return;
@@ -139,59 +144,59 @@ export default function BookTour() {
   //   }
   // };
   const handleSubmit = async () => {
-  if (!validateForm()) {
-    toast.error("Please fix form errors");
-    return;
-  }
+    if (!validateForm()) {
+      toast.error("Please fix form errors");
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    // 1️⃣ CREATE BOOKING (EXISTING)
-    await axios.post(`${BASE_URL}/bookingtour/book-tour`, {
-      userName: form.name,
-      email: form.email,
-      phone: form.phone,
-      persons: form.persons,
-      tourId: tour._id,
-      tourTitle: tour.title,
-      tourType: type, // group | individual
-      pricePerPerson,
-      totalAmount,
-      paymentType,
-      payableAmount,
-      remainingAmount,
-      note: form.note
-    });
+    try {
+      // 1️⃣ CREATE BOOKING (EXISTING)
+      await axios.post(`${BASE_URL}/bookingtour/book-tour`, {
+        userName: form.name,
+        email: form.email,
+        phone: form.phone,
+        persons: form.persons,
+        tourId: tour._id,
+        tourTitle: tour.title,
+        tourType: type, // group | individual
+        pricePerPerson,
+        totalAmount,
+        paymentType,
+        payableAmount,
+        remainingAmount,
+        note: form.note
+      });
 
-    // 2️⃣ CREATE ORDER (🔥 THIS WAS MISSING)
-    await axios.post(`${BASE_URL}/order/create`, {
-      serviceType: type,           // ✅ USE `type`, NOT tour.type
-      amount: Number(payableAmount) // ✅ number
-    });
+      // 2️⃣ CREATE ORDER (🔥 THIS WAS MISSING)
+      await axios.post(`${BASE_URL}/order/create`, {
+        serviceType: type,           // ✅ USE `type`, NOT tour.type
+        amount: Number(payableAmount) // ✅ number
+      });
 
-    toast.success(
-      "Booking submitted! Our team will contact you shortly 📞"
-    );
+      toast.success(
+        "Booking submitted! Our team will contact you shortly 📞"
+      );
 
-    // reset form
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      persons: 1,
-      note: ""
-    });
-    setErrors({});
-    setPaymentType("advance");
+      // reset form
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        persons: 1,
+        note: ""
+      });
+      setErrors({});
+      setPaymentType("advance");
 
-  } catch (error) {
-    console.error(error);
-    toast.error("Booking failed ❌");
-  } finally {
-    setLoading(false);
-  }
-};
+    } catch (error) {
+      console.error(error);
+      toast.error("Booking failed ❌");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!tour) {
     return (
@@ -200,7 +205,10 @@ export default function BookTour() {
       </div>
     );
   }
-  
+
+  const isPersonsInvalid =
+    form.persons === "" || Number(form.persons) < 2;
+
   return (
     <>
       {/* ===== HERO ===== */}
@@ -237,33 +245,27 @@ export default function BookTour() {
               Traveller Details
             </h2>
 
-            <div className="space-y-4">
+            {/* ===== FORM FIELDS ===== */}
+            <div className="flex flex-col">
+
+              {/* NAME */}
               <input
                 placeholder="Full Name *"
                 value={form.name}
-                onChange={e =>
-                  setForm({ ...form, name: e.target.value })
-                }
-                className={`focus:outline-[#f4612b]  w-full border p-3 rounded-lg ${
-                  errors.name && "border-red-500"
-                }`}
+                onChange={e => setForm({ ...form, name: e.target.value })}
+                className="w-full border p-3 rounded-lg focus:outline-[#f4612b] mb-6"
               />
-              {errors.name && (
-                <p className="text-xs text-red-500">{errors.name}</p>
-              )}
 
+              {/* EMAIL */}
               <input
                 type="email"
                 placeholder="Email *"
                 value={form.email}
-                onChange={e =>
-                  setForm({ ...form, email: e.target.value })
-                }
-                className={`focus:outline-[#f4612b] w-full border p-3 rounded-lg ${
-                  errors.email && "border-red-500"
-                }`}
+                onChange={e => setForm({ ...form, email: e.target.value })}
+                className="w-full border p-3 rounded-lg focus:outline-[#f4612b] mb-6"
               />
 
+              {/* PHONE */}
               <input
                 type="tel"
                 placeholder="Phone *"
@@ -275,108 +277,173 @@ export default function BookTour() {
                     phone: e.target.value.replace(/\D/g, "")
                   })
                 }
-                className={`focus:outline-[#f4612b] w-full border p-3 rounded-lg ${
-                  errors.phone && "border-red-500"
-                }`}
+                className="w-full border p-3 rounded-lg focus:outline-[#f4612b] mb-6"
               />
 
-              <input
-                type="number"
-                min="1"
-                max="20"
-                value={form.persons}
-                onChange={e =>
-                  setForm({ ...form, persons: e.target.value })
-                }
-                className="focus:outline-[#f4612b] w-full border p-3 rounded-lg"
-              />
+              {/* ===== PERSONS FIELD (SELF-CONTAINED SPACING) ===== */}
+              <div className="mb-4">
+                <input
+                  type="number"
+                  min="2"
+                  max="100"
+                  placeholder="Enter number of persons (Min 2)"
+                  value={form.persons}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      setForm({ ...form, persons: "" });
+                      return;
+                    }
+                    const num = Number(value);
+                    setForm({ ...form, persons: num > 100 ? 100 : num });
+                  }}
+                  className={`
+      w-full border p-3 rounded-lg focus:outline-none focus:ring-2
+      ${isPersonsInvalid
+                      ? "border-red-400 focus:ring-red-300"
+                      : "border-gray-300 focus:ring-[#f4612b]"
+                    }
+    `}
+                />
 
-              <textarea
-                rows="3"
-                placeholder="Special Request (optional)"
-                 maxLength={50}
-                value={form.note}
-                onChange={e =>
-                  setForm({ ...form, note: e.target.value.slice(0, 50) })
-                }
-                className="focus:outline-[#f4612b] w-full border p-3 rounded-lg"
-              />
-              <p className="text-xs text-gray-400">
-                {form.note.length}/50 characters
-              </p>
+                {/* ERROR MESSAGE (ONLY WHEN INVALID) */}
+                <motion.div
+                  initial={false}
+                  animate={{
+                    opacity: isPersonsInvalid ? 1 : 0,
+                    height: isPersonsInvalid ? "auto" : 0,
+                    marginTop: isPersonsInvalid ? "6px" : "0px"
+                  }}
+                  className="overflow-hidden"
+                >
+                  <p
+                    className="
+        px-3 py-2.5 mt-2 rounded-md
+        bg-orange-50 border-l-4 border-orange-400
+        text-xs text-orange-700
+      "
+                  >
+                    Minimum 2 persons allowed for this tour
+                  </p>
+                </motion.div>
+              </div>
 
+
+              {/* TEXTAREA */}
+              <div className="mb-6">
+                <textarea
+                  rows="5"
+                  placeholder="Special Request (optional)"
+                  maxLength={50}
+                  value={form.note}
+                  onChange={e =>
+                    setForm({ ...form, note: e.target.value.slice(0, 50) })
+                  }
+                  className="w-full border p-3 rounded-lg focus:outline-[#f4612b]"
+                />
+                <p className="text-xs text-gray-400 text-right mt-1">
+                  {form.note.length}/50 characters
+                </p>
+              </div>
+
+
+              {/* BUTTON */}
               <button
-              
                 onClick={handleSubmit}
-                disabled={loading}
-                className="w-full bg-[#F4612B] text-white py-3 rounded-full font-semibold hover:bg-[#e14c1f]"
+                disabled={loading || isPersonsInvalid}
+                className={`w-full py-3 rounded-full font-semibold text-white transition
+        ${loading || isPersonsInvalid
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#F4612B] hover:bg-[#e14c1f]"}
+      `}
               >
                 {loading ? "Submitting..." : "Confirm Booking"}
               </button>
+
             </div>
           </div>
+
+
 
           {/* ===== BILL ===== */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 h-fit sticky top-24">
-            <h3 className="text-xl font-bold text-[#F4612B] mb-5">
-              Booking Summary
-            </h3>
 
-            <div className="space-y-4 text-sm text-gray-700">
-              <div className="flex justify-between">
-                <span>Tour</span>
-                <span className="font-semibold">{tour.title}</span>
+          <div className="flex flex-col gap-6">
+
+            {/* ===== STICKY BILL SECTION ===== */}
+            <div className="relative">
+              <div className="sticky top-24">
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+                  <h3 className="text-xl font-bold text-[#F4612B] mb-5">
+                    Booking Summary
+                  </h3>
+
+                  <div className="space-y-4 text-sm text-gray-700">
+                    <div className="flex justify-between">
+                      <span>Tour</span>
+                      <span className="font-semibold">{tour.title}</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>Duration</span>
+                      <span>
+                        {getDaysNights(tour.startDate, tour.endDate)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>Total Amount</span>
+                      <span>₹{totalAmount}</span>
+                    </div>
+
+                    <hr />
+
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          checked={paymentType === "advance"}
+                          onChange={() => setPaymentType("advance")}
+                        />
+                        Pay 30% Advance (₹{advanceAmount})
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          checked={paymentType === "full"}
+                          onChange={() => setPaymentType("full")}
+                        />
+                        Pay Full Amount (₹{totalAmount})
+                      </label>
+                    </div>
+
+                    <hr />
+
+                    <div className="flex justify-between text-lg font-bold text-[#F4612B]">
+                      <span>Payable Now</span>
+                      <span>₹{payableAmount}</span>
+                    </div>
+
+                    {paymentType === "advance" && (
+                      <p className="text-xs text-gray-500">
+                        Remaining ₹{remainingAmount} payable later
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-
-              <div className="flex justify-between">
-                <span>Duration</span>
-                <span>
-                  {getDaysNights(tour.startDate, tour.endDate)}
-                </span>
-              </div>
-
-              <div className="flex justify-between">
-                <span>Total Amount</span>
-                <span>₹{totalAmount}</span>
-              </div>
-
-              <hr />
-
-              {/* PAYMENT */}
-              <div className="space-y-2">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={paymentType === "advance"}
-                    onChange={() => setPaymentType("advance")}
-                  />
-                  Pay 30% Advance (₹{advanceAmount})
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    checked={paymentType === "full"}
-                    onChange={() => setPaymentType("full")}
-                  />
-                  Pay Full Amount (₹{totalAmount})
-                </label>
-              </div>
-
-              <hr />
-
-              <div className="flex justify-between text-lg font-bold text-[#F4612B]">
-                <span>Payable Now</span>
-                <span>₹{payableAmount}</span>
-              </div>
-
-              {paymentType === "advance" && (
-                <p className="text-xs text-gray-500">
-                  Remaining ₹{remainingAmount} payable later
-                </p>
-              )}
             </div>
+
+            {/* ===== NON-STICKY CANCELLATION POLICY ===== */}
+            <div className="relative">
+              <TourCancel />
+            </div>
+
           </div>
+
+
+
+
         </div>
       </div>
     </>

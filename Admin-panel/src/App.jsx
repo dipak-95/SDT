@@ -16,6 +16,8 @@ import AdmincarBooking from "./pages/AdmincarBooking";
 import AdminHotelBooking from "./pages/AdminHotelBooking";
 import ContactEnquiry from "./pages/ContactEnquiry";
 import QuickEnquiry from "./pages/QuickEnquiry";
+import AdminCars from "./pages/AdminCar";
+import AdminCar from "./pages/AdminCar";
 
 
 function App() {
@@ -41,6 +43,8 @@ function App() {
             <Route path="/admin/hotel-booking" element={<AdminHotelBooking />} />
             <Route path="/admin/ContactEnquiry" element={<ContactEnquiry />} />
             <Route path="/admin/QuickEnquiry" element={<QuickEnquiry />} />
+            <Route path="/admin/Car" element={<AdminCar />} />
+           
             
           </Route>
         </Route>

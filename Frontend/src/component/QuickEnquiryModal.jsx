@@ -53,7 +53,7 @@ export default function QuickEnquiryModal({ open, onClose }) {
     try {
       setLoading(true);
       await axios.post(
-        "https://sdt-7.onrender.com/Enquiry/quick-enquiry",
+        "http://localhost:1005/Enquiry/quick-enquiry",
         form
       );
       toast.success("Enquiry submitted successfully");

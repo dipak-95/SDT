@@ -319,7 +319,7 @@ useEffect(() => {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -10, scale: 0.95 }}
                           transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className={`absolute left-0 ${isTablet ? "mt-6" : "mt-4.5"
+                          className={`absolute left-0 ${isTablet ? "mt-6" : "mt-3.5"
                             } border-2 border-t-[#F4612B] border-l-white border-r-white border-b-white bg-white shadow-lg py-1 w-70 z-50`}
                         >
                           {item.submenu.map((sub, i) => (

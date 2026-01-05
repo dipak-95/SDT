@@ -33,6 +33,7 @@ app.use("/Contact", require("./routes/Contactroute"));
 app.use("/Enquiry", require("./routes/QiuckEnquiryroute"));
 app.use("/Dashboard", require("./routes/Dashboardroute"));
 app.use("/order", require("./routes/orderroute"));
+app.use("/cars", require("./routes/CarRoute"));
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 1005;

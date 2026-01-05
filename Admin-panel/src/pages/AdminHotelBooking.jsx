@@ -10,10 +10,11 @@ import {
   Mail,
   BedDouble,
   CalendarDays,
-  IndianRupee
+  IndianRupee,
+  CheckCircle
 } from "lucide-react";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
 
 export default function AdminHotelBooking() {
   const [bookings, setBookings] = useState([]);
@@ -21,7 +22,7 @@ export default function AdminHotelBooking() {
   const fetchBookings = async () => {
     try {
       const res = await axios.get(`${BASE_URL}/bookings/fetch`);
-      setBookings(res.data);
+      setBookings(res.data || []);
     } catch {
       toast.error("Failed to load hotel bookings");
     }
@@ -31,6 +32,20 @@ export default function AdminHotelBooking() {
     fetchBookings();
   }, []);
 
+  /* ================= CONFIRM BOOKING ================= */
+  const confirmBooking = async (id) => {
+    try {
+      await axios.put(`${BASE_URL}/bookings/status/${id}`);
+      toast.success("Booking confirmed ✅");
+      fetchBookings();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.msg || "Failed to confirm booking"
+      );
+    }
+  };
+
+  /* ================= DELETE BOOKING ================= */
   const deleteBooking = async (id) => {
     if (!window.confirm("Delete this booking permanently?")) return;
 
@@ -73,16 +88,9 @@ export default function AdminHotelBooking() {
             key={b._id}
             whileHover={{ scale: 1.01 }}
             className="
-              bg-white
-              rounded-2xl
-              shadow-md
-              border-l-4
-              border-[#F4612B]
-              p-6
-              grid
-              grid-cols-1
-              lg:grid-cols-5
-              gap-6
+              bg-white rounded-2xl shadow-md
+              border-l-4 border-[#F4612B]
+              p-6 grid grid-cols-1 lg:grid-cols-5 gap-6
             "
           >
             {/* HOTEL INFO */}
@@ -95,23 +103,34 @@ export default function AdminHotelBooking() {
               <p className="text-sm text-gray-600 mt-1">
                 📍 {b.city}, {b.location}
               </p>
+
+              {/* STATUS */}
+              <span
+                className={`inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full ${
+                  b.status === "confirmed"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-orange-100 text-orange-700"
+                }`}
+              >
+                {b.status || "pending"}
+              </span>
             </div>
 
             {/* CUSTOMER */}
             <div>
               <p className="text-xs text-gray-400 mb-1">Guest</p>
               <p className="font-semibold text-lg flex items-center gap-2">
-                <User size={18} /> {b.user.name}
+                <User size={18} /> {b.user?.name}
               </p>
               <p className="text-sm text-gray-600 flex items-center gap-2 mt-1">
-                <Phone size={14} /> {b.user.phone}
+                <Phone size={14} /> {b.user?.phone}
               </p>
               <p className="text-sm text-gray-600 flex items-center gap-2">
-                <Mail size={14} /> {b.user.email || "—"}
+                <Mail size={14} /> {b.user?.email || "—"}
               </p>
             </div>
 
-            {/* ROOM DETAILS */}
+            {/* ROOM */}
             <div>
               <p className="text-xs text-gray-400 mb-1">Room</p>
               <p className="font-semibold text-lg flex items-center gap-2">
@@ -128,7 +147,7 @@ export default function AdminHotelBooking() {
               <p className="text-xs text-gray-400 mb-1">Stay</p>
               <p className="text-sm flex items-center gap-2 text-gray-700">
                 <CalendarDays size={16} />
-                {new Date(b.checkIn).toLocaleDateString()} →
+                {new Date(b.checkIn).toLocaleDateString()} →{" "}
                 {new Date(b.checkOut).toLocaleDateString()}
               </p>
               <p className="text-sm text-gray-600">
@@ -136,7 +155,7 @@ export default function AdminHotelBooking() {
               </p>
             </div>
 
-            {/* PRICE + ACTION */}
+            {/* PRICE + ACTIONS */}
             <div className="flex flex-col justify-between items-end">
               <div className="text-right">
                 <p className="text-xs text-gray-400 mb-1">Total</p>
@@ -146,21 +165,23 @@ export default function AdminHotelBooking() {
                 </p>
               </div>
 
-              <button
-                onClick={() => deleteBooking(b._id)}
-                className="
-                  mt-4
-                  flex items-center gap-1
-                  px-4 py-2
-                  text-sm
-                  bg-red-100
-                  text-red-700
-                  rounded-lg
-                  hover:bg-red-200
-                "
-              >
-                <Trash2 size={16} /> Delete
-              </button>
+              <div className="flex gap-2 mt-4">
+                {b.status !== "confirmed" && (
+                  <button
+                    onClick={() => confirmBooking(b._id)}
+                    className="flex items-center gap-1 px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  >
+                    <CheckCircle size={16} /> Confirm
+                  </button>
+                )}
+
+                <button
+                  onClick={() => deleteBooking(b._id)}
+                  className="flex items-center gap-1 px-4 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              </div>
             </div>
           </motion.div>
         ))}

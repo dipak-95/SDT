@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const GroupTourItinerary = require("../model/GroupIteranary");
 
+/* ================= SAVE FULL ITINERARY ================= */
 exports.saveFullItinerary = async (req, res) => {
   try {
     const itinerary = JSON.parse(req.body.itinerary);
@@ -23,6 +24,7 @@ exports.saveFullItinerary = async (req, res) => {
       day: dayObj.day,
       title: dayObj.title,
       points: dayObj.points,
+      stay: dayObj.stay || "",   // ✅ SAFE
       images: imagesMap[dayObj.day] || []
     }));
 
@@ -32,7 +34,7 @@ exports.saveFullItinerary = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    console.log("✅ SAVED INDIVIDUAL ITINERARY:", saved);
+    console.log("✅ SAVED GROUP ITINERARY:", saved);
 
     res.status(201).json(saved);
   } catch (err) {
@@ -41,7 +43,7 @@ exports.saveFullItinerary = async (req, res) => {
   }
 };
 
-
+/* ================= GET TOUR ITINERARY ================= */
 exports.getTourItinerary = async (req, res) => {
   try {
     const tourId = new mongoose.Types.ObjectId(req.params.id);
@@ -49,10 +51,10 @@ exports.getTourItinerary = async (req, res) => {
     const itineraryDoc = await GroupTourItinerary.findOne({ tourId });
 
     if (!itineraryDoc) {
-      return res.json([]);
+      return res.json({ itinerary: [] }); // ✅ FIX
     }
 
-    res.json(itineraryDoc.itinerary);
+    res.json({ itinerary: itineraryDoc.itinerary }); // ✅ FIX
   } catch (err) {
     console.error("GET ITINERARY ERROR:", err.message);
     res.status(500).json({ msg: "Server error" });

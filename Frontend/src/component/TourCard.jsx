@@ -87,12 +87,14 @@ const TourCard = ({ tour, type }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
       className="
-    w-full
-    flex flex-col
-    bg-white
-    rounded-xl
-    border border-gray-200
-    shadow-xl
+   w-full
+flex flex-col
+bg-white
+rounded-2xl
+border border-gray-200
+shadow-xl
+hover:shadow-2xl
+transition-shadow
    
   "
     >
@@ -103,7 +105,7 @@ const TourCard = ({ tour, type }) => {
             {tour.images.map((img, i) => (
               <div key={i} className=" h-[240px] sm:h-[240px]">
                 <img
-                  src={`https://sdt-7.onrender.com${img}`}
+                  src={`http://localhost:1005${img}`}
                   alt={tour.title}
                   className="rounded-xl w-full h-full object-cover"
                 />

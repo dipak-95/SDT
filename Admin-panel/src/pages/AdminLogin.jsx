@@ -18,7 +18,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("https://sdt-7.onrender.com/admin/login", {
+      const res = await axios.post("http://localhost:1005/admin/login", {
         email,
         password
       });

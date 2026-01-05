@@ -5,9 +5,9 @@ import {
   IoIosArrowBack,
   IoIosArrowForward
 } from "react-icons/io";
-import { FiCheckCircle } from "react-icons/fi";
+import { FiCheckCircle, FiHome } from "react-icons/fi";
 
-const BASE_URL = "https://sdt-7.onrender.com";
+const BASE_URL = "http://localhost:1005";
 
 const DayAccordion = ({ data = [] }) => {
   const [openDay, setOpenDay] = useState(null);
@@ -143,6 +143,50 @@ const AccordionItem = ({ day, isOpen, onToggle }) => {
                   </div>
                 </div>
               )}
+              {/* 🏨 HOTEL / STAY */}
+{day.stay && (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      background: "#FFF7F2",
+      border: "1px solid #F4612B30",
+      padding: "10px 12px",
+      borderRadius: 12,
+      marginBottom: 14
+    }}
+  >
+    <FiHome
+      style={{
+        color: "#F4612B",
+        fontSize: 18,
+        flexShrink: 0
+      }}
+    />
+    <div>
+      <div
+        style={{
+          fontSize: 12,
+          color: "#777",
+          marginBottom: 2
+        }}
+      >
+        Stay / Hotel
+      </div>
+      <div
+        style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: "#333"
+        }}
+      >
+        {day.stay}
+      </div>
+    </div>
+  </div>
+)}
+
 
               {/* POINTS WITH ICON */}
               <ul style={{ padding: 0, margin: 0 }}>
@@ -177,6 +221,7 @@ const AccordionItem = ({ day, isOpen, onToggle }) => {
                   </li>
                 ))}
               </ul>
+              
 
             </div>
           </motion.div>
