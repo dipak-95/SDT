@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const BASE_URL = "http://72.62.195.222:7345";
+const BASE_URL = "https://api.sdtour.online";
 
 export default function ImageSlider({ images }) {
   const [i, setI] = useState(0);

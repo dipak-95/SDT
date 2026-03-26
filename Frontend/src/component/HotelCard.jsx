@@ -10,7 +10,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://72.62.195.222:7345";
+const API_BASE = "https://api.sdtour.online";
 
 /* ================= IMAGE SLIDER ================= */
 const ImageSlider = ({ images, name }) => {

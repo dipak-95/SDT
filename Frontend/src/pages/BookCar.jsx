@@ -6,7 +6,7 @@ import { AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import CarCanceletion from "../component/CarCanceletion";
 
-const BASE_URL = "http://72.62.195.222:7345";
+const BASE_URL = "https://api.sdtour.online";
 
 export default function BookCar() {
   const { id } = useParams();

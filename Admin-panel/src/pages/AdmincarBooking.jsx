@@ -3,7 +3,7 @@
 // import { Trash2 } from "lucide-react";
 // import { toast } from "react-toastify";
 
-// const BASE_URL = "http://72.62.195.222:7345";
+// const BASE_URL = "https://api.sdtour.online";
 
 // const formatDate = (date) => {
 //   if (!date) return "N/A";
@@ -108,7 +108,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 
-const BASE_URL = "http://72.62.195.222:7345";
+const BASE_URL = "https://api.sdtour.online";
 
 const formatDate = (date) => {
   const d = new Date(date);

@@ -45,7 +45,7 @@ const AddGroupItinerary = ({ tourId }) => {
     });
 
     await axios.post(
-      "http://72.62.195.222:7345/group-tours/itinerary",
+      "https://api.sdtour.online/group-tours/itinerary",
       formData
     );
 

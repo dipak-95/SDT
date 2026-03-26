@@ -21,7 +21,7 @@ import {
   Zap
 } from "lucide-react";
 
-const BASE_URL = "http://72.62.195.222:7345";
+const BASE_URL = "https://api.sdtour.online";
 
 /* FEATURE ICON MAP */
 const featureIconMap = {

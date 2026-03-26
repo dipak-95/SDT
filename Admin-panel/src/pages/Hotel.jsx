@@ -14,7 +14,7 @@ export default function Hotel() {
   const [priceHotel, setPriceHotel] = useState(null); // 🔥 NEW
 
   const fetchHotels = async () => {
-    const res = await axios.get("http://72.62.195.222:7345/hotels");
+    const res = await axios.get("https://api.sdtour.online/hotels");
     setHotels(res.data);
   };
 

@@ -53,7 +53,7 @@ export default function QuickEnquiryModal({ open, onClose }) {
     try {
       setLoading(true);
       await axios.post(
-        "http://72.62.195.222:7345/Enquiry/quick-enquiry",
+        "https://api.sdtour.online/Enquiry/quick-enquiry",
         form
       );
       toast.success("Enquiry submitted successfully");

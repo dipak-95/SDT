@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const API_BASE = "http://72.62.195.222:7345";
+const API_BASE = "https://api.sdtour.online";
 
 export default function HotelCard({
   hotel,

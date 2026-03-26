@@ -4,7 +4,7 @@
 // import { X } from "lucide-react";
 // import { toast } from "react-toastify";
 
-// const API_BASE = "http://72.62.195.222:7345";
+// const API_BASE = "https://api.sdtour.online";
 
 // export default function HotelFormModel({ close, refresh, editData }) {
 //   const [form, setForm] = useState(
@@ -62,7 +62,7 @@
 //     });
 
 //     await axios.post(
-//       "http://72.62.195.222:7345/hotels/add",
+//       "https://api.sdtour.online/hotels/add",
 //       formData,
 //       {
 //         headers: { "Content-Type": "multipart/form-data" }
@@ -199,7 +199,7 @@ import axios from "axios";
 import { X } from "lucide-react";
 import { toast } from "react-toastify";
 
-const API_BASE = "http://72.62.195.222:7345";
+const API_BASE = "https://api.sdtour.online";
 
 export default function HotelFormModel({ close, refresh, editData }) {
   const [form, setForm] = useState(

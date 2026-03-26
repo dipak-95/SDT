@@ -18,7 +18,7 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://72.62.195.222:7345/admin/login", {
+      const res = await axios.post("https://api.sdtour.online/admin/login", {
         email,
         password
       });

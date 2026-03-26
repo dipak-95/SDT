@@ -10,7 +10,7 @@ import {
   Truck
 } from "lucide-react";
 
-const BASE_URL = "http://72.62.195.222:7345";
+const BASE_URL = "https://api.sdtour.online";
 
 export default function Cars() {
   const [cars, setCars] = useState([]);
