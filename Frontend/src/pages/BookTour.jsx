@@ -175,10 +175,7 @@ export default function BookTour() {
         amount: Number(payableAmount) // ✅ number
       });
 
-      toast.success(
-        "Booking submitted! Our team will contact you shortly 📞"
-      );
-
+     toast.success("Thank you for your enquiry! Our team will contact you within 3 hours.");
       // reset form
       setForm({
         name: "",
@@ -357,7 +354,7 @@ export default function BookTour() {
                     : "bg-[#F4612B] hover:bg-[#e14c1f]"}
       `}
               >
-                {loading ? "Submitting..." : "Confirm Booking"}
+                {loading ? "Submitting..." : "Enquiry for Booking"}
               </button>
 
             </div>

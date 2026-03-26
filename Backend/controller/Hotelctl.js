@@ -44,7 +44,30 @@ exports.addHotel = async (req, res) => {
 /* ================= GET HOTELS ================= */
 exports.getHotels = async (req, res) => {
   try {
-    const hotels = await Hotel.find();
+    const hotels = await Hotel.find().lean();
+
+    for (const hotel of hotels) {
+      for (const room of hotel.rooms) {
+
+        const bookings = await booking.find({
+          hotelId: hotel._id,
+          roomType: room.type,
+          status: "confirmed",
+          checkOut: { $gt: new Date() }
+        });
+
+        const totalBooked = bookings.reduce(
+          (sum, b) => sum + b.roomsBooked,
+          0
+        );
+
+        room.availableRooms = Math.max(
+          room.totalRooms - totalBooked,
+          0
+        );
+      }
+    }
+
     res.json(hotels);
   } catch (err) {
     res.status(500).json(err);

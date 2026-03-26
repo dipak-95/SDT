@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
+
 const reasons = [
   {
     icon: <FaShieldAlt />,
@@ -47,6 +48,7 @@ const WhyChooseUs = ({ tourId, type }) => {
 
   const handleBook = () => {
     navigate(`/book-tour/${tourId}?type=${type}`);
+    
   };
 
   return (
@@ -103,7 +105,7 @@ const WhyChooseUs = ({ tourId, type }) => {
           transition
         "
       >
-        Book This Tour
+        Enquiry This Tour
       </button>
     </motion.div>
   );

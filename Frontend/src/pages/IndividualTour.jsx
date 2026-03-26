@@ -10,9 +10,19 @@ const IndividualTour = () => {
    const BASE_URL = "http://localhost:1005";
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/individual-tours`)
-      .then(res => setTours(res.data));
-  }, []);
+  const fetchTours = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/individual-tours`);
+      setTours(res.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTours();
+}, []);
 
   return (
     <div className="w-full">
@@ -102,7 +112,7 @@ const IndividualTour = () => {
           {/* ================= TOUR CARDS ================= */}
           {!loading &&
             tours.map(tour => (
-              <TourCard key={tour._id} tour={tour} type="group" />
+              <TourCard key={tour._id} tour={tour} type="individual" />
             ))}
         </div>
       </div>

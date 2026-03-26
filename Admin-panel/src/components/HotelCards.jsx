@@ -127,7 +127,7 @@ export default function HotelCard({
         <div className="mt-4 space-y-3">
           {hotel.rooms.map(room => {
             const available =
-              room.totalRooms - room.bookedRooms;
+              room.availableRooms ?? room.totalRooms;
 
             return (
               <div
@@ -139,11 +139,10 @@ export default function HotelCard({
                     {room.type}
                   </span>
                   <span
-                    className={`font-semibold ${
-                      available === 0
+                    className={`font-semibold ${available === 0
                         ? "text-red-500"
                         : "text-green-600"
-                    }`}
+                      }`}
                   >
                     {available} left
                   </span>

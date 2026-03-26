@@ -153,7 +153,7 @@ export default function HotelCard({ hotel }) {
                      bg-[#F4612B] text-white text-sm font-semibold
                      hover:bg-[#e85f0f] transition relative bottom-4"
         >
-          Book Now
+          Enquiry Now
         </button>
       </div>
     </motion.div>

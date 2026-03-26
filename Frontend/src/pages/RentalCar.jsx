@@ -20,8 +20,19 @@ export default function Cars() {
 
   /* ================= FETCH CARS ================= */
   useEffect(() => {
-    axios.get(`${BASE_URL}/cars`).then(res => setCars(res.data));
-  }, []);
+  const fetchCars = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/cars`);
+      setCars(res.data);
+    } catch (error) {
+      console.error("Car fetch error:", error);
+    } finally {
+      setLoading(false); // ✅ VERY IMPORTANT
+    }
+  };
+
+  fetchCars();
+}, []);
 
   /* ================= FILTER LOGIC ================= */
   const filteredCars = cars.filter(car => {

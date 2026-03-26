@@ -19,6 +19,8 @@ export default function BookingHotel() {
   const hotel = state?.hotel;
   const room = state?.room;
 
+if (!hotel || !room) return null;
+
   const [bookedDates, setBookedDates] = useState([]);
   const [priceMap, setPriceMap] = useState({});
   const [loading, setLoading] = useState(false);
@@ -77,26 +79,27 @@ export default function BookingHotel() {
       .catch(() => toast.error("Failed to load prices"));
   }, [hotel?._id, room?.type, form.checkIn]);
 
-  useEffect(() => {
-    if (!form.checkIn || !form.checkOut) return;
+useEffect(() => {
+  if (!hotel?._id || !room?.type) return;
+  if (!form.checkIn || !form.checkOut) return;
 
-    axios
-      .get(`${API_BASE}/hotels/availability`, {
-        params: {
-          hotelId: hotel._id,
-          roomType: room.type,
-          checkIn: form.checkIn,
-          checkOut: form.checkOut
-        }
-      })
-      .then(res => {
-        setavailableRoom(res.data.availableRooms);
-      })
-      .catch(err => {
-        console.error(err);
-        toast.error("Failed to fetch available rooms");
-      });
-  }, [form.checkIn, form.checkOut, hotel._id, room.type]);
+  axios.get(`${API_BASE}/hotels/availability`, {
+    params: {
+      hotelId: hotel._id,
+      roomType: room.type,
+      checkIn: form.checkIn,
+      checkOut: form.checkOut
+    }
+  })
+  .then(res => {
+    setavailableRoom(res.data.availableRooms);
+  })
+  .catch(err => {
+    console.error(err);
+    toast.error("Failed to fetch available rooms");
+  });
+
+}, [form.checkIn, form.checkOut, hotel?._id, room?.type]);
 
 
 
@@ -108,10 +111,11 @@ export default function BookingHotel() {
     return (form.checkOut - form.checkIn) / 86400000;
   }, [form.checkIn, form.checkOut]);
 
-  const availableRooms = useMemo(() => {
-    if (!room) return 0;
-    return Math.max(0, room.totalRooms - room.bookedRooms);
-  }, [availableroom]);
+  // const availableRooms = useMemo(() => {
+  //   if (!room) return 0;
+  //   return Math.max(0, room.totalRooms - room.bookedRooms);
+  // }, [availableroom]);
+  const availableRooms = availableroom ?? 0;
 
 
   const totalAmount = useMemo(() => {
@@ -129,41 +133,62 @@ export default function BookingHotel() {
 
   /* ===== BOOK ===== */
   const confirmBooking = async () => {
-    if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
-      toast.error("Fill all required fields");
-      return;
-    }
+  if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
+    toast.error("Fill all required fields");
+    return;
+  }
 
-    if (form.rooms > availableRooms) {
-      toast.error("Not enough rooms available");
-      return;
-    }
+  if (form.rooms > availableRooms) {
+    toast.error("Not enough rooms available");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      await axios.post(`${API_BASE}/bookings/create`, {
+    await axios.post(`${API_BASE}/bookings/create`, {
+      hotelId: hotel._id,
+      roomType: room.type,
+      roomsBooked: form.rooms,
+      checkIn: form.checkIn,
+      checkOut: form.checkOut,
+      user: {
+        name: form.name,
+        email: form.email,
+        phone: form.phone
+      }
+    });
+
+    toast.success("Thank you for your enquiry! Our team will contact you within 3 hours.");
+    
+
+    /* 🔥 REFETCH AVAILABILITY AFTER BOOKING */
+    const res = await axios.get(`${API_BASE}/hotels/availability`, {
+      params: {
         hotelId: hotel._id,
         roomType: room.type,
-        roomsBooked: form.rooms,
         checkIn: form.checkIn,
-        checkOut: form.checkOut,
-        user: {
-          name: form.name,
-          email: form.email,
-          phone: form.phone
-        }
-      });
+        checkOut: form.checkOut
+      }
+    });
+    
+    setavailableRoom(res.data.availableRooms);
 
-      toast.success("Booking confirmed 🎉");
-      navigate("/admin/hotel-booking");
-    } catch (err) {
-      toast.error(err.response?.data?.msg || "Booking failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      checkIn: null,
+      checkOut: null,
+      rooms: 1
+    });
 
+  } catch (err) {
+    toast.error(err.response?.data?.msg || "Booking failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return (
@@ -426,7 +451,7 @@ export default function BookingHotel() {
                    font-semibold text-sm hover:bg-[#e85f0f]
                    transition disabled:opacity-60"
               >
-                {loading ? "Booking..." : "Confirm Booking"}
+                {loading ? "Booking..." : "Enquiry for Booking"}
               </button>
             </div>
           </div>
