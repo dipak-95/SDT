@@ -5,7 +5,7 @@ const fs = require("fs");
 /* ================= STORAGE ================= */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadPath = path.join("uploads", "cars");
+    const uploadPath = path.join(__dirname, "..", "uploads", "cars");
 
     // 🔹 Auto-create folder if not exists
     if (!fs.existsSync(uploadPath)) {
