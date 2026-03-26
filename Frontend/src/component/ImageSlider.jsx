@@ -14,11 +14,14 @@ export default function ImageSlider({ images }) {
       <AnimatePresence mode="wait">
         <motion.img
           key={i}
-          src={`${BASE_URL}${images[i]}`}
+          src={images[i] ? `${BASE_URL}${images[i]}` : "https://placehold.co/600x400?text=No+Image"}
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          onError={(e) => {
+            e.target.src = "https://placehold.co/600x400?text=No+Image";
+          }}
         />
       </AnimatePresence>
 

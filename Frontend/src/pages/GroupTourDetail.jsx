@@ -37,7 +37,9 @@ const GroupTourDetail = () => {
       const res = await axios.get(
         `${BASE_URL}/group-tours/${id}/itinerary`
       );
-      setItinerary(Array.isArray(res.data) ? res.data : []);
+      // Backend returns { itinerary: [...] }
+      const days = res.data?.itinerary || res.data;
+      setItinerary(Array.isArray(days) ? days : []);
     } catch (err) {
       console.error("Itinerary fetch error", err);
       setItinerary([]);
@@ -69,9 +71,12 @@ const GroupTourDetail = () => {
       {/* HERO */}
       <div className="relative h-[65vh]">
         <img
-          src="/grouptourbooking2.webp"
+          src={tour.images?.length > 0 ? `${BASE_URL}${tour.images[0]}` : "/grouptourbooking2.webp"}
           alt={tour.title}
           className="absolute inset-0 w-full h-full object-cover object-center"
+          onError={(e) => {
+             e.target.src = "/grouptourbooking2.webp";
+          }}
         />
         <div className="absolute inset-0 bg-black/60" />
 

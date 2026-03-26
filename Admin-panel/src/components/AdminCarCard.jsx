@@ -72,14 +72,21 @@ export default function AdminCarCard({ car, fetchCars }) {
         className="bg-white rounded-2xl shadow-md hover:shadow-xl overflow-hidden border border-gray-100"
       >
         {/* IMAGE SLIDER */}
-        <div className="relative h-44 overflow-hidden">
-          <img
-            src={`${BASE_URL}${car.images[index]}`}
-            alt={car.name}
-            className="w-full h-full object-cover"
-          />
+        <div className="relative h-44 overflow-hidden bg-gray-100 flex items-center justify-center">
+          {car.images?.length > 0 && car.images[index] ? (
+            <img
+              src={`${BASE_URL}${car.images[index]}`}
+              alt={car.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex flex-col items-center text-gray-400">
+              <Car size={40} strokeWidth={1} />
+              <span className="text-xs mt-1">No Image</span>
+            </div>
+          )}
 
-          {car.images.length > 1 && (
+          {car.images?.length > 1 && (
             <>
               <button
                 onClick={prev}

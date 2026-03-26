@@ -61,11 +61,14 @@ export default function HotelCard({
             <AnimatePresence mode="wait">
               <motion.img
                 key={index}
-                src={`${API_BASE}${images[index]}`}
+                src={images[index] ? `${API_BASE}${images[index]}` : ""}
                 className="absolute inset-0 w-full h-full object-cover"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                onError={(e) => {
+                  e.target.src = "https://placehold.co/600x400?text=No+Image";
+                }}
               />
             </AnimatePresence>
 

@@ -55,10 +55,11 @@ export default function EditCarModal({ car, onClose, onUpdated }) {
 
       await axios.put(`${BASE_URL}/cars/${car._id}`, data);
       toast.success("Car updated successfully 🚘");
-      onUpdated();
+      await onUpdated();
       onClose();
     } catch (err) {
-      toast.error("Failed to update car");
+      console.error("EDIT CAR ERROR:", err);
+      toast.error(err.response?.data?.message || "Failed to update car");
     }
   };
 

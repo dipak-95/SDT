@@ -38,7 +38,7 @@ export default function AdminCar() {
 
       {/* FILTERS */}
       <div className="flex gap-3 mb-8">
-        {["all", "car", "bus", "tempo traveller"].map(t => (
+        {["all", "car", "bus", "tempo"].map(t => (
           <button
             key={t}
             onClick={() => setFilter(t)}

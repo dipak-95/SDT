@@ -76,9 +76,12 @@ const IndividualDetailPage = () => {
       {/* ================= HERO ================= */}
       <div className="relative h-[65vh]">
         <img
-          src="/IndividualBooking.webp"
+          src={tour.images?.length > 0 ? `${BASE_URL}${tour.images[0]}` : "/IndividualBooking.webp"}
           alt={tour.title}
-          className="absolute inset-0 w-full h-full object-center"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          onError={(e) => {
+             e.target.src = "/IndividualBooking.webp";
+          }}
         />
         <div className="absolute inset-0 bg-black/60" />
 

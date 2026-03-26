@@ -11,6 +11,8 @@ import {
 import { toast } from "react-toastify";
 import AdminIteranary from "../components/Adminiteranary";
 
+const BASE_URL = "https://api.sdtour.online";
+
 /* ================= IMAGE SLIDER ================= */
 const AdminImageSlider = ({ images }) => {
   const [index, setIndex] = useState(0);
@@ -29,12 +31,15 @@ const AdminImageSlider = ({ images }) => {
       <AnimatePresence mode="wait">
         <motion.img
           key={index}
-          src={`https://api.sdtour.online${images[index]}`}
+          src={images[index] ? `${BASE_URL}${images[index]}` : "https://placehold.co/600x400?text=No+Image"}
           className="h-40 w-full object-cover"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.35, ease: "easeOut" }}
+          onError={(e) => {
+            e.target.src = "https://placehold.co/600x400?text=No+Image";
+          }}
         />
       </AnimatePresence>
 
@@ -140,14 +145,14 @@ const AdminGroupTour = () => {
       if (editingId) {
         /* UPDATE TOUR */
         res = await axios.put(
-          `https://api.sdtour.online/group-tours/${editingId}`,
+          `${BASE_URL}/group-tours/${editingId}`,
           fd
         );
         toast.success("Group tour updated ✅", { theme: "light" });
       } else {
         /* ADD TOUR */
         res = await axios.post(
-          "https://api.sdtour.online/group-tours",
+          `${BASE_URL}/group-tours`,
           fd
         );
         toast.success("Group tour added 🎉", { theme: "light" });

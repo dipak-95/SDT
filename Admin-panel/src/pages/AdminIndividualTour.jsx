@@ -29,11 +29,14 @@ const AdminImageSlider = ({ images }) => {
       <AnimatePresence mode="wait">
         <motion.img
           key={index}
-          src={`${BASE_URL}${images[index]}`}
+          src={images[index] ? `${BASE_URL}${images[index]}` : "https://placehold.co/600x400?text=No+Image"}
           className="h-40 w-full object-cover"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
+          onError={(e) => {
+            e.target.src = "https://placehold.co/600x400?text=No+Image";
+          }}
         />
       </AnimatePresence>
 
@@ -149,7 +152,8 @@ const AdminIndividualTour = () => {
       fetchTours();
 
     } catch (err) {
-      toast.error("Operation failed ❌");
+      console.error("INDIVIDUAL TOUR ERROR:", err);
+      toast.error(err.response?.data?.message || "Operation failed ❌");
     } finally {
       setLoading(false);
     }

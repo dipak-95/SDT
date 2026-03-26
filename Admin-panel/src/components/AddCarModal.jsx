@@ -51,10 +51,11 @@ export default function AddCarModal({ onClose, onAdded }) {
 
       await axios.post(`${BASE_URL}/cars`, data);
       toast.success("Car added successfully 🚘");
-      onAdded();
+      await onAdded();
       onClose();
     } catch (err) {
-      toast.error("Failed to add car");
+      console.error("ADD CAR ERROR:", err);
+      toast.error(err.response?.data?.message || "Failed to add car");
     } finally {
       setLoading(false);
     }
@@ -106,7 +107,7 @@ export default function AddCarModal({ onClose, onAdded }) {
           >
             <option value="car">Car</option>
             <option value="bus">Bus</option>
-            <option value="tempo traveller">Tempo Traveller</option>
+            <option value="tempo">Tempo Traveller</option>
           </select>
 
           <select
