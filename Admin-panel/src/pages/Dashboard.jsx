@@ -75,7 +75,7 @@ const Dashboard = () => {
       setLoading(true);
 
       const res = await axios.get(
-        "http://localhost:1005/Dashboard/dashboard-stats"
+        "http://72.62.195.222:7345/Dashboard/dashboard-stats"
       );
 
       setStats(res.data);

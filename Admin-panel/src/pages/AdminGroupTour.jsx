@@ -29,7 +29,7 @@ const AdminImageSlider = ({ images }) => {
       <AnimatePresence mode="wait">
         <motion.img
           key={index}
-          src={`http://localhost:1005${images[index]}`}
+          src={`http://72.62.195.222:7345${images[index]}`}
           className="h-40 w-full object-cover"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -104,7 +104,7 @@ const AdminGroupTour = () => {
 
   /* FETCH */
   const fetchTours = async () => {
-    const res = await axios.get("http://localhost:1005/group-tours");
+    const res = await axios.get("http://72.62.195.222:7345/group-tours");
     setTours(res.data);
   };
 
@@ -140,14 +140,14 @@ const AdminGroupTour = () => {
       if (editingId) {
         /* UPDATE TOUR */
         res = await axios.put(
-          `http://localhost:1005/group-tours/${editingId}`,
+          `http://72.62.195.222:7345/group-tours/${editingId}`,
           fd
         );
         toast.success("Group tour updated ✅", { theme: "light" });
       } else {
         /* ADD TOUR */
         res = await axios.post(
-          "http://localhost:1005/group-tours",
+          "http://72.62.195.222:7345/group-tours",
           fd
         );
         toast.success("Group tour added 🎉", { theme: "light" });
@@ -193,7 +193,7 @@ const AdminGroupTour = () => {
   /* DELETE */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this tour?")) return;
-    await axios.delete(`http://localhost:1005/group-tours/${id}`);
+    await axios.delete(`http://72.62.195.222:7345/group-tours/${id}`);
     toast.info("Tour deleted 🗑️", { theme: "light" });
     fetchTours();
   };

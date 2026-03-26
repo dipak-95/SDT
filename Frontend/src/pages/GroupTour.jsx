@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import TourCard from "../component/TourCard";
 import TourCardSkeleton from "../component/TourCardSkeleton";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 const GroupTour = () => {
   const [tours, setTours] = useState([]);

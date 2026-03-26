@@ -7,7 +7,7 @@ import {
 } from "react-icons/io";
 import { FiCheckCircle, FiHome } from "react-icons/fi";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 const DayAccordion = ({ data = [] }) => {
   const [openDay, setOpenDay] = useState(null);

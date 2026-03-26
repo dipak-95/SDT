@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import TourCancel from "../component/TourCancel";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 
 

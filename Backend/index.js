@@ -36,7 +36,7 @@ app.use("/order", require("./routes/orderroute"));
 app.use("/cars", require("./routes/CarRoute"));
 
 /* ================= SERVER ================= */
-const PORT = process.env.PORT || 1005;
+const PORT = process.env.PORT || 7345;
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server started on port ${PORT}`);

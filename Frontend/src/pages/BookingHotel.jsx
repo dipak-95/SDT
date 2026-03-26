@@ -10,7 +10,7 @@ import { CalendarDays, BedDouble } from "lucide-react";
 
 import HotelCancel from "../component/HotelCancel";
 
-const API_BASE = "http://localhost:1005";
+const API_BASE = "http://72.62.195.222:7345";
 
 export default function BookingHotel() {
   const { state } = useLocation();

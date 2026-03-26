@@ -5,7 +5,7 @@ import DayAccordion from "../component/DayAccordian";
 import WhyChooseUs from "../component/WhyChooseUs";
 import { motion } from "framer-motion";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 const isValidObjectId = (id) =>
   /^[0-9a-fA-F]{24}$/.test(id);

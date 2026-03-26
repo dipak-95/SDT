@@ -10,7 +10,7 @@ import {
   Truck
 } from "lucide-react";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 export default function Cars() {
   const [cars, setCars] = useState([]);

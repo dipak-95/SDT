@@ -45,7 +45,7 @@ const AddGroupItinerary = ({ tourId }) => {
     });
 
     await axios.post(
-      "http://localhost:1005/group-tours/itinerary",
+      "http://72.62.195.222:7345/group-tours/itinerary",
       formData
     );
 

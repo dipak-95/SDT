@@ -3,7 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState([]);

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import HotelCard from "../component/HotelCard";
 import HotelCardSkeleton from "../component/HotelCardSkeleton";
 
-const API_BASE = "http://localhost:1005";
+const API_BASE = "http://72.62.195.222:7345";
 
 export default function Hotel() {
   const { city } = useParams();

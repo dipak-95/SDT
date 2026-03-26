@@ -4,7 +4,7 @@ import { Trash2, User, Phone, Mail, MessageSquare, Bell } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
-const BASE_URL = "http://localhost:1005";
+const BASE_URL = "http://72.62.195.222:7345";
 
 export default function QuickEnquiry() {
   const [enquiries, setEnquiries] = useState([]);
