@@ -60,7 +60,6 @@ const ImageSlider = ({ images, name }) => {
 
 /* ================= HOTEL CARD ================= */
 export default function HotelCard({ hotel }) {
-  const [selectedRoom, setSelectedRoom] = useState(0);
   const navigate = useNavigate();
 
   const images =
@@ -90,7 +89,6 @@ export default function HotelCard({ hotel }) {
     .filter(([, v]) => v)
     .map(([k]) => k);
 
-  const room = hotel.rooms[selectedRoom];
 
   return (
     <motion.div
@@ -136,41 +134,13 @@ export default function HotelCard({ hotel }) {
           ))}
         </div>
 
-        {/* ROOM SELECT (NATIVE SELECT) */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Select Room Type
-          </label>
 
-          <select
-            value={selectedRoom}
-            onChange={e => setSelectedRoom(Number(e.target.value))}
-            className="w-full border border-orange-300 rounded-lg
-                       px-4 py-2 text-sm bg-orange-50
-                       focus:outline-none focus:ring-2
-                       focus:ring-[#F4612B]"
-          >
-            {hotel.rooms.map((r, i) => (
-              <option key={i} value={i}>
-                {r.type} 
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* PRICE */}
-        <div className="text-center pt-1">
-          {/* <p className="text-xs text-gray-500">Price per night</p>
-          <p className="text-2xl font-bold text-[#F4612B]">
-            ₹{room.price}
-          </p>*/}
-        </div> 
 
         {/* FULL WIDTH CTA */}
         <button
           onClick={() =>
             navigate(`/hotels/${hotel._id}/book`, {
-              state: { hotel, room }
+              state: { hotel }
             })
           }
           className="w-full py-3 rounded-lg

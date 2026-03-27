@@ -1,70 +1,124 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Users, Baby, BedDouble, CalendarDays, CheckCircle2, ChevronDown, ChevronUp, Plus, Minus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { CalendarDays, BedDouble } from "lucide-react";
-
-import HotelCancel from "../component/HotelCancel";
 
 const API_BASE = "https://api.sdtour.online";
 
+/* ───── helpers ───── */
+function bedsPerRoom(type) {
+  const t = type?.toLowerCase() || "";
+  if (t.includes("4")) return 4;
+  if (t.includes("3")) return 3;
+  if (t.includes("2")) return 2;
+  return 1;
+}
+
+function buildSuggestions(rooms, adults) {
+  if (!rooms?.length || !adults) return [];
+  const results = [];
+
+  rooms.forEach(room => {
+    const capacity = bedsPerRoom(room.type);
+    if (capacity < 1) return;
+    const roomsNeeded = Math.ceil(adults / capacity);
+    results.push({
+      room,
+      roomsNeeded,
+      label: `${room.type} × ${roomsNeeded} room${roomsNeeded > 1 ? "s" : ""}`,
+      desc: `Accommodates ${capacity * roomsNeeded} guest${capacity * roomsNeeded > 1 ? "s" : ""}`
+    });
+  });
+
+  // deduplicate and sort by rooms needed
+  const seen = new Set();
+  return results
+    .filter(s => {
+      const key = s.label;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((a, b) => a.roomsNeeded - b.roomsNeeded);
+}
+
+/* ───── counter ───── */
+function Counter({ label, icon: Icon, value, onChange, min = 0 }) {
+  return (
+    <div className="flex items-center justify-between bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
+      <div className="flex items-center gap-2 text-gray-700 font-semibold">
+        <Icon size={18} className="text-[#F4612B]" />
+        {label}
+      </div>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-600 hover:border-[#F4612B] hover:text-[#F4612B] transition active:scale-95"
+        >
+          <Minus size={14} />
+        </button>
+        <span className="w-6 text-center font-bold text-gray-900">{value}</span>
+        <button
+          type="button"
+          onClick={() => onChange(value + 1)}
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-[#F4612B] text-white hover:bg-[#e65a0f] transition active:scale-95"
+        >
+          <Plus size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ───── main ───── */
 export default function BookingHotel() {
   const { state } = useLocation();
   const navigate = useNavigate();
 
   const hotel = state?.hotel;
-  const room = state?.room;
 
-if (!hotel || !room) return null;
+  /* guest fields */
+  const [form, setForm] = useState({ name: "", phone: "", email: "" });
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [checkIn, setCheckIn] = useState(null);
+  const [checkOut, setCheckOut] = useState(null);
 
-  const [bookedDates, setBookedDates] = useState([]);
+  /* selected room option */
+  const [selectedSuggestion, setSelectedSuggestion] = useState(null);
+
+  /* price / availability */
   const [priceMap, setPriceMap] = useState({});
+  const [bookedDates, setBookedDates] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [availableroom, setavailableRoom] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
 
-
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    checkIn: null,
-    checkOut: null,
-    rooms: 1
-  });
-
-  /* ===== PROTECT ===== */
+  /* redirect if no hotel */
   useEffect(() => {
-    if (!hotel || !room) navigate("/hotels");
-  }, [hotel, room, navigate]);
+    if (!hotel) navigate("/hotels");
+  }, [hotel, navigate]);
 
-  /* ===== BOOKED DATES ===== */
+  /* fetch booked dates + prices for selected room */
   useEffect(() => {
-    if (!hotel?._id) return;
+    if (!hotel?._id || !selectedSuggestion) return;
+    const roomType = selectedSuggestion.room.type;
 
     axios
-      .get(`${API_BASE}/hotels/calendar`, {
-        params: { hotelId: hotel._id, roomType: room.type }
-      })
+      .get(`${API_BASE}/hotels/calendar`, { params: { hotelId: hotel._id, roomType } })
       .then(res => setBookedDates(res.data.map(d => new Date(d))))
-      .catch(() => toast.error("Failed to load booked dates"));
-  }, [hotel?._id, room?.type]);
+      .catch(() => {});
 
-  /* ===== MONTH PRICES ===== */
-  useEffect(() => {
-    if (!hotel?._id) return;
-
-    const ref = form.checkIn || new Date();
-
+    const ref = checkIn || new Date();
     axios
       .get(`${API_BASE}/hotels/month-prices`, {
         params: {
           hotelId: hotel._id,
-          roomType: room.type,
+          roomType,
           month: ref.getMonth() + 1,
           year: ref.getFullYear()
         }
@@ -76,425 +130,382 @@ if (!hotel || !room) return null;
         });
         setPriceMap(map);
       })
-      .catch(() => toast.error("Failed to load prices"));
-  }, [hotel?._id, room?.type, form.checkIn]);
+      .catch(() => {});
+  }, [hotel?._id, selectedSuggestion, checkIn]);
 
-useEffect(() => {
-  if (!hotel?._id || !room?.type) return;
-  if (!form.checkIn || !form.checkOut) return;
+  /* suggestions */
+  const suggestions = useMemo(
+    () => buildSuggestions(hotel?.rooms || [], adults),
+    [hotel?.rooms, adults]
+  );
 
-  axios.get(`${API_BASE}/hotels/availability`, {
-    params: {
-      hotelId: hotel._id,
-      roomType: room.type,
-      checkIn: form.checkIn,
-      checkOut: form.checkOut
-    }
-  })
-  .then(res => {
-    setavailableRoom(res.data.availableRooms);
-  })
-  .catch(err => {
-    console.error(err);
-    toast.error("Failed to fetch available rooms");
-  });
+  /* price helper */
+  const getPrice = date =>
+    priceMap[date.toDateString()] ?? selectedSuggestion?.room?.price ?? 0;
 
-}, [form.checkIn, form.checkOut, hotel?._id, room?.type]);
-
-
-
-  const getPrice = (date) =>
-    priceMap[date.toDateString()] ?? room.price;
-
+  /* total */
   const nights = useMemo(() => {
-    if (!form.checkIn || !form.checkOut) return 0;
-    return (form.checkOut - form.checkIn) / 86400000;
-  }, [form.checkIn, form.checkOut]);
-
-  // const availableRooms = useMemo(() => {
-  //   if (!room) return 0;
-  //   return Math.max(0, room.totalRooms - room.bookedRooms);
-  // }, [availableroom]);
-  const availableRooms = availableroom ?? 0;
-
+    if (!checkIn || !checkOut) return 0;
+    return Math.max(0, (checkOut - checkIn) / 86400000);
+  }, [checkIn, checkOut]);
 
   const totalAmount = useMemo(() => {
-    if (!form.checkIn || !form.checkOut) return 0;
+    if (!checkIn || !checkOut || !selectedSuggestion) return 0;
     let sum = 0;
-    let d = new Date(form.checkIn);
-    while (d < form.checkOut) {
+    let d = new Date(checkIn);
+    while (d < checkOut) {
       sum += getPrice(d);
       d.setDate(d.getDate() + 1);
     }
-    return sum * Number(form.rooms || 1);
-  }, [form.checkIn, form.checkOut, form.rooms, priceMap]);
+    return sum * selectedSuggestion.roomsNeeded;
+  }, [checkIn, checkOut, selectedSuggestion, priceMap]);
 
   const disabledDays = [{ before: new Date() }, ...bookedDates];
 
-  /* ===== BOOK ===== */
-  const confirmBooking = async () => {
-  if (!form.name || !form.phone || !form.checkIn || !form.checkOut) {
-    toast.error("Fill all required fields");
-    return;
-  }
+  /* submit */
+  const handleSubmit = async () => {
+    if (!form.name || !form.phone) return toast.error("Name and Phone are required");
+    if (!checkIn || !checkOut) return toast.error("Please select check-in & check-out dates");
+    if (!selectedSuggestion) return toast.error("Please select a room option");
 
-  if (form.rooms > availableRooms) {
-    toast.error("Not enough rooms available");
-    return;
-  }
-
-  try {
     setLoading(true);
-
-    await axios.post(`${API_BASE}/bookings/create`, {
-      hotelId: hotel._id,
-      roomType: room.type,
-      roomsBooked: form.rooms,
-      checkIn: form.checkIn,
-      checkOut: form.checkOut,
-      user: {
-        name: form.name,
-        email: form.email,
-        phone: form.phone
-      }
-    });
-
-    toast.success("Thank you for your enquiry! Our team will contact you within 3 hours.");
-    
-
-    /* 🔥 REFETCH AVAILABILITY AFTER BOOKING */
-    const res = await axios.get(`${API_BASE}/hotels/availability`, {
-      params: {
+    try {
+      await axios.post(`${API_BASE}/bookings/create`, {
         hotelId: hotel._id,
-        roomType: room.type,
-        checkIn: form.checkIn,
-        checkOut: form.checkOut
-      }
-    });
-    
-    setavailableRoom(res.data.availableRooms);
+        roomType: selectedSuggestion.room.type,
+        roomsBooked: selectedSuggestion.roomsNeeded,
+        checkIn,
+        checkOut,
+        adults,
+        children,
+        user: { name: form.name, email: form.email, phone: form.phone }
+      });
+      setSubmitted(true);
+      toast.success("Enquiry sent! Our team will contact you soon.");
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Submission failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      checkIn: null,
-      checkOut: null,
-      rooms: 1
-    });
+  if (!hotel) return null;
 
-  } catch (err) {
-    toast.error(err.response?.data?.msg || "Booking failed");
-  } finally {
-    setLoading(false);
+  const images = hotel.images?.length > 0
+    ? hotel.images.map(img => `${API_BASE}${img}`)
+    : ["/BookHotel.webp"];
+
+  /* ── SUCCESS SCREEN ── */
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white flex items-center justify-center p-6">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full text-center"
+        >
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 size={40} className="text-green-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Enquiry Submitted!</h2>
+          <p className="text-gray-500 mb-6">
+            Thank you <b>{form.name}</b>! Our team will contact you at{" "}
+            <b>{form.phone}</b> within 3 hours.
+          </p>
+          <button
+            onClick={() => navigate("/hotels")}
+            className="w-full py-3 bg-[#F4612B] text-white font-bold rounded-xl hover:bg-[#e65a0f] transition"
+          >
+            Back to Hotels
+          </button>
+        </motion.div>
+      </div>
+    );
   }
-};
-
 
   return (
-
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="max-w-8xl mx-auto p-0"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="min-h-screen bg-gray-50"
     >
-      {/* ================= HERO ================= */}
-      <div className="relative h-[65vh] w-full">
-        <img
-          src="/BookHotel.webp"
-          alt={hotel.name}
-          className="w-full h-full object-cover"
-        />
-
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
-
-        {/* CENTERED CONTENT */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#f46b12]">
-            {hotel.name}
-          </h1>
-
-
-
-          <p className="flex items-center gap-1 mt-3 text-sm md:text-base">
-            <MapPin size={18} className="text-[#f46b12]" />
-            {hotel.location}
+      {/* ── HERO ── */}
+      <div className="relative h-[55vh] w-full overflow-hidden">
+        <img src={images[0]} alt={hotel.name} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+          <p className="text-orange-300 text-sm font-semibold uppercase tracking-wide mb-1">
+            Hotel Enquiry
+          </p>
+          <h1 className="text-4xl font-bold">{hotel.name}</h1>
+          <p className="flex items-center gap-1 mt-2 text-gray-200 text-sm">
+            <MapPin size={14} className="text-orange-400" />
+            {hotel.location || hotel.city}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-10 max-sm:p-2.5">
+      {/* ── BODY ── */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
 
-        {/* LEFT */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow p-6 border space-y-5">
-
-          {/* HOTEL INFO + ROOMS AVAILABLE */}
-          <div className="flex items-start justify-between">
-
-            {/* LEFT CONTENT */}
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                bjkb
-              </h2>
-
-              <p className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                <MapPin size={14} className="text-[#F4612B]" />
-                nkn
-              </p>
-            </div>
-
-            {/* RIGHT BADGE */}
-            <span
-              className="
-      flex items-center gap-2
-      px-4 py-1.5
-      text-sm font-semibold
-      text-[#F4612B]
-      bg-[#F4612B]/20
-      rounded-full
-      whitespace-nowrap
-    "
-            >
-              <BedDouble size={16} />
-              {room.type}
-            </span>
-
-
-          </div>
-
-          {/* USER DETAILS */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Guest Details</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-                className="w-full border rounded-lg px-4 py-2
-                   focus:outline-none focus:ring-2
-                   focus:ring-[#f46b12]"
-              />
-
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={form.phone}
-                onChange={e => setForm({ ...form, phone: e.target.value })}
-                className="w-full border rounded-lg px-4 py-2
-                   focus:outline-none focus:ring-2
-                   focus:ring-[#f46b12]"
-              />
-
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                className="w-full border rounded-lg px-4 py-2
-                   focus:outline-none focus:ring-2
-                   focus:ring-[#f46b12]"
-              />
-            </div>
-          </div>
-
-          {/* DATE PICKERS */}
-
-
-          <div className="flex justify-end">
-            <span
-              className="
-      flex items-center gap-2
-      text-sm font-semibold
-      px-5 py-2 rounded-full
-      bg-[#f46b12]/20 text-[#f46b12]
-      transition-all duration-300
-    "
-            >
-              {availableroom === null ? (
-                <>
-                  <CalendarDays size={16} />
-                  Select dates
-                </>
-              ) : (
-                <>
-                  <BedDouble size={16} />
-                  {availableroom} rooms available
-                </>
-              )}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <DayPicker
-              className="border border-[#f46b12] rounded-2xl lg:pl-7 max-sm:pl-0 md:pl-0"
-              mode="single"
-              selected={form.checkIn}
-              onSelect={d => setForm({ ...form, checkIn: d, checkOut: null })}
-              disabled={disabledDays}
-              formatters={{
-                formatDay: (date) => (
-                  <div className="flex flex-col items-center justify-center leading-none">
-                    <span className="text-[13px] text-[#f46b12] font-semibold">
-                      {date.getDate()}
-                    </span>
-                    <span className="text-[10px] font-medium">
-                      ₹{getPrice(date)}
-                    </span>
-                  </div>
-                )
-              }}
-
+        {/* ── STEP 1: GUEST DETAILS ── */}
+        <Section number="1" title="Your Details">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Field
+              placeholder="Full Name *"
+              value={form.name}
+              onChange={v => setForm({ ...form, name: v })}
             />
-            <DayPicker
-              mode="single"
-              className="border border-[#f46b12] rounded-2xl lg:pl-7 max-sm:pl-0 md:pl-0"
-              selected={form.checkOut}
-              onSelect={d => setForm({ ...form, checkOut: d })}
-              disabled={[...disabledDays, { before: form.checkIn }]}
-              formatters={{
-                formatDay: (date) => (
-                  <div className="flex flex-col items-center justify-center leading-none">
-                    <span className="text-[13px] text-[#f46b12] font-semibold">
-                      {date.getDate()}
-                    </span>
-                    <span className="text-[10px] font-medium">
-                      ₹{getPrice(date)}
-                    </span>
-                  </div>
-                )
-              }}
-
+            <Field
+              placeholder="Phone Number *"
+              type="tel"
+              value={form.phone}
+              onChange={v => setForm({ ...form, phone: v })}
+            />
+            <Field
+              placeholder="Email (optional)"
+              type="email"
+              value={form.email}
+              onChange={v => setForm({ ...form, email: v })}
             />
           </div>
+        </Section>
 
-
-          {/* ROOMS INPUT */}
-          <div className="max-w-4xl">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Number of Rooms
-            </label>
-
-            <input
-              className="w-full border rounded-lg px-4 py-2  focus:outline-none focus:ring-2 focus:ring-[#f46b12]"
-              type="number"
+        {/* ── STEP 2: GUESTS ── */}
+        <Section number="2" title="Number of Guests">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Counter
+              label="Adults"
+              icon={Users}
+              value={adults}
+              onChange={v => { setAdults(v); setSelectedSuggestion(null); }}
               min={1}
-              max={availableroom || 1}
-              value={form.rooms}
-              onChange={e => {
-                const val = Number(e.target.value);
-                if (!isNaN(val)) {
-                  setForm({
-                    ...form,
-                    rooms: Math.min(availableroom || 1, Math.max(1, val))
-                  });
-                }
-              }}
             />
-
-
-
-            <p className="text-xs text-gray-500 mt-1">
-              Maximum {availableroom ?? 0} rooms allowed
-            </p>
+            <Counter
+              label="Children"
+              icon={Baby}
+              value={children}
+              onChange={setChildren}
+              min={0}
+            />
           </div>
+        </Section>
 
-        </div>
-        {/* RIGHT */}
-        <div className="space-y-6">
+        {/* ── STEP 3: ROOM OPTIONS (smart suggestions) ── */}
+        <Section number="3" title="Choose Room Option">
+          {suggestions.length === 0 ? (
+            <p className="text-gray-400 italic text-sm text-center py-4">
+              No room options available.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {suggestions.map((s, i) => (
+                <motion.button
+                  key={i}
+                  type="button"
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    setSelectedSuggestion(s);
+                    setCheckIn(null);
+                    setCheckOut(null);
+                  }}
+                  className={`p-4 rounded-2xl border-2 text-left transition-all ${
+                    selectedSuggestion?.label === s.label
+                      ? "border-[#F4612B] bg-orange-50 shadow-md shadow-orange-100"
+                      : "border-gray-200 bg-white hover:border-orange-300"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <BedDouble
+                      size={26}
+                      className={selectedSuggestion?.label === s.label ? "text-[#F4612B]" : "text-gray-400"}
+                    />
+                    {selectedSuggestion?.label === s.label && (
+                      <CheckCircle2 size={20} className="text-[#F4612B] mt-0.5" />
+                    )}
+                  </div>
+                  <p className="mt-3 font-bold text-gray-900 text-lg capitalize">{s.label}</p>
+                  <p className="text-sm text-gray-500 mt-0.5">{s.desc}</p>
+                </motion.button>
+              ))}
+            </div>
+          )}
+        </Section>
 
-          {/* ================= BOOKING SUMMARY ================= */}
-          <div className="bg-white rounded-xl shadow border overflow-hidden">
-            <div className="p-6">
-              <h2 className="text-lg font-bold mb-4">Booking Summary</h2>
-
-              {form.checkIn && form.checkOut && (
-                <>
-                  {/* DATE WISE PRICE */}
-                  <div className="text-sm space-y-2">
-                    {(() => {
-                      let d = new Date(form.checkIn);
-                      const rows = [];
-                      while (d < form.checkOut) {
-                        rows.push(
-                          <div
-                            key={d.toDateString()}
-                            className="flex justify-between text-gray-600"
-                          >
-                            <span>{d.toDateString()}</span>
-                            <span>₹{getPrice(d)}</span>
+        {/* ── STEP 4: DATES (only if room selected) ── */}
+        <AnimatePresence>
+          {selectedSuggestion && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+            >
+              <Section number="4" title="Select Dates">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* CHECK-IN */}
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1">
+                      <CalendarDays size={14} /> Check-In
+                    </p>
+                    <DayPicker
+                      mode="single"
+                      selected={checkIn}
+                      onSelect={d => { setCheckIn(d); setCheckOut(null); }}
+                      disabled={disabledDays}
+                      className="border border-orange-200 rounded-2xl p-3 bg-white shadow-sm w-full"
+                      formatters={{
+                        formatDay: date => (
+                          <div className="flex flex-col items-center leading-none">
+                            <span className="text-[13px] font-semibold text-gray-700">
+                              {date.getDate()}
+                            </span>
+                            {priceMap[date.toDateString()] && (
+                              <span className="text-[9px] font-medium text-[#F4612B]">
+                                ₹{priceMap[date.toDateString()]}
+                              </span>
+                            )}
                           </div>
-                        );
-                        d.setDate(d.getDate() + 1);
-                      }
-                      return rows;
-                    })()}
+                        )
+                      }}
+                    />
                   </div>
 
-                  {/* TOTAL */}
-                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-red-300">
-                    <span className="font-semibold text-[#F4612B]">Total</span>
-                    <span className="font-bold text-[#F4612B] text-lg">
-                      ₹{totalAmount}
-                    </span>
+                  {/* CHECK-OUT */}
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1">
+                      <CalendarDays size={14} /> Check-Out
+                    </p>
+                    <DayPicker
+                      mode="single"
+                      selected={checkOut}
+                      onSelect={setCheckOut}
+                      disabled={[...disabledDays, { before: checkIn || new Date() }]}
+                      className="border border-orange-200 rounded-2xl p-3 bg-white shadow-sm w-full"
+                      formatters={{
+                        formatDay: date => (
+                          <div className="flex flex-col items-center leading-none">
+                            <span className="text-[13px] font-semibold text-gray-700">
+                              {date.getDate()}
+                            </span>
+                            {priceMap[date.toDateString()] && (
+                              <span className="text-[9px] font-medium text-[#F4612B]">
+                                ₹{priceMap[date.toDateString()]}
+                              </span>
+                            )}
+                          </div>
+                        )
+                      }}
+                    />
                   </div>
-                </>
-              )}
+                </div>
+              </Section>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-              {/* CONFIRM BUTTON */}
+        {/* ── BOOKING SUMMARY + SUBMIT ── */}
+        <AnimatePresence>
+          {selectedSuggestion && checkIn && checkOut && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="bg-white rounded-3xl border border-gray-200 shadow-md p-6 space-y-4"
+            >
+              <h3 className="text-lg font-bold text-gray-900">Booking Summary</h3>
+
+              <div className="space-y-2 text-sm text-gray-600">
+                <Row label="Hotel" value={hotel.name} />
+                <Row label="Room" value={selectedSuggestion.label} />
+                <Row
+                  label="Guests"
+                  value={`${adults} Adults${children > 0 ? `, ${children} Children` : ""}`}
+                />
+                <Row label="Check-In" value={checkIn.toDateString()} />
+                <Row label="Check-Out" value={checkOut.toDateString()} />
+                <Row label="Nights" value={nights} />
+              </div>
+
+              {/* date-wise price breakdown */}
+              <div className="max-h-40 overflow-y-auto space-y-1.5 border-t pt-3 text-sm">
+                {(() => {
+                  let d = new Date(checkIn);
+                  const rows = [];
+                  while (d < checkOut) {
+                    rows.push(
+                      <div key={d.toDateString()} className="flex justify-between text-gray-500">
+                        <span>{d.toDateString()}</span>
+                        <span>₹{getPrice(d)} × {selectedSuggestion.roomsNeeded} room{selectedSuggestion.roomsNeeded > 1 ? "s" : ""}</span>
+                      </div>
+                    );
+                    d.setDate(d.getDate() + 1);
+                  }
+                  return rows;
+                })()}
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-orange-200 text-lg font-bold text-[#F4612B]">
+                <span>Total Estimate</span>
+                <span>₹{totalAmount.toLocaleString()}</span>
+              </div>
+
               <button
-                onClick={confirmBooking}
-                disabled={loading || totalAmount === 0}
-                className="mt-6 w-full bg-[#F4612B] text-white py-3 rounded-lg
-                   font-semibold text-sm hover:bg-[#e85f0f]
-                   transition disabled:opacity-60"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full py-4 bg-[#F4612B] text-white text-base font-bold rounded-2xl
+                           hover:bg-[#e65a0f] active:scale-[0.98] transition-all
+                           shadow-lg shadow-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Booking..." : "Enquiry for Booking"}
+                {loading ? "Submitting..." : "Submit Enquiry 🏨"}
               </button>
-            </div>
-          </div>
 
-          {/* ================= CANCELLATION POLICY ================= */}
-          <div className="bg-white rounded-xl shadow border p-6">
-            <h3 className="text-lg font-bold text-center text-[#F4612B] mb-5">
-              Cancellation Policy
-            </h3>
-
-            {/* FULL REFUND */}
-            <div className="flex gap-3 p-4 rounded-lg bg-orange-50 border-l-4 border-[#F4612B] mb-4">
-              <span className="text-[#F4612B] font-bold">✓</span>
-              <p className="text-sm text-gray-700">
-                Cancel the hotel <b>7 days or more</b> before the departure date and get
-                a <span className="text-green-600 font-semibold">100% refund</span>.
+              <p className="text-center text-xs text-gray-400">
+                Our team will contact you within 3 hours to confirm your booking.
               </p>
-            </div>
-
-            {/* PARTIAL REFUND */}
-            <div className="flex gap-3 p-4 rounded-lg bg-red-50 border-l-4 border-red-400 mb-4">
-              <span className="text-red-500 font-bold">!</span>
-              <p className="text-sm text-gray-700">
-                If you cancel the hotel <b>7 days or less</b> before departure,
-                <span className="text-red-600 font-semibold">
-                  {" "}
-                  30% of the total amount
-                </span>{" "}
-                will be deducted as cancellation charges.
-              </p>
-            </div>
-
-            <p className="text-xs text-center text-gray-500">
-              Refunds will be processed within <b>7–10 working days</b> to the original
-              payment method.
-            </p>
-          </div>
-
-        </div>
-
-
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </motion.div>
+  );
+}
+
+/* ─── small helpers ─── */
+function Section({ number, title, children }) {
+  return (
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6 space-y-5">
+      <div className="flex items-center gap-3">
+        <span className="w-8 h-8 flex items-center justify-center bg-[#F4612B] text-white text-sm font-bold rounded-full">
+          {number}
+        </span>
+        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Field({ placeholder, type = "text", value, onChange }) {
+  return (
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm
+                 focus:outline-none focus:ring-2 focus:ring-[#F4612B] focus:border-transparent
+                 bg-gray-50 placeholder-gray-400 transition"
+    />
+  );
+}
+
+function Row({ label, value }) {
+  return (
+    <div className="flex justify-between">
+      <span className="text-gray-400">{label}</span>
+      <span className="font-semibold text-gray-800 capitalize">{value}</span>
+    </div>
   );
 }
