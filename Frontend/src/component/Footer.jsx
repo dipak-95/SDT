@@ -131,7 +131,7 @@ export default function Footer() {
         href={`https://wa.me/919979922797?text=${whatsappMessage}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-24 right-10 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl flex flex-row-reverse items-center group transition-all duration-300"
+        className="fixed bottom-28 right-12 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl flex flex-row-reverse items-center group transition-all duration-300"
         whileHover={{ scale: 1.05 }}
       >
         <motion.div

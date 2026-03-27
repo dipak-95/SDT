@@ -53,8 +53,8 @@ export function ScrollToTopButton() {
     <motion.div
       className="
         fixed
-        bottom-4 sm:bottom-6
-        right-4 sm:right-6
+        bottom-6 sm:bottom-8
+        right-10 sm:right-12
         z-50
         cursor-pointer
       "
