@@ -54,8 +54,7 @@ export default function BookCar() {
     !form.email ||
     !form.phone ||
     !form.startDate ||
-    !form.endDate ||
-    form.persons < 1
+    !form.endDate
   ) {
     toast.error("Please fill all required fields");
     return;
@@ -68,7 +67,6 @@ export default function BookCar() {
       userName: form.name,
       email: form.email,
       phone: form.phone,
-      persons: form.persons,
 
       startDate: form.startDate,
       endDate: form.endDate,
@@ -196,14 +194,13 @@ export default function BookCar() {
                 />
               </div>
 
-              <div className="md:col-span-2 space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Total Passengers</label>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
                 <input
-                  type="number"
                   className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                  placeholder="How many people?"
-                  value={form.persons}
-                  onChange={e => setForm({ ...form, persons: Number(e.target.value) })}
+                  placeholder="example@mail.com"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
                 />
               </div>
 
@@ -267,7 +264,7 @@ export default function BookCar() {
                 </div>
 
                 <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                  <span className="text-gray-500 font-medium">Daily Limit (Min)</span>
+                  <span className="text-gray-500 font-medium">Daily Limit</span>
                   <span className="font-bold text-gray-900">300 KM / Day</span>
                 </div>
 
@@ -280,11 +277,11 @@ export default function BookCar() {
                   <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-2">
                     <p className="text-[10px] font-bold text-orange-400 uppercase tracking-widest">Calculation Breakdown</p>
                     <div className="flex justify-between items-center text-xs">
-                       <span className="text-gray-600 font-medium">Min Distance ({days} × 300)</span>
+                       <span className="text-gray-600 font-medium">Maximum Distance ({days} × 300)</span>
                        <span className="font-bold text-gray-800">{days * 300} KM</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                       <span className="text-gray-600 font-medium">Rate ({days * 300} × {car.pricePerKm})</span>
+                       <span className="text-gray-600 font-medium">Estimation ({days * 300} × {car.pricePerKm})</span>
                        <span className="font-bold text-gray-800">₹{total}</span>
                     </div>
                   </div>
