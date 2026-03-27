@@ -20,30 +20,43 @@ function bedsPerRoom(type) {
 
 function buildSuggestions(rooms, adults) {
   if (!rooms?.length || !adults) return [];
-  const results = [];
 
-  rooms.forEach(room => {
-    const capacity = bedsPerRoom(room.type);
-    if (capacity < 1) return;
-    const roomsNeeded = Math.ceil(adults / capacity);
-    results.push({
-      room,
-      roomsNeeded,
-      label: `${room.type} × ${roomsNeeded} room${roomsNeeded > 1 ? "s" : ""}`,
-      desc: `Accommodates ${capacity * roomsNeeded} guest${capacity * roomsNeeded > 1 ? "s" : ""}`
-    });
-  });
+  // Calculate all possible options with their waste
+  const options = rooms
+    .map(room => {
+      const capacity = bedsPerRoom(room.type);
+      if (capacity < 1) return null;
+      const roomsNeeded = Math.ceil(adults / capacity);
+      const totalCapacity = roomsNeeded * capacity;
+      const waste = totalCapacity - adults;
+      return { room, roomsNeeded, totalCapacity, waste, capacity };
+    })
+    .filter(Boolean);
 
-  // deduplicate and sort by rooms needed
+  // Only show exact fits (waste === 0).
+  // If zero exact fits exist, fallback to minimum-waste options.
+  const perfectFits = options.filter(o => o.waste === 0);
+  const minWaste = options.reduce((min, o) => Math.min(min, o.waste), Infinity);
+  const valid = perfectFits.length > 0
+    ? perfectFits
+    : options.filter(o => o.waste === minWaste);
+
+  // Deduplicate by label, sort by rooms needed
   const seen = new Set();
-  return results
-    .filter(s => {
-      const key = s.label;
+  return valid
+    .filter(o => {
+      const key = `${o.room.type}×${o.roomsNeeded}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     })
-    .sort((a, b) => a.roomsNeeded - b.roomsNeeded);
+    .sort((a, b) => a.roomsNeeded - b.roomsNeeded)
+    .map(o => ({
+      room: o.room,
+      roomsNeeded: o.roomsNeeded,
+      label: `${o.room.type} × ${o.roomsNeeded} room${o.roomsNeeded > 1 ? "s" : ""}`,
+      desc: `${o.totalCapacity} guest${o.totalCapacity > 1 ? "s" : ""} capacity`
+    }));
 }
 
 /* ───── counter ───── */
