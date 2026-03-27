@@ -131,18 +131,21 @@ export default function Footer() {
         href={`https://wa.me/919979922797?text=${whatsappMessage}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 left-6 z-50 bg-green-500 text-white px-4 py-3 rounded-full shadow-lg overflow-hidden flex items-center gap-2"
-        whileHover={{ scale: 1.08 }}
+        className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl flex items-center group overflow-hidden"
+        whileHover={{ scale: 1.1 }}
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
       >
-        {/* GLASS SHINE */}
+        {/* Pulsating background effect */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12"
-          initial={{ x: "-120%" }}
-          animate={{ x: "120%" }}
-          transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+          className="absolute inset-0 bg-white/30 rounded-full"
+          animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
+          transition={{ repeat: Infinity, duration: 2 }}
         />
-        <FaWhatsapp className="text-xl relative z-10" />
-        <span className="hidden sm:block text-sm font-semibold relative z-10">
+        
+        <FaWhatsapp className="text-2xl relative z-10" />
+        
+        <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-bold relative z-10 group-hover:max-w-[200px] group-hover:ml-3 transition-all duration-500 ease-in-out">
           Discuss on WhatsApp
         </span>
       </motion.a>
