@@ -68,21 +68,22 @@ export default function HotelCard({ hotel }) {
       ? hotel.images.map(img => `${API_BASE}${img}`)
       : ["/no-hotel.jpg"];
 
-  const icons = {
-    wifi: <Wifi size={22} />,
-    meal: <Coffee size={22} />,
-    parking: <Car size={22} />,
-    pool: <Waves size={22} />,
-    ac: <ThermometerSnowflake size={22} />,
-    tv: <Tv size={22} />,
-    restaurant: <Utensils size={22} />,
-    gym: <Dumbbell size={22} />,
-    security: <Shield size={22} />,
-    reception: <Key size={22} />,
-    staff: <UserCheck size={22} />,
-    area: <Map size={22} />,
-    support: <Phone size={22} />,
-    info: <Info size={22} />,
+  const getIcon = (name) => {
+    const lName = name.toLowerCase();
+    if (lName.includes("wifi") || lName.includes("internet")) return <Wifi size={22} />;
+    if (lName.includes("food") || lName.includes("meal") || lName.includes("coffee") || lName.includes("breakfast") || lName.includes("tea")) return <Coffee size={22} />;
+    if (lName.includes("car") || lName.includes("park") || lName.includes("transport") || lName.includes("taxi")) return <Car size={22} />;
+    if (lName.includes("pool") || lName.includes("swim")) return <Waves size={22} />;
+    if (lName.includes("ac") || lName.includes("air") || lName.includes("cool")) return <ThermometerSnowflake size={22} />;
+    if (lName.includes("tv") || lName.includes("television")) return <Tv size={22} />;
+    if (lName.includes("rest") || lName.includes("dine") || lName.includes("lunch")) return <Utensils size={22} />;
+    if (lName.includes("gym") || lName.includes("fit")) return <Dumbbell size={22} />;
+    if (lName.includes("secur") || lName.includes("safe") || lName.includes("cctv")) return <Shield size={22} />;
+    if (lName.includes("recep") || lName.includes("key")) return <Key size={22} />;
+    if (lName.includes("staff") || lName.includes("serv") || lName.includes("room")) return <UserCheck size={22} />;
+    if (lName.includes("area") || lName.includes("map")) return <Map size={22} />;
+    if (lName.includes("support") || lName.includes("call") || lName.includes("phone") || lName.includes("help")) return <Phone size={22} />;
+    return <Info size={22} />;
   };
 
   const activeAmenities = Object.entries(hotel.amenities || {})
@@ -126,7 +127,7 @@ export default function HotelCard({ hotel }) {
             <div key={i} className="text-center">
               <div className="w-12 h-12 flex flex-col items-center justify-center
                               rounded-lg bg-orange-50 text-[#F4612B]">
-                {icons[item] || <Info size={22} />}
+                {getIcon(item)}
                 <span className="text-[11px] font-semibold text-gray-600 capitalize">
                   {item}
                 </span>
