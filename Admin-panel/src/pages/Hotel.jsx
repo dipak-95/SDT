@@ -170,6 +170,14 @@ export default function Hotel() {
           onClose={() => setShowFacilityManage(false)} 
         />
       )}
+
+      {/* PRICE CALENDAR MODAL */}
+      {priceHotel && (
+        <PriceCalendarModal
+          hotel={priceHotel}
+          close={() => setPriceHotel(null)}
+        />
+      )}
     </div>
   );
 }
