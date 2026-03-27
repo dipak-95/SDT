@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Users, Baby, BedDouble, CalendarDays, CheckCircle2, ChevronDown, ChevronUp, Plus, Minus } from "lucide-react";
+import { MapPin, Users, Baby, BedDouble, CalendarDays, CheckCircle2,
+  Plus, Minus, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/dist/style.css";
 
 const API_BASE = "https://api.sdtour.online";
 
@@ -117,6 +116,100 @@ function Counter({ label, icon: Icon, value, onChange, min = 0 }) {
         >
           <Plus size={14} />
         </button>
+      </div>
+    </div>
+  );
+}
+
+/* ───── MINI CALENDAR ───── */
+const MONTHS = ["January","February","March","April","May","June",
+  "July","August","September","October","November","December"];
+const DAYS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
+function MiniCalendar({ selected, onSelect, disabledBefore, bookedDates = [], getTotalPerNight, label }) {
+  const initDate = selected || disabledBefore || new Date();
+  const [view, setView] = useState(new Date(initDate.getFullYear(), initDate.getMonth(), 1));
+  const year  = view.getFullYear();
+  const month = view.getMonth();
+
+  const today      = new Date(); today.setHours(0,0,0,0);
+  const bookedSet  = new Set(bookedDates.map(d => d.toDateString()));
+  const firstDay   = new Date(year, month, 1).getDay();
+  const daysInMon  = new Date(year, month + 1, 0).getDate();
+
+  const cells = [
+    ...Array(firstDay).fill(null),
+    ...Array.from({ length: daysInMon }, (_, i) => i + 1)
+  ];
+
+  return (
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-lg overflow-hidden">
+      {/* ── header ── */}
+      <div className="bg-gradient-to-r from-[#F4612B] to-orange-400 px-5 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-orange-100 text-[11px] font-semibold uppercase tracking-widest flex items-center gap-1">
+            <CalendarDays size={12} /> {label}
+          </p>
+          <p className="text-white font-bold text-base mt-0.5">
+            {selected ? selected.toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" }) : "Not selected"}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <button type="button" onClick={() => setView(new Date(year, month-1, 1))}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition active:scale-90">
+            <ChevronLeft size={16}/>
+          </button>
+          <span className="text-white font-bold text-sm px-2 min-w-[110px] text-center">
+            {MONTHS[month]} {year}
+          </span>
+          <button type="button" onClick={() => setView(new Date(year, month+1, 1))}
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/40 text-white transition active:scale-90">
+            <ChevronRight size={16}/>
+          </button>
+        </div>
+      </div>
+
+      {/* ── day names ── */}
+      <div className="grid grid-cols-7 bg-orange-50 border-b border-orange-100">
+        {DAYS.map(d => (
+          <div key={d} className="text-center text-[10px] font-bold text-orange-400 uppercase py-2">{d}</div>
+        ))}
+      </div>
+
+      {/* ── cells ── */}
+      <div className="grid grid-cols-7 gap-0 p-3">
+        {cells.map((day, i) => {
+          if (!day) return <div key={`e${i}`} />;
+          const date = new Date(year, month, day);
+          date.setHours(0,0,0,0);
+          const disabled  = date < today || (disabledBefore && date < disabledBefore) || bookedSet.has(date.toDateString());
+          const isSel     = selected && date.toDateString() === selected.toDateString();
+          const isToday   = date.toDateString() === today.toDateString();
+          const nightPx   = getTotalPerNight ? getTotalPerNight(date) : 0;
+
+          return (
+            <button
+              key={day} type="button" disabled={disabled}
+              onClick={() => !disabled && onSelect(date)}
+              className={`relative flex flex-col items-center justify-center h-11 rounded-xl mx-0.5 my-0.5 transition-all text-xs font-semibold
+                ${ isSel
+                    ? "bg-[#F4612B] text-white shadow-md shadow-orange-200 scale-105"
+                    : disabled
+                      ? "text-gray-200 cursor-not-allowed"
+                      : isToday
+                        ? "bg-orange-50 text-[#F4612B] ring-1 ring-orange-300"
+                        : "hover:bg-orange-50 text-gray-700 hover:text-[#F4612B]"
+                }`}
+            >
+              <span>{day}</span>
+              {nightPx > 0 && !disabled && (
+                <span className={`text-[8px] leading-none font-semibold ${ isSel ? "text-orange-100" : "text-[#F4612B]"}`}>
+                  {nightPx >= 1000 ? `₹${(nightPx/1000).toFixed(1)}k` : `₹${nightPx}`}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -412,101 +505,25 @@ export default function BookingHotel() {
             >
               <Section number="4" title="Select Dates">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* CHECK-IN */}
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1">
-                      <CalendarDays size={14} /> Check-In
-                    </p>
-                    <DayPicker
-                      mode="single"
-                      selected={checkIn}
-                      onSelect={d => { setCheckIn(d); setCheckOut(null); }}
-                      disabled={disabledDays}
-                      className="cal-picker"
-                      classNames={{
-                        months: "flex flex-col",
-                        caption: "flex justify-center relative items-center mb-4 px-2",
-                        caption_label: "text-base font-bold text-gray-800",
-                        nav: "flex items-center",
-                        nav_button: "absolute p-1.5 rounded-full hover:bg-orange-50 text-gray-500 hover:text-[#F4612B] transition",
-                        nav_button_previous: "left-0",
-                        nav_button_next: "right-0",
-                        table: "w-full border-collapse",
-                        head_row: "flex mb-1",
-                        head_cell: "text-gray-400 text-[11px] font-bold w-10 text-center uppercase tracking-wide",
-                        row: "flex mt-1",
-                        cell: "relative p-0",
-                        day: "w-10 h-11 rounded-xl text-xs font-medium hover:bg-orange-50 transition flex flex-col items-center justify-center cursor-pointer text-gray-700",
-                        day_selected: "!bg-[#F4612B] !text-white rounded-xl hover:!bg-[#e65a0f] font-bold",
-                        day_today: "font-bold text-[#F4612B] underline",
-                        day_disabled: "text-gray-200 cursor-not-allowed hover:bg-transparent",
-                        day_outside: "text-gray-300 opacity-40",
-                      }}
-                      formatters={{
-                        formatDay: date => {
-                          const total = getTotalPerNight(date);
-                          return (
-                            <div className="flex flex-col items-center leading-none gap-0.5">
-                              <span>{date.getDate()}</span>
-                              {total > 0 && (
-                                <span className="text-[8px] font-semibold text-[#F4612B] leading-none">
-                                  ₹{total}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        }
-                      }}
-                    />
-                  </div>
-
-                  {/* CHECK-OUT */}
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1">
-                      <CalendarDays size={14} /> Check-Out
-                    </p>
-                    <DayPicker
-                      mode="single"
-                      selected={checkOut}
-                      onSelect={setCheckOut}
-                      disabled={[...disabledDays, { before: checkIn || new Date() }]}
-                      className="cal-picker"
-                      classNames={{
-                        months: "flex flex-col",
-                        caption: "flex justify-center relative items-center mb-4 px-2",
-                        caption_label: "text-base font-bold text-gray-800",
-                        nav: "flex items-center",
-                        nav_button: "absolute p-1.5 rounded-full hover:bg-orange-50 text-gray-500 hover:text-[#F4612B] transition",
-                        nav_button_previous: "left-0",
-                        nav_button_next: "right-0",
-                        table: "w-full border-collapse",
-                        head_row: "flex mb-1",
-                        head_cell: "text-gray-400 text-[11px] font-bold w-10 text-center uppercase tracking-wide",
-                        row: "flex mt-1",
-                        cell: "relative p-0",
-                        day: "w-10 h-11 rounded-xl text-xs font-medium hover:bg-orange-50 transition flex flex-col items-center justify-center cursor-pointer text-gray-700",
-                        day_selected: "!bg-[#F4612B] !text-white rounded-xl hover:!bg-[#e65a0f] font-bold",
-                        day_today: "font-bold text-[#F4612B] underline",
-                        day_disabled: "text-gray-200 cursor-not-allowed hover:bg-transparent",
-                        day_outside: "text-gray-300 opacity-40",
-                      }}
-                      formatters={{
-                        formatDay: date => {
-                          const total = getTotalPerNight(date);
-                          return (
-                            <div className="flex flex-col items-center leading-none gap-0.5">
-                              <span>{date.getDate()}</span>
-                              {total > 0 && (
-                                <span className="text-[8px] font-semibold text-[#F4612B] leading-none">
-                                  ₹{total}
-                                </span>
-                              )}
-                            </div>
-                          );
-                        }
-                      }}
-                    />
-                  </div>
+                  <MiniCalendar
+                    label="Check-In"
+                    selected={checkIn}
+                    onSelect={d => { setCheckIn(d); setCheckOut(null); }}
+                    disabledBefore={new Date()}
+                    bookedDates={bookedDates}
+                    getTotalPerNight={getTotalPerNight}
+                  />
+                  <MiniCalendar
+                    label="Check-Out"
+                    selected={checkOut}
+                    onSelect={setCheckOut}
+                    disabledBefore={checkIn
+                      ? new Date(checkIn.getTime() + 86400000)   // strictly after check-in
+                      : new Date(Date.now() + 86400000)
+                    }
+                    bookedDates={bookedDates}
+                    getTotalPerNight={getTotalPerNight}
+                  />
                 </div>
               </Section>
             </motion.div>
