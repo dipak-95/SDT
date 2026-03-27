@@ -3,12 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import CarCard from "../component/CarCard";
 import CarCardSkeleton from "../component/CarCardSkeleton";
-import {
-  Search,
-  Car,
-  Bus,
-  Truck
-} from "lucide-react";
+import { Search } from "lucide-react";
 
 const BASE_URL = "https://api.sdtour.online";
 
@@ -16,142 +11,156 @@ export default function Cars() {
   const [cars, setCars] = useState([]);
   const [type, setType] = useState("all");
   const [search, setSearch] = useState("");
-   const [loading, setLoading] = useState(true);
-   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
 
-  /* ================= FETCH CARS & CATEGORIES ================= */
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const [carsRes, catRes] = await Promise.all([
-        axios.get(`${BASE_URL}/cars`),
-        axios.get(`${BASE_URL}/car-categories`)
-      ]);
-      setCars(carsRes.data);
-      setCategories(catRes.data);
-    } catch (error) {
-      console.error("Fetch error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchData = async () => {
+      try {
+        const [carsRes, catRes] = await Promise.all([
+          axios.get(`${BASE_URL}/cars`),
+          axios.get(`${BASE_URL}/car-categories`)
+        ]);
+        setCars(carsRes.data);
+        setCategories(catRes.data);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  fetchData();
-}, []);
-
-  /* ================= FILTER LOGIC ================= */
   const filteredCars = cars.filter(car => {
-    const matchesType =
-      type === "all" ? true : car.type === type;
-
-    const matchesSearch =
-      car.name.toLowerCase().includes(search.toLowerCase());
-
+    const matchesType = type === "all" ? true
+      : car.type?.toLowerCase() === type?.toLowerCase();
+    const matchesSearch = car.name.toLowerCase().includes(search.toLowerCase());
     return matchesType && matchesSearch;
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-hidden">
 
-      {/* ================= HERO ================= */}
-      <div className="relative h-[65vh] w-full">
+      {/* ── HERO ── */}
+      <div className="relative h-[65vh] w-full overflow-hidden">
         <img
           src="/heroofcar.webp"
-          className="absolute inset-0 w-full h-full object-cover"
-          alt="Cars"
+          className="absolute inset-0 w-full h-full object-cover scale-105"
+          alt="Car Rental"
         />
-        <div className="absolute inset-0 bg-black/50" />
-
-        <div className="relative z-10 h-full flex items-center justify-center">
-          <h1 className="text-white text-4xl md:text-5xl font-bold">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-orange-400 font-semibold uppercase tracking-widest text-sm mb-3"
+          >
+            Saurashtra Darshan Tours
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="text-white text-4xl md:text-5xl font-extrabold drop-shadow-lg"
+          >
             Choose Your Perfect Ride
-          </h1>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-gray-300 mt-3 text-base"
+          >
+            Comfortable · Safe · Affordable
+          </motion.p>
         </div>
       </div>
 
-      {/* ================= SEARCH & CATEGORY ================= */}
-      <div className="px-6 py-8">
+      {/* ── SEARCH & FILTER BAR ── */}
+      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
 
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-8">
-
-          {/* SEARCH */}
-          <div className="relative w-full lg:w-[480px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          {/* Search */}
+          <div className="relative w-full sm:w-[380px]">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              placeholder="Search vehicle name or model"
+              placeholder="Search vehicle name or model..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="
-                w-full pl-11 pr-4 py-3 rounded-xl
-                border border-[#F4612B]
-                focus:ring-2 focus:ring-[#F4612B]/30
-                focus:outline-none text-sm
-              "
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50
+                         focus:ring-2 focus:ring-[#F4612B]/30 focus:outline-none focus:border-[#F4612B]
+                         text-sm text-gray-700 placeholder-gray-400 transition"
             />
           </div>
 
-          {/* CATEGORY TABS */}
-          <div className="flex flex-wrap gap-3">
+          {/* Category tabs — horizontally scrollable */}
+          <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 max-w-full scrollbar-hide">
             <button
-               onClick={() => setType("all")}
-               className={`
-                 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
-                 transition-all duration-300
-                 ${type === "all"
-                   ? "bg-[#F4612B] text-white shadow-md"
-                   : "bg-white border border-gray-300 text-gray-700 hover:bg-orange-50"
-                 }
-               `}
+              onClick={() => setType("all")}
+              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap
+                ${type === "all"
+                  ? "bg-[#F4612B] text-white shadow-md shadow-orange-200"
+                  : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-[#F4612B]"
+                }`}
             >
-               All Vehicles
+              All Vehicles
             </button>
             {categories.map(c => (
               <button
                 key={c._id}
                 onClick={() => setType(c.name)}
-                className={`
-                  flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium capitalize
-                  transition-all duration-300
-                  ${type === c.name
-                    ? "bg-[#F4612B] text-white shadow-md"
-                    : "bg-white border border-gray-300 text-gray-700 hover:bg-orange-50"
-                  }
-                `}
+                className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap capitalize
+                  ${type?.toLowerCase() === c.name?.toLowerCase()
+                    ? "bg-[#F4612B] text-white shadow-md shadow-orange-200"
+                    : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-[#F4612B]"
+                  }`}
               >
                 {c.name}
               </button>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* ================= CAR LIST ================= */}
-       <motion.div
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5 }}
-  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
->
-  {/* ================= SKELETON ================= */}
-  {loading &&
-    Array.from({ length: 6 }).map((_, i) => (
-      <CarCardSkeleton key={i} />
-    ))}
+      {/* ── CAR GRID ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
 
-  {/* ================= DATA ================= */}
-  {!loading && filteredCars.length > 0 &&
-    filteredCars.map(car => (
-      <CarCard key={car._id} car={car} />
-    ))}
+        {/* result count */}
+        {!loading && (
+          <p className="text-sm text-gray-400 mb-6">
+            Showing <span className="font-bold text-gray-700">{filteredCars.length}</span> vehicle{filteredCars.length !== 1 ? "s" : ""}
+            {type !== "all" ? ` in "${type}"` : ""}
+          </p>
+        )}
 
-  {/* ================= EMPTY STATE ================= */}
-  {!loading && filteredCars.length === 0 && (
-    <div className="col-span-full text-center py-16 text-gray-500">
-      No vehicles found
-    </div>
-  )}
-</motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {loading && Array.from({ length: 6 }).map((_, i) => <CarCardSkeleton key={i} />)}
 
+          {!loading && filteredCars.map((car, i) => (
+            <motion.div
+              key={car._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <CarCard car={car} />
+            </motion.div>
+          ))}
 
+          {!loading && filteredCars.length === 0 && (
+            <div className="col-span-full flex flex-col items-center py-20 text-gray-400">
+              <span className="text-5xl mb-3">🚗</span>
+              <p className="text-lg font-semibold">No vehicles found</p>
+              <p className="text-sm mt-1">Try a different category or search term</p>
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );
