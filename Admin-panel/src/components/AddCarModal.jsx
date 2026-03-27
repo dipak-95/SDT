@@ -5,32 +5,45 @@ import { toast } from "react-toastify";
 
 const BASE_URL = "https://api.sdtour.online";
 
-/* ===== FEATURE OPTIONS ===== */
-const FEATURE_OPTIONS = [
-  { key: "ac", label: "AC ❄️" },
-  { key: "gps", label: "GPS 📍" },
-  { key: "bluetooth", label: "Bluetooth 🔊" },
-  { key: "music", label: "Music System 🎵" },
-  { key: "charging", label: "Charging Port 🔌" },
-  { key: "luggage", label: "Luggage Space 🧳" }
-];
+/* Removed static FEATURE_OPTIONS */
 
 export default function AddCarModal({ onClose, onAdded }) {
   const [form, setForm] = useState({
     name: "",
-    type: "car",
+    type: "",
     seats: "",
     pricePerKm: "",
     fuelType: "petrol",
     features: []
   });
 
+  const [categories, setCategories] = useState([]);
+  const [facilities, setFacilities] = useState([]);
+
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* 🔒 Disable background scroll */
+  /* 🔒 Fetch data and handle scroll */
   useEffect(() => {
     document.body.style.overflow = "hidden";
+    
+    const fetchData = async () => {
+      try {
+        const [catRes, facRes] = await Promise.all([
+          axios.get(`${BASE_URL}/car-categories`),
+          axios.get(`${BASE_URL}/car-facilities`)
+        ]);
+        setCategories(catRes.data);
+        setFacilities(facRes.data);
+        if (catRes.data.length > 0) {
+          setForm(prev => ({ ...prev, type: catRes.data[0].name }));
+        }
+      } catch (err) {
+        toast.error("Failed to load categories/facilities");
+      }
+    };
+    fetchData();
+
     return () => (document.body.style.overflow = "auto");
   }, []);
 
@@ -103,11 +116,11 @@ export default function AddCarModal({ onClose, onAdded }) {
           <select
             value={form.type}
             onChange={e => setForm({ ...form, type: e.target.value })}
-            className="input-field"
+            className="input-field capitalize"
           >
-            <option value="car">Car</option>
-            <option value="bus">Bus</option>
-            <option value="tempo">Tempo Traveller</option>
+            {categories.map(cat => (
+              <option key={cat._id} value={cat.name}>{cat.name}</option>
+            ))}
           </select>
 
           <select
@@ -139,29 +152,30 @@ export default function AddCarModal({ onClose, onAdded }) {
 
           {/* FEATURES */}
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">
-              Vehicle Features
-            </p>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-sm font-medium text-gray-700">Vehicle Facilities</p>
+              {facilities.length === 0 && <span className="text-xs text-orange-500 italic">Go to Manage Facility to add items</span>}
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              {FEATURE_OPTIONS.map(f => (
+              {facilities.map(f => (
                 <label
-                  key={f.key}
-                  className="flex items-center gap-2 text-sm cursor-pointer"
+                  key={f._id}
+                  className="flex items-center gap-2 text-sm cursor-pointer capitalize bg-gray-50 px-3 py-2 rounded-xl border border-gray-100 hover:border-orange-200"
                 >
                   <input
                     type="checkbox"
-                    checked={form.features.includes(f.key)}
+                    checked={form.features.includes(f.name)}
                     onChange={() =>
                       setForm(prev => ({
                         ...prev,
-                        features: prev.features.includes(f.key)
-                          ? prev.features.filter(x => x !== f.key)
-                          : [...prev.features, f.key]
+                        features: prev.features.includes(f.name)
+                          ? prev.features.filter(x => x !== f.name)
+                          : [...prev.features, f.name]
                       }))
                     }
-                    className="accent-[#F4612B]"
+                    className="accent-[#F4612B] w-4 h-4 cursor-pointer"
                   />
-                  {f.label}
+                  <span className="font-semibold text-gray-700">{f.name}</span>
                 </label>
               ))}
             </div>

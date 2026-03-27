@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import ImageSlider from "./ImageSlider";
 import {
+  Wifi,
   Users,
   IndianRupee,
   Snowflake,
@@ -9,18 +10,27 @@ import {
   Music,
   BatteryCharging,
   Luggage,
-  Car
+  Car,
+  Coffee,
+  Shield,
+  Info
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 /* ================= FEATURE ICON MAP ================= */
-const featureIcons = {
-  ac: Snowflake,
-  bluetooth: Bluetooth,
-  gps: MapPin,
-  music: Music,
-  charging: BatteryCharging,
-  luggage: Luggage
+const getCarIcon = (name) => {
+  if (!name) return Info;
+  const lName = name.toLowerCase();
+  if (lName.includes("ac") || lName.includes("air") || lName.includes("cool")) return Snowflake;
+  if (lName.includes("gps") || lName.includes("map") || lName.includes("nav")) return MapPin;
+  if (lName.includes("blue") || lName.includes("tooth")) return Bluetooth;
+  if (lName.includes("music") || lName.includes("song") || lName.includes("audio") || lName.includes("sound")) return Music;
+  if (lName.includes("charg") || lName.includes("plug") || lName.includes("usb")) return BatteryCharging;
+  if (lName.includes("luggage") || lName.includes("bag") || lName.includes("boot") || lName.includes("space")) return Luggage;
+  if (lName.includes("wifi") || lName.includes("internet")) return Wifi;
+  if (lName.includes("food") || lName.includes("water") || lName.includes("drink")) return Coffee;
+  if (lName.includes("safe") || lName.includes("aid") || lName.includes("kit") || lName.includes("secur")) return Shield;
+  return Info;
 };
 
 export default function CarCard({ car }) {
@@ -67,8 +77,7 @@ export default function CarCard({ car }) {
         {/* FEATURES */}
         <div className="flex flex-wrap gap-2">
           {car.features?.map(f => {
-            const Icon = featureIcons[f];
-            if (!Icon) return null;
+            const Icon = getCarIcon(f);
 
             return (
               <span

@@ -18,19 +18,29 @@ import {
   BatteryCharging,
   Luggage,
   Fuel,
-  Zap
+  Zap,
+  Wifi,
+  Coffee,
+  Shield,
+  Info
 } from "lucide-react";
 
 const BASE_URL = "https://api.sdtour.online";
-
-/* FEATURE ICON MAP */
-const featureIconMap = {
-  ac: { icon: Snowflake, label: "AC" },
-  gps: { icon: MapPin, label: "GPS" },
-  bluetooth: { icon: Bluetooth, label: "Bluetooth" },
-  music: { icon: Music, label: "Music" },
-  charging: { icon: BatteryCharging, label: "Charging" },
-  luggage: { icon: Luggage, label: "Luggage" }
+const getCarIcon = (name) => {
+  if (!name) return { icon: Info, label: "Info" };
+  const lName = name.toLowerCase();
+  
+  if (lName.includes("ac") || lName.includes("air") || lName.includes("cool")) return { icon: Snowflake, label: name };
+  if (lName.includes("gps") || lName.includes("map") || lName.includes("nav")) return { icon: MapPin, label: name };
+  if (lName.includes("blue") || lName.includes("tooth")) return { icon: Bluetooth, label: name };
+  if (lName.includes("music") || lName.includes("song") || lName.includes("audio") || lName.includes("sound")) return { icon: Music, label: name };
+  if (lName.includes("charg") || lName.includes("plug") || lName.includes("usb")) return { icon: BatteryCharging, label: name };
+  if (lName.includes("luggage") || lName.includes("bag") || lName.includes("boot") || lName.includes("space")) return { icon: Luggage, label: name };
+  if (lName.includes("wifi") || lName.includes("internet")) return { icon: Wifi, label: name };
+  if (lName.includes("food") || lName.includes("water") || lName.includes("drink")) return { icon: Coffee, label: name };
+  if (lName.includes("safe") || lName.includes("aid") || lName.includes("kit") || lName.includes("secur")) return { icon: Shield, label: name };
+  
+  return { icon: Info, label: name };
 };
 
 const fuelIconMap = {
@@ -152,15 +162,14 @@ export default function AdminCarCard({ car, fetchCars }) {
           {car.features?.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-1">
               {car.features.map(f => {
-                const Feature = featureIconMap[f];
-                if (!Feature) return null;
+                const Feature = getCarIcon(f);
                 const Icon = Feature.icon;
 
                 return (
                   <span
                     key={f}
                     className="flex items-center gap-1 text-xs
-                    bg-gray-100 px-2 py-1 rounded-full text-gray-700"
+                    bg-gray-100 px-2 py-1 rounded-full text-gray-700 capitalize"
                   >
                     <Icon size={14} />
                     {Feature.label}

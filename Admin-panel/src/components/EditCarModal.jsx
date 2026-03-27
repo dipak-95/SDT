@@ -5,14 +5,7 @@ import { toast } from "react-toastify";
 
 const BASE_URL = "https://api.sdtour.online";
 
-const FEATURE_OPTIONS = [
-  { key: "ac", label: "AC ❄️" },
-  { key: "gps", label: "GPS 📍" },
-  { key: "bluetooth", label: "Bluetooth 🔊" },
-  { key: "music", label: "Music 🎵" },
-  { key: "charging", label: "Charging 🔌" },
-  { key: "luggage", label: "Luggage 🧳" }
-];
+/* Removed static FEATURE_OPTIONS */
 
 export default function EditCarModal({ car, onClose, onUpdated }) {
   const [images, setImages] = useState([]);
@@ -24,6 +17,26 @@ export default function EditCarModal({ car, onClose, onUpdated }) {
     fuelType: "",
     features: []
   });
+
+  const [categories, setCategories] = useState([]);
+  const [facilities, setFacilities] = useState([]);
+
+  /* FETCH DYNAMIC DATA */
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [catRes, facRes] = await Promise.all([
+          axios.get(`${BASE_URL}/car-categories`),
+          axios.get(`${BASE_URL}/car-facilities`)
+        ]);
+        setCategories(catRes.data);
+        setFacilities(facRes.data);
+      } catch (err) {
+        toast.error("Failed to load categories/facilities");
+      }
+    };
+    fetchData();
+  }, []);
 
   /* AUTO-FILL */
   useEffect(() => {
@@ -101,11 +114,11 @@ export default function EditCarModal({ car, onClose, onUpdated }) {
           <select
             value={form.type}
             onChange={e => setForm({ ...form, type: e.target.value })}
-            className="input-field"
+            className="input-field capitalize"
           >
-            <option value="car">Car</option>
-            <option value="bus">Bus</option>
-            <option value="tempo">Tempo Traveller</option>
+            {categories.map(cat => (
+              <option key={cat._id} value={cat.name}>{cat.name}</option>
+            ))}
           </select>
 
           <input
@@ -138,25 +151,31 @@ export default function EditCarModal({ car, onClose, onUpdated }) {
           </select>
 
           {/* FEATURES */}
-          <div className="grid grid-cols-2 gap-2">
-            {FEATURE_OPTIONS.map(f => (
-              <label key={f.key} className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={form.features.includes(f.key)}
-                  onChange={() =>
-                    setForm(prev => ({
-                      ...prev,
-                      features: prev.features.includes(f.key)
-                        ? prev.features.filter(x => x !== f.key)
-                        : [...prev.features, f.key]
-                    }))
-                  }
-                  className="accent-[#F4612B]"
-                />
-                {f.label}
-              </label>
-            ))}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm font-medium text-gray-700">Vehicle Facilities</span>
+              {facilities.length === 0 && <span className="text-xs text-orange-500 italic">Manage Facility to add items</span>}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {facilities.map(f => (
+                <label key={f._id} className="flex items-center gap-2 text-sm cursor-pointer capitalize bg-gray-50 px-3 py-2 rounded-xl border border-gray-100 hover:border-orange-200">
+                  <input
+                    type="checkbox"
+                    checked={form.features.includes(f.name)}
+                    onChange={() =>
+                      setForm(prev => ({
+                        ...prev,
+                        features: prev.features.includes(f.name)
+                          ? prev.features.filter(x => x !== f.name)
+                          : [...prev.features, f.name]
+                      }))
+                    }
+                    className="accent-[#F4612B] w-4 h-4 cursor-pointer"
+                  />
+                  <span className="font-semibold text-gray-700">{f.name}</span>
+                </label>
+              ))}
+            </div>
           </div>
 
           {/* IMAGE REPLACE */}

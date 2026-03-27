@@ -9,7 +9,6 @@ const carSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["car", "bus", "tempo traveller"],
       required: true
     },
 

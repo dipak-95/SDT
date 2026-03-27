@@ -36,6 +36,8 @@ app.use("/order", require("./routes/orderroute"));
 app.use("/cars", require("./routes/CarRoute"));
 app.use("/cities", require("./routes/CityRoute"));
 app.use("/facilities", require("./routes/FacilityRoute"));
+app.use("/car-categories", require("./routes/CarCategoryRoute"));
+app.use("/car-facilities", require("./routes/CarFacilityRoute"));
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 7345;

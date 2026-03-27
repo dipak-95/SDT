@@ -17,21 +17,26 @@ export default function Cars() {
   const [type, setType] = useState("all");
   const [search, setSearch] = useState("");
    const [loading, setLoading] = useState(true);
+   const [categories, setCategories] = useState([]);
 
-  /* ================= FETCH CARS ================= */
+  /* ================= FETCH CARS & CATEGORIES ================= */
   useEffect(() => {
-  const fetchCars = async () => {
+  const fetchData = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/cars`);
-      setCars(res.data);
+      const [carsRes, catRes] = await Promise.all([
+        axios.get(`${BASE_URL}/cars`),
+        axios.get(`${BASE_URL}/car-categories`)
+      ]);
+      setCars(carsRes.data);
+      setCategories(catRes.data);
     } catch (error) {
-      console.error("Car fetch error:", error);
+      console.error("Fetch error:", error);
     } finally {
-      setLoading(false); // ✅ VERY IMPORTANT
+      setLoading(false);
     }
   };
 
-  fetchCars();
+  fetchData();
 }, []);
 
   /* ================= FILTER LOGIC ================= */
@@ -87,26 +92,33 @@ export default function Cars() {
 
           {/* CATEGORY TABS */}
           <div className="flex flex-wrap gap-3">
-            {[
-              { key: "all", label: "All Vehicles", icon: Car },
-              { key: "car", label: "Cars", icon: Car },
-              { key: "bus", label: "Buses", icon: Bus },
-              { key: "tempo traveller", label: "Tempo Traveller", icon: Truck }
-            ].map(t => (
+            <button
+               onClick={() => setType("all")}
+               className={`
+                 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
+                 transition-all duration-300
+                 ${type === "all"
+                   ? "bg-[#F4612B] text-white shadow-md"
+                   : "bg-white border border-gray-300 text-gray-700 hover:bg-orange-50"
+                 }
+               `}
+            >
+               All Vehicles
+            </button>
+            {categories.map(c => (
               <button
-                key={t.key}
-                onClick={() => setType(t.key)}
+                key={c._id}
+                onClick={() => setType(c.name)}
                 className={`
-                  flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium
+                  flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium capitalize
                   transition-all duration-300
-                  ${type === t.key
+                  ${type === c.name
                     ? "bg-[#F4612B] text-white shadow-md"
                     : "bg-white border border-gray-300 text-gray-700 hover:bg-orange-50"
                   }
                 `}
               >
-                <t.icon size={16} />
-                {t.label}
+                {c.name}
               </button>
             ))}
           </div>
