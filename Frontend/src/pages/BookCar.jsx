@@ -153,111 +153,156 @@ export default function BookCar() {
 
           {/* ================= FORM ================= */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="lg:col-span-2 bg-white rounded-2xl shadow-lg
-            p-6 md:p-8 max-w-3xl"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-gray-100 p-8 md:p-10 border border-gray-100 h-fit"
           >
-            <h2 className="text-xl md:text-2xl font-bold text-[#F4612B] mb-6">
-              Traveller Details
-            </h2>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="w-1.5 h-8 bg-[#F4612B] rounded-full" />
+              <h2 className="text-2xl font-bold text-gray-900">
+                Confirm Your Journey
+              </h2>
+            </div>
 
-            <div className="space-y-8">
-              <input
-                className="input-field"
-                placeholder="Full Name *"
-                value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
-              />
-
-              <input
-                className="input-field"
-                placeholder="Email *"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-              />
-
-              <input
-                className="input-field"
-                placeholder="Phone *"
-                value={form.phone}
-                onChange={e =>
-                  setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })
-                }
-              />
-
-              <input
-                type="number"
-                className="input-field"
-                placeholder="Number of persons"
-                value={form.persons}
-                onChange={e =>
-                  setForm({ ...form, persons: Number(e.target.value) })
-                }
-              />
-
-              <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* PRIMARY DETAILS */}
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
                 <input
-                  type="date"
-                  className="input-field"
-                  value={form.startDate}
-                  onChange={e =>
-                    setForm({ ...form, startDate: e.target.value })
-                  }
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
+                  placeholder="Enter your name"
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
                 />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
                 <input
-                  type="date"
-                  className="input-field"
-                  value={form.endDate}
-                  onChange={e =>
-                    setForm({ ...form, endDate: e.target.value })
-                  }
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
+                  placeholder="WhatsApp Number"
+                  value={form.phone}
+                  onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
                 />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                <input
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
+                  placeholder="example@mail.com"
+                  value={form.email}
+                  onChange={e => setForm({ ...form, email: e.target.value })}
+                />
+              </div>
+
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Total Passengers</label>
+                <input
+                  type="number"
+                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
+                  placeholder="How many people?"
+                  value={form.persons}
+                  onChange={e => setForm({ ...form, persons: Number(e.target.value) })}
+                />
+              </div>
+
+              {/* DATE SELECTION */}
+              <div className="md:col-span-2 pt-4">
+                <div className="h-px bg-gray-100 w-full mb-8" />
+                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 block ml-1">Pick Journey Dates</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                     <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">Start Date</span>
+                     <input
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
+                      value={form.startDate}
+                      onChange={e => setForm({ ...form, startDate: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">End Date</span>
+                    <input
+                      type="date"
+                      min={form.startDate || new Date().toISOString().split("T")[0]}
+                      className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
+                      value={form.endDate}
+                      onChange={e => setForm({ ...form, endDate: e.target.value })}
+                    />
+                  </div>
+                </div>
               </div>
 
               <button
                 onClick={submit}
-                className="w-full py-3 rounded-full font-semibold text-white
-                bg-[#F4612B] hover:bg-[#e14c1f]"
+                className="md:col-span-2 w-full py-5 rounded-3xl font-bold text-white
+                bg-[#F4612B] hover:bg-[#e14c1f] shadow-xl shadow-orange-100 
+                active:scale-[0.98] transition-all text-lg mt-4"
               >
-                Submit Enquiry
+                Book This Journey
               </button>
             </div>
           </motion.div>
 
           {/* ================= RIGHT ================= */}
-          <div className="space-y-6">
+          <div className="space-y-6 lg:ml-8 mt-10 lg:mt-0">
 
             {/* SUMMARY */}
-            <div className="bg-white rounded-2xl shadow-lg w-100 p-6">
-              <h3 className="text-lg font-bold text-[#F4612B] mb-4">
-                Booking Summary
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-3xl shadow-xl shadow-gray-100 p-8 border border-gray-50"
+            >
+              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <span className="p-2 bg-orange-50 text-[#F4612B] rounded-xl text-lg">📝</span>
+                Fare Details
               </h3>
 
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span>Car</span>
-                  <span className="font-medium">{car.name}</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center pb-3 border-b border-gray-50">
+                  <span className="text-gray-500 font-medium">Applied Rate</span>
+                  <span className="font-bold text-gray-900">₹{car.pricePerKm} / KM</span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span>Seats</span>
-                  <span>{car.seats}</span>
+                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                  <span className="text-gray-500 font-medium">Daily Limit (Min)</span>
+                  <span className="font-bold text-gray-900">300 KM / Day</span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span>Duration</span>
-                  <span>{days} Days</span>
+                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
+                  <span className="text-gray-500 font-medium">Duration</span>
+                  <span className="font-bold text-gray-900">{days} Days</span>
                 </div>
+                
+                {days > 0 && (
+                  <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-2">
+                    <p className="text-[10px] font-bold text-orange-400 uppercase tracking-widest">Calculation Breakdown</p>
+                    <div className="flex justify-between items-center text-xs">
+                       <span className="text-gray-600 font-medium">Min Distance ({days} × 300)</span>
+                       <span className="font-bold text-gray-800">{days * 300} KM</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                       <span className="text-gray-600 font-medium">Rate ({days * 300} × {car.pricePerKm})</span>
+                       <span className="font-bold text-gray-800">₹{total}</span>
+                    </div>
+                  </div>
+                )}
 
-                <div className="flex justify-between border-t pt-4 font-semibold">
-                  <span>Total Amount</span>
-                  <span className="text-[#F4612B] text-lg">
-                    ₹{total}
-                  </span>
+                <div className="flex justify-between items-center pt-2">
+                  <div className="space-y-1">
+                    <span className="text-sm font-bold text-gray-900">Final Summary</span>
+                    <p className="text-[10px] text-gray-400 uppercase font-bold">* Excluding Toll & Parking</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="block text-2xl font-black text-[#F4612B]">
+                      ₹{total.toLocaleString('en-IN')}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* POLICY */}
             <CarCanceletion />
