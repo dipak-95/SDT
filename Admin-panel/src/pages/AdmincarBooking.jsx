@@ -183,7 +183,6 @@ export default function AdminCarBookings() {
             <p><b>Name:</b> {b.userName}</p>
             <p><b>Phone:</b> {b.phone}</p>
             <p><b>Email:</b> {b.email}</p>
-            <p><b>Persons:</b> {b.persons}</p>
           </div>
 
           {/* JOURNEY */}

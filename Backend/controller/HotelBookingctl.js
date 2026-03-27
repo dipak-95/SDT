@@ -7,80 +7,59 @@ exports.createBooking = async (req, res) => {
     const {
       hotelId,
       roomType,
+      roomCombo,
       user,
       checkIn,
       checkOut,
-      roomsBooked
+      roomsBooked,
+      adults = 0,
+      children = 0,
     } = req.body;
 
     const hotel = await Hotel.findById(hotelId);
-    if (!hotel)
-      return res.status(404).json({ msg: "Hotel not found" });
+    if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
-    const room = hotel.rooms.find(r => r.type === roomType);
-    if (!room)
-      return res.status(404).json({ msg: "Room not found" });
-
+    // Use frontend totalAmount if provided, else recalculate
+    let totalAmount = req.body.totalAmount || 0;
     const start = new Date(checkIn);
     const end = new Date(checkOut);
-
-    /* 🔥 REAL-TIME AVAILABILITY CHECK */
-    const overlapping = await Booking.find({
-      hotelId,
-      roomType,
-      status: "confirmed",
-      checkIn: { $lt: end },
-      checkOut: { $gt: start }
-    });
-
-    const totalBooked = overlapping.reduce(
-      (sum, b) => sum + b.roomsBooked,
-      0
-    );
-
-    const availableRooms = room.totalRooms - totalBooked;
-
-    if (roomsBooked > availableRooms) {
-      return res.status(400).json({
-        msg: `Only ${availableRooms} rooms left`
-      });
-    }
-
-    /* 💰 PRICE CALCULATION */
-    let totalAmount = 0;
     let nights = 0;
 
-    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
-      const priceObj = hotel.datePrices.find(
-        p =>
-          p.roomType === roomType &&
-          new Date(p.date).toDateString() === d.toDateString()
-      );
+    if (!totalAmount) {
+      for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+        const dStr = d.toISOString().split("T")[0];
+        const priceObj = hotel.datePrices.find(
+          p =>
+            p.roomType === roomType &&
+            new Date(p.date).toISOString().split("T")[0] === dStr
+        );
 
-      if (!priceObj) {
-        return res.status(400).json({
-          msg: `Price not set for ${d.toDateString()}`
-        });
+        if (!priceObj) {
+          return res.status(400).json({ msg: `Price not set for ${dStr}` });
+        }
+        totalAmount += priceObj.price * (roomsBooked || 1);
+        nights++;
       }
-
-      totalAmount += priceObj.price * roomsBooked;
-      nights++;
+    } else {
+       nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
     }
 
-    /* ✅ AUTO CONFIRMED BOOKING */
     const booking = await Booking.create({
       hotelId: hotel._id,
       hotelName: hotel.name,
       city: hotel.city,
       location: hotel.location,
       roomType,
+      roomCombo,
       user,
       checkIn,
       checkOut,
       roomsBooked,
       nights,
+      adults,
+      children,
       totalAmount,
-      status: "confirmed"   // 🔥 CHANGE HERE
+      status: "confirmed"
     });
 
     res.status(201).json({

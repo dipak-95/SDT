@@ -113,7 +113,6 @@ const roomSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["2-bed", "3-bed", "4-bed"],
       required: true
     },
 
@@ -145,7 +144,6 @@ const datePriceSchema = new mongoose.Schema(
   {
     roomType: {
       type: String,
-      enum: ["2-bed", "3-bed", "4-bed"],
       required: true
     },
 

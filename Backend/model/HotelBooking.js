@@ -11,7 +11,8 @@
       city: String,
       location: String,
 
-      roomType: String,
+      roomType: String,      // Primary room type
+      roomCombo: String,     // Detailed combo (e.g. 2x2bed + 1x4bed)
       roomPrice: Number,
 
       user: {
@@ -25,11 +26,13 @@
       nights: Number,
       roomsBooked: Number,
 
+      adults: { type: Number, default: 0 },
+      children: { type: Number, default: 0 },
+
       totalAmount: Number,
 
       status: {
         type: String,
-        enum: ["pending", "confirmed"],
         default: "pending"
       }
     },
