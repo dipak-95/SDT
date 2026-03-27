@@ -389,21 +389,23 @@ export default function BookingHotel() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="min-h-screen bg-gray-50"
+      className="min-h-screen bg-gray-50 overflow-x-hidden"
     >
       {/* ── HERO ── */}
       <div className="relative h-[55vh] w-full overflow-hidden">
         <img src={images[0]} alt={hotel.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
-          <p className="text-orange-300 text-sm font-semibold uppercase tracking-wide mb-1">
-            Hotel Enquiry
-          </p>
-          <h1 className="text-4xl font-bold">{hotel.name}</h1>
-          <p className="flex items-center gap-1 mt-2 text-gray-200 text-sm">
-            <MapPin size={14} className="text-orange-400" />
-            {hotel.location || hotel.city}
-          </p>
+        <div className="absolute bottom-0 left-0 right-0 py-8">
+          <div className="max-w-7xl mx-auto px-6 sm:px-10 text-white">
+            <p className="text-orange-300 text-sm font-semibold uppercase tracking-wide mb-1">
+              Hotel Enquiry
+            </p>
+            <h1 className="text-3xl sm:text-4xl font-bold">{hotel.name}</h1>
+            <p className="flex items-center gap-1 mt-2 text-gray-200 text-sm">
+              <MapPin size={14} className="text-orange-400" />
+              {hotel.location || hotel.city}
+            </p>
+          </div>
         </div>
       </div>
 
