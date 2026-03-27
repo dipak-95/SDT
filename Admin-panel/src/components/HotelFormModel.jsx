@@ -15,12 +15,9 @@ export default function HotelFormModel({ close, refresh, editData }) {
       name: "",
       city: "",
       location: "",
+      mapLink: "",
       amenities: {},
-      rooms: [
-        { type: "2-bed", totalRooms: 5 },
-        { type: "3-bed", totalRooms: 5 },
-        { type: "4-bed", totalRooms: 5 }
-      ]
+      rooms: []
     }
   );
 
@@ -59,6 +56,28 @@ export default function HotelFormModel({ close, refresh, editData }) {
     setPreview(files.map(file => URL.createObjectURL(file)));
   };
 
+  /* ================= ROOM HANDLERS ================= */
+  const handleRoomToggle = (type, checked) => {
+    if (checked) {
+      setForm(prev => ({
+        ...prev,
+        rooms: [...prev.rooms, { type, totalRooms: 5 }]
+      }));
+    } else {
+      setForm(prev => ({
+        ...prev,
+        rooms: prev.rooms.filter(r => r.type !== type)
+      }));
+    }
+  };
+
+  const handleRoomCountChange = (type, count) => {
+    setForm(prev => ({
+      ...prev,
+      rooms: prev.rooms.map(r => r.type === type ? { ...r, totalRooms: Number(count) } : r)
+    }));
+  };
+
   /* ================= SUBMIT ================= */
   const submit = async () => {
     try {
@@ -72,6 +91,7 @@ export default function HotelFormModel({ close, refresh, editData }) {
       formData.append("name", form.name);
       formData.append("city", form.city);
       formData.append("location", form.location);
+      formData.append("mapLink", form.mapLink || "");
 
       // ✅ stringify objects
       formData.append(
@@ -170,7 +190,7 @@ export default function HotelFormModel({ close, refresh, editData }) {
               </span>
             </div>
 
-            <div className="relative group">
+            <div className="relative group md:col-span-2">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#F4612B] transition-colors pointer-events-none">
                 <Settings size={18} />
               </span>
@@ -181,6 +201,59 @@ export default function HotelFormModel({ close, refresh, editData }) {
                 onChange={e => setForm({ ...form, location: e.target.value })}
               />
             </div>
+
+            <div className="relative group md:col-span-2">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#F4612B] transition-colors pointer-events-none">
+                <MapPin size={18} />
+              </span>
+              <input
+                placeholder="Google Maps Link (Optional)"
+                className="w-full border-2 border-gray-100 pl-10 pr-4 py-3 rounded-2xl focus:border-[#F4612B] outline-none transition-all"
+                value={form.mapLink || ""}
+                onChange={e => setForm({ ...form, mapLink: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ROOM SELECTION */}
+        <div className="mt-8">
+          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <Settings size={16} /> Room Options
+          </p>
+          <div className="space-y-3">
+            {["1-bed", "2-bed", "3-bed", "4-bed", "5-bed", "dormitory"].map(type => {
+              const isSelected = form.rooms.some(r => r.type === type);
+              const roomData = form.rooms.find(r => r.type === type);
+              return (
+                <div key={type} className="flex flex-col sm:flex-row sm:items-center gap-4 p-3 rounded-2xl border-2 border-transparent bg-gray-50 hover:border-gray-200 transition-all">
+                  <label className="flex items-center gap-3 cursor-pointer flex-1">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 accent-[#F4612B] cursor-pointer"
+                      checked={isSelected}
+                      onChange={e => handleRoomToggle(type, e.target.checked)}
+                    />
+                    <span className="font-semibold capitalize text-gray-700">{type.replace("-", " ")}</span>
+                  </label>
+                  {isSelected && (
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Total Rooms:</span>
+                      <input 
+                        type="number"
+                        min="1"
+                        value={roomData.totalRooms}
+                        onChange={e => handleRoomCountChange(type, e.target.value)}
+                        className="w-20 border-2 border-gray-200 px-2 py-1.5 rounded-xl outline-none focus:border-[#F4612B] font-bold text-center text-gray-700 shadow-sm"
+                      />
+                    </motion.div>
+                  )}
+                </div>
+              );
+            })}
+            {form.rooms.length === 0 && (
+              <p className="text-xs text-red-500 italic">Please select at least one room type.</p>
+            )}
           </div>
         </div>
 

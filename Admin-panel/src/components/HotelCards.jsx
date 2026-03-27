@@ -108,7 +108,14 @@ export default function HotelCard({
             📍 {hotel.city}
           </p>
 
-          <p className="text-sm mt-1">{hotel.location}</p>
+          <p className="text-sm mt-1 flex flex-wrap items-center gap-1">
+            <span>{hotel.location}</span>
+            {hotel.mapLink && (
+              <a href={hotel.mapLink} target="_blank" rel="noopener noreferrer" className="ml-1 text-[#F4612B] underline text-xs font-semibold hover:text-orange-600">
+                (Explore on Map)
+              </a>
+            )}
+          </p>
 
           {hotel.amenities && (
             <div className="flex flex-wrap gap-2 text-xs mt-2">

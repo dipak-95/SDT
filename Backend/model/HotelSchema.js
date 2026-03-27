@@ -184,6 +184,12 @@ const hotelSchema = new mongoose.Schema(
       trim: true
     },
 
+    mapLink: {
+      type: String,
+      trim: true,
+      default: ""
+    },
+
     amenities: {
       type: mongoose.Schema.Types.Mixed,
       default: {}

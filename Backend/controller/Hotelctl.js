@@ -27,6 +27,7 @@ exports.addHotel = async (req, res) => {
       name: req.body.name,
       city: req.body.city.toLowerCase().trim(),
       location: req.body.location,
+      mapLink: req.body.mapLink || "",
       amenities,
       rooms,
       images
@@ -97,6 +98,9 @@ exports.updateHotel = async (req, res) => {
     hotel.name = req.body.name;
     hotel.city = req.body.city.toLowerCase().trim();
     hotel.location = req.body.location;
+    if (req.body.mapLink !== undefined) {
+      hotel.mapLink = req.body.mapLink;
+    }
     hotel.amenities = req.body.amenities
       ? JSON.parse(req.body.amenities)
       : hotel.amenities;

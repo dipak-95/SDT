@@ -109,9 +109,14 @@ export default function HotelCard({ hotel }) {
           <h3 className="text-lg font-bold text-gray-900">
             {hotel.name}
           </h3>
-          <div className="flex items-center gap-1 text-sm text-gray-500">
+          <div className="flex items-center flex-wrap gap-1 text-sm text-gray-500">
             <MapPin size={14} className="text-[#F4612B]" />
-            {hotel.location}
+            <span>{hotel.location}</span>
+            {hotel.mapLink && (
+              <a href={hotel.mapLink} target="_blank" rel="noopener noreferrer" className="ml-1 text-[#F4612B] underline text-xs font-semibold hover:text-orange-600">
+                (Explore on Map)
+              </a>
+            )}
           </div>
         </div>
 
