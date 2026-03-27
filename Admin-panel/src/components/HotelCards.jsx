@@ -24,17 +24,17 @@ export default function HotelCard({
     }
   };
 
-  const addMoreRooms = async roomType => {
-    const count = roomCount[roomType] || 1;
+  const addMoreRooms = async (roomType, customCount) => {
+    const count = customCount !== undefined ? customCount : (roomCount[roomType] || 1);
     try {
       await axios.put(
         `${API_BASE}/hotels/add-rooms/${hotel._id}`,
         { roomType, count }
       );
-      toast.success(`${count} rooms added to ${roomType}`);
+      toast.success(`${count > 0 ? "Added" : "Removed"} ${Math.abs(count)} rooms for ${roomType}`);
       refresh();
     } catch {
-      toast.error("Failed to add rooms");
+      toast.error("Failed to update rooms");
     }
   };
 
@@ -158,7 +158,7 @@ export default function HotelCard({
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-3 items-center">
                   <select
                     value={roomCount[room.type] || 1}
                     onChange={e =>
@@ -167,30 +167,34 @@ export default function HotelCard({
                         [room.type]: Number(e.target.value)
                       }))
                     }
-                    className="border rounded px-2 py-1 text-sm"
+                    className="border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-gray-50 focus:outline-none focus:border-[#F4612B]"
                   >
-                    <option value={1}>+1</option>
-                    <option value={2}>+2</option>
-                    <option value={3}>+3</option>
-                    <option value={5}>+5</option>
-                    <option value={10}>+10</option>
+                    {[1, 2, 3, 4, 5, 10, 20].map(n => (
+                      <option key={n} value={n}>{n}</option>
+                    ))}
                   </select>
 
                   <button
-                    onClick={() => {
-                      toast.info("Open price manager 📅");
-                      onPrice();
-                    }}
-                    className="border border-[#F4612B] text-[#F4612B] px-3 py-1 rounded text-sm"
+                    onClick={() => addMoreRooms(room.type, roomCount[room.type] || 1)}
+                    className="bg-green-500 text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-green-600 transition"
                   >
-                    Manage Prices
+                    + Add
                   </button>
 
                   <button
-                    onClick={() => addMoreRooms(room.type)}
-                    className="bg-[#F4612B] text-white px-3 py-1 rounded text-sm"
+                    onClick={() => addMoreRooms(room.type, -(roomCount[room.type] || 1))}
+                    className="bg-red-500 text-white px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-red-600 transition"
                   >
-                    Add Rooms
+                    - Minus
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onPrice();
+                    }}
+                    className="border-2 border-[#F4612B] text-[#F4612B] font-semibold px-4 py-1.5 rounded-md text-sm ml-auto hover:bg-orange-50 transition"
+                  >
+                    Manage Prices
                   </button>
                 </div>
               </div>
