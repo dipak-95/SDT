@@ -5,7 +5,16 @@ import {
   Coffee,
   Car,
   Waves,
-  ThermometerSnowflake
+  ThermometerSnowflake,
+  Tv,
+  Utensils,
+  Dumbbell,
+  Shield,
+  Key,
+  UserCheck,
+  Map,
+  Phone,
+  Info
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -64,7 +73,16 @@ export default function HotelCard({ hotel }) {
     meal: <Coffee size={22} />,
     parking: <Car size={22} />,
     pool: <Waves size={22} />,
-    ac: <ThermometerSnowflake size={22} />
+    ac: <ThermometerSnowflake size={22} />,
+    tv: <Tv size={22} />,
+    restaurant: <Utensils size={22} />,
+    gym: <Dumbbell size={22} />,
+    security: <Shield size={22} />,
+    reception: <Key size={22} />,
+    staff: <UserCheck size={22} />,
+    area: <Map size={22} />,
+    support: <Phone size={22} />,
+    info: <Info size={22} />,
   };
 
   const activeAmenities = Object.entries(hotel.amenities || {})
@@ -103,7 +121,7 @@ export default function HotelCard({ hotel }) {
             <div key={i} className="text-center">
               <div className="w-12 h-12 flex flex-col items-center justify-center
                               rounded-lg bg-orange-50 text-[#F4612B]">
-                {icons[item]}
+                {icons[item] || <Info size={22} />}
                 <span className="text-[11px] font-semibold text-gray-600 capitalize">
                   {item}
                 </span>

@@ -34,6 +34,8 @@ app.use("/Enquiry", require("./routes/QiuckEnquiryroute"));
 app.use("/Dashboard", require("./routes/Dashboardroute"));
 app.use("/order", require("./routes/orderroute"));
 app.use("/cars", require("./routes/CarRoute"));
+app.use("/cities", require("./routes/CityRoute"));
+app.use("/facilities", require("./routes/FacilityRoute"));
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 7345;

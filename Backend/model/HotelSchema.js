@@ -185,11 +185,8 @@ const hotelSchema = new mongoose.Schema(
     },
 
     amenities: {
-      wifi: { type: Boolean, default: false },
-      pool: { type: Boolean, default: false },
-      meal: { type: Boolean, default: false },
-      parking: { type: Boolean, default: false },
-      ac: { type: Boolean, default: false }
+      type: mongoose.Schema.Types.Mixed,
+      default: {}
     },
 
     rooms: {
