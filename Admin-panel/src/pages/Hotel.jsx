@@ -1,5 +1,10 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import CityManageModal from "../components/CityManageModal";
 import FacilityManageModal from "../components/FacilityManageModal";
+import HotelCard from "../components/HotelCards";
+import HotelFormModal from "../components/HotelFormModel";
+import PriceCalendarModal from "../components/PricecalenderModal";
 import { Settings, Plus, MapPin, ListFilter } from "lucide-react";
 
 export default function Hotel() {
