@@ -153,19 +153,29 @@ export default function AdminCarBookings() {
           className="bg-white rounded-2xl shadow p-6 border-l-4 border-[#F4612B]"
         >
           {/* HEADER */}
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">
-              🚗 {b.carId?.name || "Car"}
-            </h3>
+          <div className="flex justify-between items-start mb-4 border-b pb-3">
+             <div>
+               <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Enquiry Received</p>
+               <p className="font-bold text-gray-800">{new Date(b.createdAt).toLocaleDateString()}</p>
+               <p className="text-xs text-orange-500 font-medium">{new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+             </div>
+             
+             <div className="text-right">
+               <span
+                className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest ${b.status === "confirmed"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-orange-100 text-orange-700"
+                  }`}
+               >
+                 {b.status}
+               </span>
+             </div>
+          </div>
 
-            <span
-              className={`text-sm font-medium ${b.status === "confirmed"
-                  ? "text-green-600"
-                  : "text-orange-600"
-                }`}
-            >
-              {b.status}
-            </span>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-bold text-gray-900">
+              🚗 {b.carId?.name || "Car Enquiry"}
+            </h3>
           </div>
 
           {/* INFO */}

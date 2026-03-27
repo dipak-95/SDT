@@ -81,6 +81,12 @@ const Bookings = () => {
               relative
             "
           >
+            {/* TIMESTAMP */}
+            <div className="absolute top-2 right-4 text-right">
+               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Booked On</p>
+               <p className="text-xs font-bold text-gray-700">{new Date(b.createdAt).toLocaleDateString()}</p>
+               <p className="text-[10px] text-orange-400 font-bold">{new Date(b.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
             {/* CUSTOMER */}
             <div className="space-y-1">
               <p className="text-sm text-gray-400">Customer</p>

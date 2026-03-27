@@ -47,9 +47,15 @@ export default function QuickEnquiry() {
             "
           >
             <div>
-              <p className="text-xs text-gray-400">Name</p>
-              <p className="font-bold flex gap-2">
-                <User size={16} /> {e.name}
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Enquiry At</p>
+              <p className="text-sm font-bold text-gray-800">{new Date(e.createdAt).toLocaleDateString()}</p>
+              <p className="text-xs text-orange-400 font-semibold">{new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
+
+            <div>
+              <p className="text-xs text-gray-400 mt-3 md:mt-0 font-bold uppercase tracking-widest">Name</p>
+              <p className="font-bold flex gap-2 text-gray-800">
+                <User size={16} className="text-[#F4612B]" /> {e.name}
               </p>
             </div>
 

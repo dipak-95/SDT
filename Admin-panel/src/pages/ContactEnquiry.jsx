@@ -112,12 +112,15 @@ export default function AdminContactEnquiry() {
             </div>
 
             {/* DATE + ACTION */}
-            <div className="flex flex-col justify-between items-end">
+            <div className="flex flex-col justify-between items-end border-l pl-6">
               <div className="text-right">
-                <p className="text-xs text-gray-400 mb-1">Received</p>
-                <p className="text-sm text-gray-700 flex items-center gap-2 justify-end">
-                  <CalendarDays size={16} />
+                <p className="text-xs text-gray-400 mb-1 font-bold uppercase tracking-wider">Received On</p>
+                <p className="text-sm font-bold text-gray-800 flex items-center gap-2 justify-end">
+                  <CalendarDays size={16} className="text-orange-500" />
                   {new Date(e.createdAt).toLocaleDateString()}
+                </p>
+                <p className="text-xs text-orange-400 font-medium text-right mt-1">
+                  at {new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
 
