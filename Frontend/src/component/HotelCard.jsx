@@ -12,19 +12,22 @@ const API_BASE = "https://api.sdtour.online";
 /* ── ICON HELPER ── */
 const getIcon = (name) => {
   const lName = (name || "").toLowerCase();
-  if (lName.includes("wifi") || lName.includes("internet")) return Wifi;
-  if (lName.includes("food") || lName.includes("meal") || lName.includes("coffee") || lName.includes("breakfast") || lName.includes("tea")) return Coffee;
-  if (lName.includes("car") || lName.includes("park") || lName.includes("transport") || lName.includes("taxi")) return Car;
-  if (lName.includes("pool") || lName.includes("swim")) return Waves;
-  if (lName.includes("ac") || lName.includes("air") || lName.includes("cool")) return ThermometerSnowflake;
-  if (lName.includes("tv") || lName.includes("television")) return Tv;
-  if (lName.includes("rest") || lName.includes("dine") || lName.includes("lunch")) return Utensils;
-  if (lName.includes("gym") || lName.includes("fit")) return Dumbbell;
-  if (lName.includes("secur") || lName.includes("safe") || lName.includes("cctv")) return Shield;
-  if (lName.includes("recep") || lName.includes("key")) return Key;
-  if (lName.includes("staff") || lName.includes("serv")) return UserCheck;
-  if (lName.includes("area") || lName.includes("map")) return Map;
-  if (lName.includes("support") || lName.includes("call") || lName.includes("phone")) return Phone;
+  
+  // High-priority exact or multi-keyword matches
+  if (lName.includes("wifi") || lName.includes("internet") || lName.includes("network")) return Wifi;
+  if (lName.includes("food") || lName.includes("meal") || lName.includes("coffee") || lName.includes("breakfast") || lName.includes("tea") || lName.includes("drink")) return Coffee;
+  if (lName.includes("car") || lName.includes("park") || lName.includes("transport") || lName.includes("taxi") || lName.includes("vehicle")) return Car;
+  if (lName.includes("pool") || lName.includes("swim") || lName.includes("water sports")) return Waves;
+  if (lName.includes("ac") || lName.includes("air") || lName.includes("cool") || lName.includes("cond")) return ThermometerSnowflake;
+  if (lName.includes("tv") || lName.includes("television") || lName.includes("dth") || lName.includes("screen")) return Tv;
+  if (lName.includes("rest") || lName.includes("dine") || lName.includes("lunch") || lName.includes("kitchen") || lName.includes("eatery")) return Utensils;
+  if (lName.includes("gym") || lName.includes("fit") || lName.includes("health") || lName.includes("trainer")) return Dumbbell;
+  if (lName.includes("secur") || lName.includes("safe") || lName.includes("cctv") || lName.includes("guar") || lName.includes("lock")) return Shield;
+  if (lName.includes("recep") || lName.includes("key") || lName.includes("front desk") || lName.includes("lobby")) return Key;
+  if (lName.includes("staff") || lName.includes("serv") || lName.includes("clean") || lName.includes("laundry") || lName.includes("housekeep")) return UserCheck;
+  if (lName.includes("area") || lName.includes("map") || lName.includes("locat") || lName.includes("landmark")) return Map;
+  if (lName.includes("support") || lName.includes("call") || lName.includes("phone") || lName.includes("contact") || lName.includes("help")) return Phone;
+  
   return Info;
 };
 

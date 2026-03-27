@@ -340,6 +340,7 @@ export default function BookingHotel() {
         checkOut,
         adults,
         children,
+        totalAmount,
         user: { name: form.name, email: form.email, phone: form.phone }
       });
       setSubmitted(true);

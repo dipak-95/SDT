@@ -175,11 +175,11 @@ exports.saveMonthPrices = async (req, res) => {
     if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
     prices.forEach(p => {
+      const targetDate = new Date(p.date).toISOString().split("T")[0];
       const index = hotel.datePrices.findIndex(
         dp =>
           dp.roomType === roomType &&
-          new Date(dp.date).toDateString() ===
-            new Date(p.date).toDateString()
+          new Date(dp.date).toISOString().split("T")[0] === targetDate
       );
 
       if (index > -1) {
@@ -207,13 +207,13 @@ exports.getMonthPrices = async (req, res) => {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
-    const start = new Date(year, month - 1, 1);
-    const end = new Date(year, month, 0);
+    const start = new Date(Date.UTC(year, month - 1, 1));
+    const end = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
     const prices = hotel.datePrices.filter(dp =>
       dp.roomType === roomType &&
-      dp.date >= start &&
-      dp.date <= end
+      new Date(dp.date) >= start &&
+      new Date(dp.date) <= end
     );
 
     res.json(prices);
@@ -230,13 +230,15 @@ exports.getHotelCalendar = async (req, res) => {
     if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const end = new Date();
-    end.setMonth(end.getMonth() + 2);
+    end.setMonth(end.getMonth() + 3);
+    end.setHours(23, 59, 59, 999);
 
     const prices = hotel.datePrices.filter(dp =>
       dp.roomType === roomType &&
-      dp.date >= today &&
-      dp.date <= end
+      new Date(dp.date) >= today &&
+      new Date(dp.date) <= end
     );
 
     res.json(prices);
