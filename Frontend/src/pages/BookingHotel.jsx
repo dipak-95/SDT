@@ -21,41 +21,75 @@ function bedsPerRoom(type) {
 function buildSuggestions(rooms, adults) {
   if (!rooms?.length || !adults) return [];
 
-  // Calculate all possible options with their waste
-  const options = rooms
-    .map(room => {
-      const capacity = bedsPerRoom(room.type);
-      if (capacity < 1) return null;
-      const roomsNeeded = Math.ceil(adults / capacity);
-      const totalCapacity = roomsNeeded * capacity;
-      const waste = totalCapacity - adults;
-      return { room, roomsNeeded, totalCapacity, waste, capacity };
-    })
-    .filter(Boolean);
+  // Build unique room types with capacity
+  const types = rooms
+    .map(r => ({ room: r, cap: bedsPerRoom(r.type) }))
+    .filter(t => t.cap >= 1);
 
-  // Only show exact fits (waste === 0).
-  // If zero exact fits exist, fallback to minimum-waste options.
-  const perfectFits = options.filter(o => o.waste === 0);
-  const minWaste = options.reduce((min, o) => Math.min(min, o.waste), Infinity);
-  const valid = perfectFits.length > 0
-    ? perfectFits
-    : options.filter(o => o.waste === minWaste);
+  if (!types.length) return [];
 
-  // Deduplicate by label, sort by rooms needed
+  const results = [];
   const seen = new Set();
+
+  // DFS / backtracking to generate ALL combinations
+  function dfs(idx, counts, totalCap) {
+    // pruning: no point going beyond 3× adults capacity
+    if (totalCap > adults * 3) return;
+
+    if (idx === types.length) {
+      if (totalCap < adults) return; // can't cover all guests
+      const parts = counts
+        .map((n, i) => n > 0 ? { room: types[i].room, count: n, cap: types[i].cap } : null)
+        .filter(Boolean);
+      if (!parts.length) return;
+      // dedupe key sorted by room type
+      const key = parts.map(p => `${p.room.type}×${p.count}`).sort().join("|");
+      if (!seen.has(key)) {
+        seen.add(key);
+        results.push({ parts, waste: totalCap - adults, totalCapacity: totalCap });
+      }
+      return;
+    }
+
+    const remaining = adults - totalCap;
+    // try 0 rooms up to the minimum needed to cover remaining guests (+ 1 for slight overfit)
+    const maxN = Math.max(0, Math.ceil(remaining / types[idx].cap)) + 1;
+
+    for (let n = 0; n <= maxN; n++) {
+      counts[idx] = n;
+      dfs(idx + 1, counts, totalCap + n * types[idx].cap);
+    }
+    counts[idx] = 0;
+  }
+
+  dfs(0, new Array(types.length).fill(0), 0);
+
+  if (!results.length) return [];
+
+  // Prefer exact fits (waste === 0); fallback to min-waste
+  const exactFits = results.filter(r => r.waste === 0);
+  const minWaste = results.reduce((m, r) => Math.min(m, r.waste), Infinity);
+  const valid = exactFits.length > 0
+    ? exactFits
+    : results.filter(r => r.waste === minWaste);
+
+  // Sort: fewest total rooms first, then by waste
   return valid
-    .filter(o => {
-      const key = `${o.room.type}×${o.roomsNeeded}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+    .sort((a, b) => {
+      const ra = a.parts.reduce((s, p) => s + p.count, 0);
+      const rb = b.parts.reduce((s, p) => s + p.count, 0);
+      return ra - rb || a.waste - b.waste;
     })
-    .sort((a, b) => a.roomsNeeded - b.roomsNeeded)
-    .map(o => ({
-      room: o.room,
-      roomsNeeded: o.roomsNeeded,
-      label: `${o.room.type} × ${o.roomsNeeded} room${o.roomsNeeded > 1 ? "s" : ""}`,
-      desc: `${o.totalCapacity} guest${o.totalCapacity > 1 ? "s" : ""} capacity`
+    .map(opt => ({
+      parts: opt.parts,                                            // [{room, count, cap}]
+      primaryRoom: opt.parts[0].room,                              // for price ref
+      totalRooms: opt.parts.reduce((s, p) => s + p.count, 0),
+      waste: opt.waste,
+      totalCapacity: opt.totalCapacity,
+      label: opt.parts.map(p => `${p.room.type} × ${p.count}`).join(" + "),
+      desc: opt.waste > 0
+        ? `Covers ${opt.totalCapacity} guests (${opt.waste} extra spot${opt.waste > 1 ? "s" : ""})`
+        : `Perfect fit for ${adults} guests`
     }));
 }
 
@@ -119,7 +153,7 @@ export default function BookingHotel() {
   /* fetch booked dates + prices for selected room */
   useEffect(() => {
     if (!hotel?._id || !selectedSuggestion) return;
-    const roomType = selectedSuggestion.room.type;
+    const roomType = selectedSuggestion.primaryRoom.type;
 
     axios
       .get(`${API_BASE}/hotels/calendar`, { params: { hotelId: hotel._id, roomType } })
@@ -154,7 +188,7 @@ export default function BookingHotel() {
 
   /* price helper */
   const getPrice = date =>
-    priceMap[date.toDateString()] ?? selectedSuggestion?.room?.price ?? 0;
+    priceMap[date.toDateString()] ?? selectedSuggestion?.primaryRoom?.price ?? 0;
 
   /* total */
   const nights = useMemo(() => {
@@ -170,7 +204,7 @@ export default function BookingHotel() {
       sum += getPrice(d);
       d.setDate(d.getDate() + 1);
     }
-    return sum * selectedSuggestion.roomsNeeded;
+    return sum * (selectedSuggestion.totalRooms ?? 1);
   }, [checkIn, checkOut, selectedSuggestion, priceMap]);
 
   const disabledDays = [{ before: new Date() }, ...bookedDates];
@@ -185,8 +219,11 @@ export default function BookingHotel() {
     try {
       await axios.post(`${API_BASE}/bookings/create`, {
         hotelId: hotel._id,
-        roomType: selectedSuggestion.room.type,
-        roomsBooked: selectedSuggestion.roomsNeeded,
+        // primary room for booking slot tracking
+        roomType: selectedSuggestion.primaryRoom.type,
+        roomsBooked: selectedSuggestion.totalRooms,
+        // full combo description for admin visibility
+        roomCombo: selectedSuggestion.label,
         checkIn,
         checkOut,
         adults,
@@ -449,7 +486,7 @@ export default function BookingHotel() {
                     rows.push(
                       <div key={d.toDateString()} className="flex justify-between text-gray-500">
                         <span>{d.toDateString()}</span>
-                        <span>₹{getPrice(d)} × {selectedSuggestion.roomsNeeded} room{selectedSuggestion.roomsNeeded > 1 ? "s" : ""}</span>
+                        <span>₹{getPrice(d)} × {selectedSuggestion.totalRooms} room{selectedSuggestion.totalRooms > 1 ? "s" : ""}</span>
                       </div>
                     );
                     d.setDate(d.getDate() + 1);
