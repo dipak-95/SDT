@@ -140,7 +140,7 @@ export default function BookingHotel() {
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
 
   /* price / availability */
-  const [priceMap, setPriceMap] = useState({});
+  const [priceMaps, setPriceMaps] = useState({}); // { roomType: { dateString: price } }
   const [bookedDates, setBookedDates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -150,34 +150,47 @@ export default function BookingHotel() {
     if (!hotel) navigate("/hotels");
   }, [hotel, navigate]);
 
-  /* fetch booked dates + prices for selected room */
+  /* fetch booked dates + prices for ALL room types in selected combo */
   useEffect(() => {
-    if (!hotel?._id || !selectedSuggestion) return;
-    const roomType = selectedSuggestion.primaryRoom.type;
+    if (!hotel?._id || !selectedSuggestion?.parts) return;
 
+    // booked dates from primary room
     axios
-      .get(`${API_BASE}/hotels/calendar`, { params: { hotelId: hotel._id, roomType } })
+      .get(`${API_BASE}/hotels/calendar`, {
+        params: { hotelId: hotel._id, roomType: selectedSuggestion.primaryRoom.type }
+      })
       .then(res => setBookedDates(res.data.map(d => new Date(d))))
       .catch(() => {});
 
+    // Fetch price maps for EVERY room type in the combo
     const ref = checkIn || new Date();
-    axios
-      .get(`${API_BASE}/hotels/month-prices`, {
-        params: {
-          hotelId: hotel._id,
-          roomType,
-          month: ref.getMonth() + 1,
-          year: ref.getFullYear()
-        }
-      })
-      .then(res => {
-        const map = {};
-        (res.data.prices || res.data).forEach(p => {
-          map[new Date(p.date).toDateString()] = Number(p.price);
-        });
-        setPriceMap(map);
-      })
-      .catch(() => {});
+    const uniqueTypes = [...new Set(selectedSuggestion.parts.map(p => p.room.type))];
+
+    Promise.all(
+      uniqueTypes.map(roomType =>
+        axios
+          .get(`${API_BASE}/hotels/month-prices`, {
+            params: {
+              hotelId: hotel._id,
+              roomType,
+              month: ref.getMonth() + 1,
+              year: ref.getFullYear()
+            }
+          })
+          .then(res => {
+            const map = {};
+            (res.data.prices || res.data).forEach(p => {
+              map[new Date(p.date).toDateString()] = Number(p.price);
+            });
+            return { roomType, map };
+          })
+          .catch(() => ({ roomType, map: {} }))
+      )
+    ).then(results => {
+      const combined = {};
+      results.forEach(({ roomType, map }) => { combined[roomType] = map; });
+      setPriceMaps(combined);
+    });
   }, [hotel?._id, selectedSuggestion, checkIn]);
 
   /* suggestions */
@@ -186,9 +199,15 @@ export default function BookingHotel() {
     [hotel?.rooms, adults]
   );
 
-  /* price helper */
-  const getPrice = date =>
-    priceMap[date.toDateString()] ?? selectedSuggestion?.primaryRoom?.price ?? 0;
+  /* combined price for a date across ALL parts in the combo */
+  const getTotalPerNight = (date) => {
+    if (!selectedSuggestion?.parts) return 0;
+    return selectedSuggestion.parts.reduce((sum, part) => {
+      const map = priceMaps[part.room.type] || {};
+      const pricePerRoom = map[date.toDateString()] ?? part.room?.price ?? 0;
+      return sum + pricePerRoom * part.count;
+    }, 0);
+  };
 
   /* total */
   const nights = useMemo(() => {
@@ -201,11 +220,11 @@ export default function BookingHotel() {
     let sum = 0;
     let d = new Date(checkIn);
     while (d < checkOut) {
-      sum += getPrice(d);
+      sum += getTotalPerNight(d);
       d.setDate(d.getDate() + 1);
     }
-    return sum * (selectedSuggestion.totalRooms ?? 1);
-  }, [checkIn, checkOut, selectedSuggestion, priceMap]);
+    return sum;   // no extra multiply – getTotalPerNight already accounts for room count
+  }, [checkIn, checkOut, selectedSuggestion, priceMaps]);
 
   const disabledDays = [{ before: new Date() }, ...bookedDates];
 
@@ -403,20 +422,40 @@ export default function BookingHotel() {
                       selected={checkIn}
                       onSelect={d => { setCheckIn(d); setCheckOut(null); }}
                       disabled={disabledDays}
-                      className="border border-orange-200 rounded-2xl p-3 bg-white shadow-sm w-full"
+                      className="cal-picker"
+                      classNames={{
+                        months: "flex flex-col",
+                        caption: "flex justify-center relative items-center mb-4 px-2",
+                        caption_label: "text-base font-bold text-gray-800",
+                        nav: "flex items-center",
+                        nav_button: "absolute p-1.5 rounded-full hover:bg-orange-50 text-gray-500 hover:text-[#F4612B] transition",
+                        nav_button_previous: "left-0",
+                        nav_button_next: "right-0",
+                        table: "w-full border-collapse",
+                        head_row: "flex mb-1",
+                        head_cell: "text-gray-400 text-[11px] font-bold w-10 text-center uppercase tracking-wide",
+                        row: "flex mt-1",
+                        cell: "relative p-0",
+                        day: "w-10 h-11 rounded-xl text-xs font-medium hover:bg-orange-50 transition flex flex-col items-center justify-center cursor-pointer text-gray-700",
+                        day_selected: "!bg-[#F4612B] !text-white rounded-xl hover:!bg-[#e65a0f] font-bold",
+                        day_today: "font-bold text-[#F4612B] underline",
+                        day_disabled: "text-gray-200 cursor-not-allowed hover:bg-transparent",
+                        day_outside: "text-gray-300 opacity-40",
+                      }}
                       formatters={{
-                        formatDay: date => (
-                          <div className="flex flex-col items-center leading-none">
-                            <span className="text-[13px] font-semibold text-gray-700">
-                              {date.getDate()}
-                            </span>
-                            {priceMap[date.toDateString()] && (
-                              <span className="text-[9px] font-medium text-[#F4612B]">
-                                ₹{priceMap[date.toDateString()]}
-                              </span>
-                            )}
-                          </div>
-                        )
+                        formatDay: date => {
+                          const total = getTotalPerNight(date);
+                          return (
+                            <div className="flex flex-col items-center leading-none gap-0.5">
+                              <span>{date.getDate()}</span>
+                              {total > 0 && (
+                                <span className="text-[8px] font-semibold text-[#F4612B] leading-none">
+                                  ₹{total}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        }
                       }}
                     />
                   </div>
@@ -431,20 +470,40 @@ export default function BookingHotel() {
                       selected={checkOut}
                       onSelect={setCheckOut}
                       disabled={[...disabledDays, { before: checkIn || new Date() }]}
-                      className="border border-orange-200 rounded-2xl p-3 bg-white shadow-sm w-full"
+                      className="cal-picker"
+                      classNames={{
+                        months: "flex flex-col",
+                        caption: "flex justify-center relative items-center mb-4 px-2",
+                        caption_label: "text-base font-bold text-gray-800",
+                        nav: "flex items-center",
+                        nav_button: "absolute p-1.5 rounded-full hover:bg-orange-50 text-gray-500 hover:text-[#F4612B] transition",
+                        nav_button_previous: "left-0",
+                        nav_button_next: "right-0",
+                        table: "w-full border-collapse",
+                        head_row: "flex mb-1",
+                        head_cell: "text-gray-400 text-[11px] font-bold w-10 text-center uppercase tracking-wide",
+                        row: "flex mt-1",
+                        cell: "relative p-0",
+                        day: "w-10 h-11 rounded-xl text-xs font-medium hover:bg-orange-50 transition flex flex-col items-center justify-center cursor-pointer text-gray-700",
+                        day_selected: "!bg-[#F4612B] !text-white rounded-xl hover:!bg-[#e65a0f] font-bold",
+                        day_today: "font-bold text-[#F4612B] underline",
+                        day_disabled: "text-gray-200 cursor-not-allowed hover:bg-transparent",
+                        day_outside: "text-gray-300 opacity-40",
+                      }}
                       formatters={{
-                        formatDay: date => (
-                          <div className="flex flex-col items-center leading-none">
-                            <span className="text-[13px] font-semibold text-gray-700">
-                              {date.getDate()}
-                            </span>
-                            {priceMap[date.toDateString()] && (
-                              <span className="text-[9px] font-medium text-[#F4612B]">
-                                ₹{priceMap[date.toDateString()]}
-                              </span>
-                            )}
-                          </div>
-                        )
+                        formatDay: date => {
+                          const total = getTotalPerNight(date);
+                          return (
+                            <div className="flex flex-col items-center leading-none gap-0.5">
+                              <span>{date.getDate()}</span>
+                              {total > 0 && (
+                                <span className="text-[8px] font-semibold text-[#F4612B] leading-none">
+                                  ₹{total}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        }
                       }}
                     />
                   </div>
@@ -477,16 +536,32 @@ export default function BookingHotel() {
                 <Row label="Nights" value={nights} />
               </div>
 
-              {/* date-wise price breakdown */}
-              <div className="max-h-40 overflow-y-auto space-y-1.5 border-t pt-3 text-sm">
+              {/* date-wise price breakdown – per room type */}
+              <div className="max-h-44 overflow-y-auto space-y-2 border-t pt-3 text-sm">
                 {(() => {
                   let d = new Date(checkIn);
                   const rows = [];
                   while (d < checkOut) {
+                    const dateStr = d.toDateString();
+                    const parts = selectedSuggestion.parts.map(part => {
+                      const map = priceMaps[part.room.type] || {};
+                      const pricePerRoom = map[dateStr] ?? part.room?.price ?? 0;
+                      return { label: `${part.room.type} × ${part.count}`, subtotal: pricePerRoom * part.count };
+                    });
+                    const nightTotal = parts.reduce((s, p) => s + p.subtotal, 0);
+
                     rows.push(
-                      <div key={d.toDateString()} className="flex justify-between text-gray-500">
-                        <span>{d.toDateString()}</span>
-                        <span>₹{getPrice(d)} × {selectedSuggestion.totalRooms} room{selectedSuggestion.totalRooms > 1 ? "s" : ""}</span>
+                      <div key={dateStr} className="border border-gray-100 rounded-xl p-3 space-y-1 bg-gray-50">
+                        <div className="flex justify-between text-gray-600 font-semibold">
+                          <span>{dateStr}</span>
+                          <span className="text-[#F4612B]">₹{nightTotal.toLocaleString()}</span>
+                        </div>
+                        {parts.map(p => (
+                          <div key={p.label} className="flex justify-between text-gray-400 text-xs pl-2">
+                            <span>{p.label}</span>
+                            <span>₹{p.subtotal.toLocaleString()}</span>
+                          </div>
+                        ))}
                       </div>
                     );
                     d.setDate(d.getDate() + 1);
