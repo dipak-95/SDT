@@ -194,16 +194,6 @@ export default function BookCar() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                <input
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                  placeholder="example@mail.com"
-                  value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-
               {/* DATE SELECTION */}
               <div className="md:col-span-2 pt-4">
                 <div className="h-px bg-gray-100 w-full mb-8" />
