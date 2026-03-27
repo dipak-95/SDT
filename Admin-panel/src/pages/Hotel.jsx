@@ -46,7 +46,7 @@ export default function Hotel() {
   const filteredHotels =
     selectedCity === "all"
       ? hotels
-      : hotels.filter(hotel => hotel.city === selectedCity);
+      : hotels.filter(hotel => hotel.city?.toLowerCase() === selectedCity?.toLowerCase());
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">

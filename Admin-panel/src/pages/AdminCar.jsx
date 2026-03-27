@@ -37,7 +37,7 @@ export default function AdminCar() {
   }, []);
 
   const filteredCars =
-    filter === "all" ? cars : cars.filter(c => c.type === filter);
+    filter === "all" ? cars : cars.filter(c => c.type?.toLowerCase() === filter?.toLowerCase());
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
