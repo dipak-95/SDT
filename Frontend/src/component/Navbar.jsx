@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiPhone, FiSearch, FiMenu, FiX } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import QuickEnquiryModal from "./QuickEnquiryModal";
 import SearchOverlay from "../pages/SearchOverlay";
 
@@ -15,6 +16,7 @@ export default function Navbar() {
   const [hasScrolledOnce, setHasScrolledOnce] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
+  const [cities, setCities] = useState([]);
 
 useEffect(() => {
   const handleScroll = () => {
@@ -23,6 +25,19 @@ useEffect(() => {
 
   window.addEventListener("scroll", handleScroll, { passive: true });
   return () => window.removeEventListener("scroll", handleScroll);
+}, []);
+
+// 🔹 Fetch Cities dynamically
+useEffect(() => {
+  const fetchCities = async () => {
+    try {
+      const res = await axios.get("https://api.sdtour.online/cities");
+      setCities(res.data);
+    } catch (err) {
+      console.error("Fetch cities failed", err);
+    }
+  };
+  fetchCities();
 }, []);
 
 
@@ -129,14 +144,12 @@ useEffect(() => {
     },
     {
       name: "Hotels ▾",
-      submenu: [
-        { label: "Ahmedabad", url: "/hotels/ahmedabad" },
-        { label: "Sasan Gir", url: "/hotels/sasangir" },
-        { label: "Vadodara", url: "/hotels/vadodara" },
-        { label: "Junagadh", url: "/hotels/junagadh" },
-        { label: "Dwarka", url: "/hotels/dwarka" },
-        { label: "Somnath", url: "/hotels/somnath" },
-      ],
+      submenu: cities.length > 0
+        ? cities.map(city => ({
+            label: city.name,
+            url: `/hotels/${city.name.toLowerCase().trim()}`
+          }))
+        : [{ label: "Loading...", url: "#" }],
     },
     { name: "Car Rental", url: "/rentalcar" },
     { name: "Memorable Journeys", url: "/pastjournies" },
