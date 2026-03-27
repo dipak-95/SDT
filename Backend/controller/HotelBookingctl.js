@@ -59,7 +59,7 @@ exports.createBooking = async (req, res) => {
       adults,
       children,
       totalAmount,
-      status: "confirmed"
+      status: "pending"
     });
 
     res.status(201).json({
