@@ -260,41 +260,32 @@ useEffect(() => {
             </div>
 
             {/* MOBILE QUICK CATEGORIES */}
-            <div className="md:hidden">
-              <div className="flex justify-between gap-1.5 pb-2 pt-1 px-1 overflow-x-auto scrollbar-hide">
+            <div className="md:hidden pt-1 pb-3 px-2">
+              <div className="flex justify-between gap-2.5">
                 <button 
                   onClick={() => setDropdown(dropdown === "mobile-tours" ? null : "mobile-tours")}
-                  className={`flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl border transition-all active:scale-95
+                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 shadow-sm
                     ${dropdown === "mobile-tours" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
                 >
-                  <div className="text-2xl mb-1">🚌</div>
-                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Tours</span>
+                  <div className="text-3xl mb-1">🚌</div>
+                  <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Tours</span>
                 </button>
                 
                 <button 
-                  onClick={() => setDropdown(dropdown === "mobile-pkg" ? null : "mobile-pkg")}
-                  className={`flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl border transition-all active:scale-95
-                    ${dropdown === "mobile-pkg" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
-                >
-                  <div className="text-2xl mb-1">🏔️</div>
-                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Packages</span>
-                </button>
-
-                <button 
                   onClick={() => setDropdown(dropdown === "mobile-hotels" ? null : "mobile-hotels")}
-                  className={`flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl border transition-all active:scale-95
+                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 shadow-sm
                     ${dropdown === "mobile-hotels" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
                 >
-                  <div className="text-2xl mb-1">🏨</div>
-                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Hotels</span>
+                  <div className="text-3xl mb-1">🏨</div>
+                  <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Hotels</span>
                 </button>
 
                 <Link 
                   to="/rentalcar" 
-                  className="flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl bg-orange-50/40 border border-orange-100 active:scale-95 transition"
+                  className="flex-1 flex flex-col items-center justify-center p-3 rounded-2xl bg-orange-50/40 border border-orange-100 active:scale-95 transition shadow-sm"
                 >
-                  <div className="text-2xl mb-1">🚗</div>
-                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Rental</span>
+                  <div className="text-3xl mb-1">🚗</div>
+                  <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Rental</span>
                 </Link>
               </div>
 
@@ -306,54 +297,32 @@ useEffect(() => {
                     initial={{ height: 0, opacity: 0 }} 
                     animate={{ height: "auto", opacity: 1 }} 
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-white border-x border-b border-gray-100 rounded-b-2xl mx-1 mb-3 px-2 py-3 flex gap-2"
+                    className="overflow-hidden bg-white border border-orange-100 rounded-2xl mt-3 p-3 flex gap-3 shadow-md"
                   >
-                    <Link to="/tours/group" onClick={() => setDropdown(null)} className="flex-1 py-3 px-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
+                    <Link to="/tours/group" onClick={() => setDropdown(null)} className="flex-1 py-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
                       Group Tours
                     </Link>
-                    <Link to="/tours/indivisual" onClick={() => setDropdown(null)} className="flex-1 py-3 px-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
+                    <Link to="/tours/indivisual" onClick={() => setDropdown(null)} className="flex-1 py-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
                       Individual Tours
                     </Link>
                   </motion.div>
                 )}
 
-                {/* Packages (Activities) Submenu */}
-                {dropdown === "mobile-pkg" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }} 
-                    animate={{ height: "auto", opacity: 1 }} 
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-white border-x border-b border-gray-100 rounded-b-2xl mx-1 mb-3 p-3 grid grid-cols-2 gap-2"
-                  >
-                    {[
-                      { label: "Religious Sites", url: "/activities/Relligious-site" },
-                      { label: "Beaches", url: "/activities/Beaches" },
-                      { label: "Wildlife", url: "/activities/Wildlife" },
-                      { label: "Heritage", url: "/activities/Heritages-site" }
-                    ].map(act => (
-                      <Link key={act.label} to={act.url} onClick={() => setDropdown(null)} className="py-2 px-3 bg-gray-50 rounded-lg text-xs text-gray-700 border border-gray-100">
-                        {act.label}
-                      </Link>
-                    ))}
-                    <Link to="/tours/indivisual" onClick={() => setDropdown(null)} className="col-span-2 py-2 text-center text-[10px] text-[#F4612B] font-bold uppercase">View All Packages →</Link>
-                  </motion.div>
-                )}
-
-                {/* Hotels (Cities) Submenu */}
+                {/* Hotels (Cities) Submenu - Grid layout */}
                 {dropdown === "mobile-hotels" && (
                   <motion.div 
                     initial={{ height: 0, opacity: 0 }} 
                     animate={{ height: "auto", opacity: 1 }} 
                     exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-white border-x border-b border-gray-100 rounded-b-2xl mx-1 mb-3 p-3"
+                    className="overflow-hidden bg-white border border-orange-100 rounded-2xl mt-3 p-4 shadow-md"
                   >
-                    <p className="text-[10px] uppercase font-bold text-gray-400 mb-2 px-1">Select Destination City</p>
-                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                      {["Somnath","Dwarka","Ahmedabad","Rajkot","Sasan","Junagadh","Diu"].map(city => (
+                    <p className="text-[11px] uppercase font-bold text-gray-400 mb-3 px-1 text-center">Select Destination City</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {["Somnath","Dwarka","Ahmedabad","Rajkot","Sasan","Junagadh","Diu","Surat"].map(city => (
                         <Link 
                           key={city} to={`/hotels/${city.toLowerCase()}`} 
                           onClick={() => setDropdown(null)}
-                          className="whitespace-nowrap py-2 px-5 bg-orange-50 border border-orange-100 rounded-full text-xs font-semibold text-[#F4612B]"
+                          className="py-2.5 px-4 bg-orange-50 border border-orange-100 rounded-xl text-xs font-bold text-[#F4612B] text-center"
                         >
                           {city}
                         </Link>
