@@ -126,11 +126,15 @@ const MONTHS = ["January","February","March","April","May","June",
   "July","August","September","October","November","December"];
 const DAYS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
-function MiniCalendar({ selected, onSelect, disabledBefore, bookedDates = [], getTotalPerNight, label }) {
+function MiniCalendar({ selected, onSelect, disabledBefore, bookedDates = [], getTotalPerNight, label, onViewChange }) {
   const initDate = selected || disabledBefore || new Date();
   const [view, setView] = useState(new Date(initDate.getFullYear(), initDate.getMonth(), 1));
   const year  = view.getFullYear();
   const month = view.getMonth();
+
+  useEffect(() => {
+    if (onViewChange) onViewChange(view);
+  }, [view, onViewChange]);
 
   const today      = new Date(); today.setHours(0,0,0,0);
   const bookedSet  = new Set(bookedDates.map(d => d.toDateString()));
@@ -233,6 +237,7 @@ export default function BookingHotel() {
   const [selectedSuggestion, setSelectedSuggestion] = useState(null);
 
   /* price / availability */
+  const [calView, setCalView] = useState(selectedSuggestion || new Date());
   const [priceMaps, setPriceMaps] = useState({}); // { roomType: { dateString: price } }
   const [bookedDates, setBookedDates] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -255,8 +260,7 @@ export default function BookingHotel() {
       .then(res => setBookedDates(res.data.map(d => new Date(d))))
       .catch(() => {});
 
-    // Fetch price maps for EVERY room type in the combo
-    const ref = checkIn || new Date();
+    // Fetch price maps for EVERY room type in the combo for the VISIBLE month
     const uniqueTypes = [...new Set(selectedSuggestion.parts.map(p => p.room.type))];
 
     Promise.all(
@@ -266,13 +270,13 @@ export default function BookingHotel() {
             params: {
               hotelId: hotel._id,
               roomType,
-              month: ref.getMonth() + 1,
-              year: ref.getFullYear()
+              month: calView.getMonth() + 1,
+              year: calView.getFullYear()
             }
           })
           .then(res => {
             const map = {};
-            (res.data.prices || res.data).forEach(p => {
+            (res.data || []).forEach(p => {
               map[new Date(p.date).toDateString()] = Number(p.price);
             });
             return { roomType, map };
@@ -280,11 +284,15 @@ export default function BookingHotel() {
           .catch(() => ({ roomType, map: {} }))
       )
     ).then(results => {
-      const combined = {};
-      results.forEach(({ roomType, map }) => { combined[roomType] = map; });
-      setPriceMaps(combined);
+      setPriceMaps(prev => {
+        const next = { ...prev };
+        results.forEach(({ roomType, map }) => {
+          next[roomType] = { ...(next[roomType] || {}), ...map };
+        });
+        return next;
+      });
     });
-  }, [hotel?._id, selectedSuggestion, checkIn]);
+  }, [hotel?._id, selectedSuggestion, calView]);
 
   /* suggestions */
   const suggestions = useMemo(
@@ -515,6 +523,7 @@ export default function BookingHotel() {
                     disabledBefore={new Date()}
                     bookedDates={bookedDates}
                     getTotalPerNight={getTotalPerNight}
+                    onViewChange={setCalView}
                   />
                   <MiniCalendar
                     label="Check-Out"
@@ -526,6 +535,7 @@ export default function BookingHotel() {
                     }
                     bookedDates={bookedDates}
                     getTotalPerNight={getTotalPerNight}
+                    onViewChange={setCalView}
                   />
                 </div>
               </Section>
