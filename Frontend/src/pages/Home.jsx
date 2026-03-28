@@ -12,6 +12,11 @@ import "slick-carousel/slick/slick-theme.css";
 import { Link, useNavigate } from "react-router-dom";
 import QuickEnquiryModal from "../component/QuickEnquiryModal"
 import GoogleReview from "../component/GoogleReview";
+import axios from "axios";
+import TourCard from "../component/TourCard";
+import TourCardSkeleton from "../component/TourCardSkeleton";
+
+const BASE_URL = "https://api.sdtour.online";
 
 export default function Home() {
 
@@ -61,7 +66,32 @@ export default function Home() {
 
   const navigate = useNavigate();
   const [openEnquiry, setOpenEnquiry] = useState(false);
-const handleBookTour = (tour) => {
+  const [fetchedTours, setFetchedTours] = useState([]);
+  const [toursLoading, setToursLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTours = async () => {
+      try {
+        const [groupRes, individualRes] = await Promise.all([
+          axios.get(`${BASE_URL}/group-tours`),
+          axios.get(`${BASE_URL}/individual-tours`)
+        ]);
+
+        const groups = (groupRes.data || []).map(t => ({ ...t, type: "group" }));
+        const individuals = (individualRes.data || []).map(t => ({ ...t, type: "individual" }));
+        
+        // Take top 4 for the homepage
+        setFetchedTours([...groups, ...individuals].slice(0, 4));
+      } catch (err) {
+        console.error("Home Tours Fetch Error:", err);
+      } finally {
+        setToursLoading(false);
+      }
+    };
+    fetchTours();
+  }, []);
+
+  const handleBookTour = (tour) => {
   const tourId = tour?._id || tour?.id;
 
   if (!tourId) {
@@ -465,87 +495,37 @@ const handleBookTour = (tour) => {
           Popular Tours & Packages
         </motion.h2>
 
-        <div className="flex flex-wrap justify-center gap-6 px-6 md:px-12 lg:px-40">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 md:px-12 lg:px-40">
+          {toursLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <TourCardSkeleton key={i} />)
+          ) : fetchedTours.length > 0 ? (
+            fetchedTours.map((tour) => (
+              <TourCard 
+                key={tour._id} 
+                tour={{
+                   ...tour, 
+                   title: tour.name, 
+                   oldPrice: tour.price, 
+                   finalPrice: tour.discountedPrice,
+                   discount: Math.round(((tour.price - tour.discountedPrice) / tour.price) * 100) || 0
+                }} 
+                type={tour.type} 
+              />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-20 text-gray-500">
+              No popular tours available at the moment.
+            </div>
+          )}
+        </div>
 
-          {tours.map((tour, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="w-full sm:w-[48%] md:w-full lg:w-[48%] bg-white rounded-xl border-1 border-gray-200 shadow-xl overflow-hidden"
+        <div className="mt-12 text-center">
+            <Link 
+              to="/tours/group" 
+              className="inline-flex items-center gap-2 px-8 py-3 bg-white text-[#F4612B] border-2 border-[#F4612B] rounded-full font-bold hover:bg-[#F4612B] hover:text-white transition-all shadow-lg"
             >
-
-              {/* ---- SLIDER ---- */}
-              <div className="relative">
-                <Slider {...sliderSettings}>
-                  {tour.images.map((img, i) => (
-                    <img key={i} src={img} className="w-full  h-[220px]
-    md:h-[260px]
-    lg:h-[300px] object-cover rounded-2xl p-2" />
-                  ))}
-                </Slider>
-              </div>
-
-              {/* ---- CARD DETAILS ---- */}
-              <div className="p-3">
-                <div className="text-[20px] font-bold text-[#F4612B] text-center">{tour.title}</div>
-                {/* Days + Location */}
-                <div className="flex justify-between px-1 mt-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-                    <FaRegClock className="text-[#F4612B]" /> {tour.days}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600 font-medium">
-                    <FaMapMarkerAlt className="text-[#F4612B]" /> {tour.location}
-                  </div>
-                </div>
-
-                {/* Features */}
-                <div className="flex justify-center gap-6 mt-4">
-                  <div className="flex flex-col items-center p-2"><FaHotel className="text-[#F4612B]" /><span className="text-xs mt-1">Hotel</span></div>
-                  <div className="flex flex-col items-center p-2"><FaUtensils className="text-[#F4612B]" /><span className="text-xs mt-1">Meals</span></div>
-                  <div className="flex flex-col items-center p-2"><FaBusAlt className="text-[#F4612B]" /><span className="text-xs mt-1">Transfers</span></div>
-                  <div className="flex flex-col items-center p-2"><FaBinoculars className="text-[#F4612B]" /><span className="text-xs mt-1">Sightseeing</span></div>
-                </div>
-
-                {/* ---- DISCOUNT + OLD PRICE ---- */}
-                <div className="mt-4 flex justify-center gap-3">
-
-                  {/* SHINING BADGE */}
-                  <span className="relative bg-[#F4612B] text-white text-xs font-semibold px-3 py-1 rounded-full overflow-hidden">
-                    <span
-                      className="absolute inset-0 w-[160%] h-full 
-                      bg-gradient-to-r from-transparent via-white/70 to-transparent
-                      animate-[shineMove_1.8s_linear_infinite]"
-                      style={{ transform: "rotate(20deg)" }}
-                    ></span>
-
-                    <span className="relative z-10">{tour.discount} OFF</span>
-                  </span>
-
-                  <span className="text-gray-500 line-through text-sm">INR {tour.oldPrice}</span>
-                </div>
-
-                {/* NEW PRICE */}
-                <div className="mt-3 text-center text-[15px] font-semibold text-gray-800">
-                  Starting from <span className="text-[#F4612B] font-bold">INR {tour.newPrice}</span>
-                </div>
-
-                {/* BUTTONS */}
-                <div className="mt-4 flex flex-col sm:flex-row gap-2">
-                  <button onClick={() => setOpenEnquiry(true)} className="w-full sm:w-1/2 py-2 border cursor-pointer border-[#F4612B] text-[#F4612B] rounded-full hover:bg-[#F4612B] hover:text-white transition-all">
-                    Quick Inquiry
-                  </button>
-                  <button onClick={() => handleBookTour(tour)} className="w-full sm:w-1/2 py-2 cursor-pointer bg-[#F4612B] text-white border border-[#F4612B] rounded-full hover:bg-white hover:text-[#F4612B] transition-all">
-                    Book Tour
-                  </button>
-                </div>
-
-              </div>
-            </motion.div>
-          ))}
-
+              View All Tour Packages
+            </Link>
         </div>
 
       </div>
