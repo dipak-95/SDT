@@ -238,9 +238,9 @@ useEffect(() => {
 
           <div className="max-w-[1350px] mx-auto px-4 md:px-6">
             {/* MOBILE HEADER */}
-            <div className="flex items-center justify-between md:hidden py-2">
-              <img src="/logo.webp" alt="Logo" className="h-10" />
-              <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between md:hidden py-1 px-1">
+              <img src="/logo.webp" alt="Logo" className="h-9" />
+              <div className="flex items-center gap-3">
                 <FiSearch
                   onClick={() => setSearchOpen((p) => !p)}
                   className="text-[#F4612B] text-xl cursor-pointer"
@@ -248,15 +248,50 @@ useEffect(() => {
                 {open ? (
                   <FiX
                     onClick={() => setOpen(false)}
-                    className="text-[#F4612B] text-3xl cursor-pointer"
+                    className="text-[#F4612B] text-2xl cursor-pointer"
                   />
                 ) : (
                   <FiMenu
                     onClick={() => setOpen(true)}
-                    className="text-[#F4612B] text-3xl cursor-pointer"
+                    className="text-[#F4612B] text-2xl cursor-pointer"
                   />
                 )}
               </div>
+            </div>
+
+            {/* MOBILE QUICK CATEGORIES */}
+            <div className="md:hidden flex justify-between gap-1 pb-3 pt-1 px-1 overflow-x-auto scrollbar-hide">
+              <Link 
+                to="/tours/group" 
+                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
+              >
+                <div className="text-[#F4612B] text-lg mb-0.5">🚌</div>
+                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Tours</span>
+              </Link>
+              
+              <Link 
+                to="/tours/indivisual" 
+                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
+              >
+                <div className="text-[#F4612B] text-lg mb-0.5">🏔️</div>
+                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Packages</span>
+              </Link>
+
+              <Link 
+                to="/hotels/somnath" 
+                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
+              >
+                <div className="text-[#F4612B] text-lg mb-0.5">🏨</div>
+                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Hotels</span>
+              </Link>
+
+              <Link 
+                to="/rentalcar" 
+                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
+              >
+                <div className="text-[#F4612B] text-lg mb-0.5">🚗</div>
+                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Rental</span>
+              </Link>
             </div>
 
             {/* MOBILE SEARCH (smooth animated) */}
