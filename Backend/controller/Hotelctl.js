@@ -207,13 +207,12 @@ exports.getMonthPrices = async (req, res) => {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
-    const start = new Date(Date.UTC(year, month - 1, 1));
-    const end = new Date(Date.UTC(year, month, 0, 23, 59, 59));
+    // Use string-based comparisons for month filtering to avoid timezone shifts
+    const prefix = `${year}-${String(month).padStart(2, "0")}`;
 
     const prices = hotel.datePrices.filter(dp =>
       dp.roomType === roomType &&
-      new Date(dp.date) >= start &&
-      new Date(dp.date) <= end
+      new Date(dp.date).toISOString().includes(prefix)
     );
 
     res.json(prices);

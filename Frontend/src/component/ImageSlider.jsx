@@ -14,7 +14,7 @@ export default function ImageSlider({ images }) {
       <AnimatePresence mode="wait">
         <motion.img
           key={i}
-          src={images[i] ? `${BASE_URL}${images[i]}` : "https://placehold.co/600x400?text=No+Image"}
+          src={images[i] || "https://placehold.co/600x400?text=No+Image"}
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ opacity: 0.5 }}
           animate={{ opacity: 1 }}
