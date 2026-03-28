@@ -260,38 +260,108 @@ useEffect(() => {
             </div>
 
             {/* MOBILE QUICK CATEGORIES */}
-            <div className="md:hidden flex justify-between gap-1 pb-3 pt-1 px-1 overflow-x-auto scrollbar-hide">
-              <Link 
-                to="/tours/group" 
-                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
-              >
-                <div className="text-[#F4612B] text-lg mb-0.5">🚌</div>
-                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Tours</span>
-              </Link>
-              
-              <Link 
-                to="/tours/indivisual" 
-                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
-              >
-                <div className="text-[#F4612B] text-lg mb-0.5">🏔️</div>
-                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Packages</span>
-              </Link>
+            <div className="md:hidden">
+              <div className="flex justify-between gap-1.5 pb-2 pt-1 px-1 overflow-x-auto scrollbar-hide">
+                <button 
+                  onClick={() => setDropdown(dropdown === "mobile-tours" ? null : "mobile-tours")}
+                  className={`flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl border transition-all active:scale-95
+                    ${dropdown === "mobile-tours" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
+                >
+                  <div className="text-2xl mb-1">🚌</div>
+                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Tours</span>
+                </button>
+                
+                <button 
+                  onClick={() => setDropdown(dropdown === "mobile-pkg" ? null : "mobile-pkg")}
+                  className={`flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl border transition-all active:scale-95
+                    ${dropdown === "mobile-pkg" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
+                >
+                  <div className="text-2xl mb-1">🏔️</div>
+                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Packages</span>
+                </button>
 
-              <Link 
-                to="/hotels/somnath" 
-                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
-              >
-                <div className="text-[#F4612B] text-lg mb-0.5">🏨</div>
-                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Hotels</span>
-              </Link>
+                <button 
+                  onClick={() => setDropdown(dropdown === "mobile-hotels" ? null : "mobile-hotels")}
+                  className={`flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl border transition-all active:scale-95
+                    ${dropdown === "mobile-hotels" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
+                >
+                  <div className="text-2xl mb-1">🏨</div>
+                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Hotels</span>
+                </button>
 
-              <Link 
-                to="/rentalcar" 
-                className="flex-1 flex flex-col items-center justify-center p-2 rounded-xl bg-orange-50/50 border border-orange-100 active:scale-95 transition"
-              >
-                <div className="text-[#F4612B] text-lg mb-0.5">🚗</div>
-                <span className="text-[10px] font-bold text-gray-700 uppercase tracking-tighter">Rental</span>
-              </Link>
+                <Link 
+                  to="/rentalcar" 
+                  className="flex-1 flex flex-col items-center justify-center p-2.5 min-h-[75px] rounded-2xl bg-orange-50/40 border border-orange-100 active:scale-95 transition"
+                >
+                  <div className="text-2xl mb-1">🚗</div>
+                  <span className="text-[11px] font-bold text-gray-800 uppercase tracking-tight">Rental</span>
+                </Link>
+              </div>
+
+              {/* MOBILE QUICK MENU DROPDOWN LISTS */}
+              <AnimatePresence>
+                {/* Tours Submenu */}
+                {dropdown === "mobile-tours" && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }} 
+                    animate={{ height: "auto", opacity: 1 }} 
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden bg-white border-x border-b border-gray-100 rounded-b-2xl mx-1 mb-3 px-2 py-3 flex gap-2"
+                  >
+                    <Link to="/tours/group" onClick={() => setDropdown(null)} className="flex-1 py-3 px-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
+                      Group Tours
+                    </Link>
+                    <Link to="/tours/indivisual" onClick={() => setDropdown(null)} className="flex-1 py-3 px-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
+                      Individual Tours
+                    </Link>
+                  </motion.div>
+                )}
+
+                {/* Packages (Activities) Submenu */}
+                {dropdown === "mobile-pkg" && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }} 
+                    animate={{ height: "auto", opacity: 1 }} 
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden bg-white border-x border-b border-gray-100 rounded-b-2xl mx-1 mb-3 p-3 grid grid-cols-2 gap-2"
+                  >
+                    {[
+                      { label: "Religious Sites", url: "/activities/Relligious-site" },
+                      { label: "Beaches", url: "/activities/Beaches" },
+                      { label: "Wildlife", url: "/activities/Wildlife" },
+                      { label: "Heritage", url: "/activities/Heritages-site" }
+                    ].map(act => (
+                      <Link key={act.label} to={act.url} onClick={() => setDropdown(null)} className="py-2 px-3 bg-gray-50 rounded-lg text-xs text-gray-700 border border-gray-100">
+                        {act.label}
+                      </Link>
+                    ))}
+                    <Link to="/tours/indivisual" onClick={() => setDropdown(null)} className="col-span-2 py-2 text-center text-[10px] text-[#F4612B] font-bold uppercase">View All Packages →</Link>
+                  </motion.div>
+                )}
+
+                {/* Hotels (Cities) Submenu */}
+                {dropdown === "mobile-hotels" && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }} 
+                    animate={{ height: "auto", opacity: 1 }} 
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden bg-white border-x border-b border-gray-100 rounded-b-2xl mx-1 mb-3 p-3"
+                  >
+                    <p className="text-[10px] uppercase font-bold text-gray-400 mb-2 px-1">Select Destination City</p>
+                    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                      {["Somnath","Dwarka","Ahmedabad","Rajkot","Sasan","Junagadh","Diu"].map(city => (
+                        <Link 
+                          key={city} to={`/hotels/${city.toLowerCase()}`} 
+                          onClick={() => setDropdown(null)}
+                          className="whitespace-nowrap py-2 px-5 bg-orange-50 border border-orange-100 rounded-full text-xs font-semibold text-[#F4612B]"
+                        >
+                          {city}
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* MOBILE SEARCH (smooth animated) */}
