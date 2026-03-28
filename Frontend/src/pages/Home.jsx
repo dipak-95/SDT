@@ -143,69 +143,7 @@ export default function Home() {
   }, []);
  
 
-  /* ---- Tours Data ---- */
-  const tours = [
-    {
-      id:"694e240af79325fb3586dd9e",
-      title: "Saurashtra Darshan Group Tour",
-      type: "group",
-      images: ["/somnathmandir.webp", "/statueofunity2.webp", "/Dwarkamandir.webp", "/junglesafari.webp"],
-      days: " 8 Days / 7 Nights",
-      location: "Gujarat",
-      hotel: true,
-      meals: true,
-      transfers: true,
-      sightseeing: true,
-      discount: "15%",
-      oldPrice: "20000",
-      newPrice: "17000",
-    },
-    {
-      id:"694e2818f79325fb3586ddcd",
-      title: "Saurashtra Darshan Group Tour",
-      type: "group",
-      images: ["/narmadaAarti2.webp", "/AkshardhamTemple.webp", "/GomtiGhat.webp", "/NagvaBeachDiu.webp"],
-      days: "7 Days / 6 Nights ",
-      location: "Gujarat",
-      hotel: true,
-      meals: true,
-      transfers: true,
-      sightseeing: true,
-      discount: "10%",
-      oldPrice: "18000",
-      newPrice: "16200",
-    },
-    {
-      id:"694e2bc8f79325fb3586dde2",
-      title: "Saurashtra Darshan group Tour",
-      type: "individual",
-      images: ["/BetDwarka.webp", "/gangeshvermahadev.webp", "/shivVillaresort.webp", "/Nageshwar.webp"],
-      days: "7 Days / 6 Night",
-      location: "Gujarat",
-      hotel: true,
-      meals: true,
-      transfers: true,
-      sightseeing: true,
-      discount: "15%",
-      oldPrice: "20000",
-      newPrice: "17000",
-    },
-    {
-      id:"694e3ba8f79325fb3586de0e",
-      title: "Saurashtra Darshan Individual Tour",
-      type: "individual",
-      images: ["/DiuFort.webp", "/junglesafari.webp", "/somnathmandir.webp", "/shivVillaresort.webp"],
-      days: "5 Days / 4 Night",
-      location: "Gujarat",
-      hotel: true,
-      meals: true,
-      transfers: true,
-      sightseeing: true,
-      discount: "10%",
-      oldPrice: "20000",
-      newPrice: "18000",
-    },
-  ];
+  // Static tours array removed. Use fetchedTours state.
 
   /* ---- Custom Slider Arrows ---- */
   function PrevArrow({ onClick }) {
