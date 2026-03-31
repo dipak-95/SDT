@@ -38,6 +38,16 @@ exports.updateTour = async (req, res) => {
     tour.oldPrice = Number(req.body.oldPrice);
     tour.discount = Number(req.body.discount || 0);
     tour.location = req.body.location;
+
+    // 🔥 HANDLE TICKETS
+    if (req.body.includedTickets) {
+      tour.includedTickets = Array.isArray(req.body.includedTickets)
+        ? req.body.includedTickets
+        : [req.body.includedTickets];
+    } else {
+      tour.includedTickets = [];
+    }
+
     await tour.save();
 
     res.json({ msg: "Tour updated", tour });

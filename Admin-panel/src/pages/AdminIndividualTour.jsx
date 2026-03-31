@@ -67,7 +67,9 @@ const emptyForm = {
   location: "",
   oldPrice: "",
   discount: "",
-  images: null
+  images: null,
+  includedTickets: [],
+  ticketInput: ""
 };
 
 const formatInputDate = (d) =>
@@ -114,8 +116,14 @@ const AdminIndividualTour = () => {
 
     const fd = new FormData();
     Object.keys(form).forEach((key) => {
-      if (key !== "images") fd.append(key, form[key]);
+      if (key !== "images" && key !== "ticketInput" && key !== "includedTickets") {
+        fd.append(key, form[key]);
+      }
     });
+
+    if (form.includedTickets && form.includedTickets.length > 0) {
+      form.includedTickets.forEach((t) => fd.append("includedTickets", t));
+    }
 
     if (form.images) {
       Array.from(form.images).forEach((img) =>
@@ -171,7 +179,8 @@ const AdminIndividualTour = () => {
       location: tour.location,
       oldPrice: tour.oldPrice,
       discount: tour.discount,
-      images: null
+      images: null,
+      includedTickets: tour.includedTickets || []
     });
     setEditingId(tour._id);
     setOpen(true);
@@ -385,6 +394,51 @@ const AdminIndividualTour = () => {
                   }
                   className="w-full border p-2 rounded"
                 />
+
+                {/* 🔥 INCLUDED TICKETS SECTION */}
+                <div className="border p-3 rounded-lg bg-gray-50">
+                  <label className="text-sm font-bold text-[#f4612b] block mb-2">Included Tickets</label>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      placeholder="e.g. Sasan Safari Ticket"
+                      value={form.ticketInput || ""}
+                      onChange={(e) => setForm({ ...form, ticketInput: e.target.value })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (form.ticketInput?.trim()) {
+                            const newTickets = [...(form.includedTickets || []), form.ticketInput.trim()];
+                            setForm({ ...form, includedTickets: newTickets, ticketInput: "" });
+                          }
+                        }
+                      }}
+                      className="flex-1 border p-2 rounded-lg text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (form.ticketInput?.trim()) {
+                          const newTickets = [...(form.includedTickets || []), form.ticketInput.trim()];
+                          setForm({ ...form, includedTickets: newTickets, ticketInput: "" });
+                        }
+                      }}
+                      className="bg-[#f4612b] text-white px-3 rounded-lg text-sm"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {(form.includedTickets || []).map((t, idx) => (
+                      <span key={idx} className="bg-white border border-[#f4612b] text-[#f4612b] px-3 py-1 rounded-full text-xs flex items-center gap-1">
+                        {t}
+                        <X size={12} className="cursor-pointer" onClick={() => {
+                          const newer = form.includedTickets.filter((_, i) => i !== idx);
+                          setForm({ ...form, includedTickets: newer });
+                        }} />
+                      </span>
+                    ))}
+                  </div>
+                </div>
 
                 <button
                   disabled={loading}

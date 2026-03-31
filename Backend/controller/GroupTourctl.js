@@ -16,11 +16,15 @@ exports.addGroupTour = async (req, res) => {
       description: req.body.description,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      
-      oldPrice: Number(req.body.oldPrice),          
+      oldPrice: Number(req.body.oldPrice),
       discount: Number(req.body.discount || 0),
-      location:req.body.location,
-      images
+      location: req.body.location,
+      images,
+      includedTickets: req.body.includedTickets
+        ? (Array.isArray(req.body.includedTickets)
+            ? req.body.includedTickets
+            : [req.body.includedTickets])
+        : []
     });
 
     res.status(201).json(tour);
@@ -59,10 +63,21 @@ exports.updateTour = async (req, res) => {
     tour.description = req.body.description;
     tour.startDate = req.body.startDate;
     tour.endDate = req.body.endDate;
-    
-    tour.oldPrice=req.body.oldPrice;
-    tour.discount=req.body.discount;
-    tour.location=req.body.location;
+
+    tour.oldPrice = req.body.oldPrice;
+    tour.discount = req.body.discount;
+    tour.location = req.body.location;
+
+    // 🔥 HANDLE TICKETS
+    if (req.body.includedTickets) {
+      // if it's a string (only 1 item), convert to array
+      const tickets = Array.isArray(req.body.includedTickets)
+        ? req.body.includedTickets
+        : [req.body.includedTickets];
+      tour.includedTickets = tickets;
+    } else {
+      tour.includedTickets = [];
+    }
 
     await tour.save();
 

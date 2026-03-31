@@ -48,6 +48,10 @@ const tourSchema = new mongoose.Schema(
     images: {
       type: [String],
       default: []
+    },
+    includedTickets: {
+      type: [String],
+      default: []
     }
   },
   { timestamps: true }
