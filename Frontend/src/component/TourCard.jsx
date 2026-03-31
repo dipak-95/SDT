@@ -202,7 +202,12 @@ transition-shadow
           <div className="text-2xl font-black text-[#F4612B] flex items-center justify-center gap-1">
             <span className="text-lg">INR</span>
             <span>
-              {tour.finalPrice || Math.round(tour.oldPrice - (tour.oldPrice * (tour.discount || 0)) / 100)}
+              {tour.finalPrice || 
+                Math.round(
+                  Number(tour.oldPrice || 0) - 
+                  (Number(tour.oldPrice || 0) * (Number(tour.discount || 0))) / 100
+                )
+              }
             </span>
           </div>
         </div>
