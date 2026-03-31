@@ -183,13 +183,13 @@ transition-shadow
           </span>
         </div>
 
-        {/* 🔥 INCLUDED TICKETS BADGES */}
+        {/* 🔥 INCLUDED TICKETS BADGES with better design */}
         {tour.includedTickets?.length > 0 && (
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <div className="mt-4 flex flex-wrap justify-center gap-1.5">
             {tour.includedTickets.map((ticket, i) => (
-              <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 border border-green-200 rounded-lg">
-                <span className="text-lg">🎫</span>
-                <span className="text-[11px] font-bold text-green-700 leading-tight">
+              <div key={i} className="flex items-center gap-1 px-2.5 py-1.5 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+                <span className="text-sm">🎫</span>
+                <span className="text-[10px] font-bold text-green-700 leading-tight uppercase tracking-tight">
                   {ticket}
                 </span>
               </div>
@@ -197,11 +197,14 @@ transition-shadow
           </div>
         )}
 
-        <div className="mt-3 text-center text-[15px] font-semibold text-gray-800">
-          Starting from{" "}
-          <span className="text-[#F4612B] font-bold">
-            INR {tour.finalPrice}
-          </span>
+        <div className="mt-5 text-center">
+          <p className="text-sm text-gray-500 font-medium mb-1 uppercase tracking-widest">Starting from</p>
+          <div className="text-2xl font-black text-[#F4612B] flex items-center justify-center gap-1">
+            <span className="text-lg">INR</span>
+            <span>
+              {tour.finalPrice || Math.round(tour.oldPrice - (tour.oldPrice * (tour.discount || 0)) / 100)}
+            </span>
+          </div>
         </div>
 
         <div className="mt-4 flex flex-col sm:flex-row gap-2">
