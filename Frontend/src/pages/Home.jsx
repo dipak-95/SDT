@@ -440,13 +440,7 @@ export default function Home() {
             fetchedTours.map((tour) => (
               <TourCard 
                 key={tour._id} 
-                tour={{
-                   ...tour, 
-                   title: tour.name, 
-                   oldPrice: tour.price, 
-                   finalPrice: tour.discountedPrice,
-                   discount: Math.round(((tour.price - tour.discountedPrice) / tour.price) * 100) || 0
-                }} 
+                tour={tour} 
                 type={tour.type} 
               />
             ))
