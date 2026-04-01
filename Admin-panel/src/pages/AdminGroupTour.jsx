@@ -87,7 +87,8 @@ const formatInputDate = (d) =>
   d ? new Date(d).toISOString().split("T")[0] : "";
 
 const daysNights = (s, e) => {
-  const days = Math.ceil((new Date(e) - new Date(s)) / 86400000) + 1;
+  const diff = Math.abs(new Date(e) - new Date(s));
+  const days = Math.ceil(diff / 86400000) + 1;
   return `${days} Days / ${days - 1} Nights`;
 };
 const formatDate = (date) =>

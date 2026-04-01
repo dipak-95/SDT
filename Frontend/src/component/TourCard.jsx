@@ -62,8 +62,8 @@ const formatDate = (date) => {
 };
 
 const daysNights = (start, end) => {
-  const days =
-    Math.ceil((new Date(end) - new Date(start)) / 86400000) + 1;
+  const diff = Math.abs(new Date(end) - new Date(start));
+  const days = Math.ceil(diff / 86400000) + 1;
   return `${days} Days / ${days - 1} Nights`;
 };
 
