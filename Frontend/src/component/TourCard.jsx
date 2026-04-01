@@ -42,14 +42,13 @@ function NextArrow({ onClick }) {
 const sliderSettings = {
   dots: false,
   infinite: true,
-  speed: 500,
+  speed: 800,
   slidesToShow: 1,
   slidesToScroll: 1,
-  autoplay: false,
-  // autoplaySpeed: 3000,
-  arrows: true,
-  prevArrow: <PrevArrow />,
-  nextArrow: <NextArrow />
+  autoplay: true,
+  autoplaySpeed: 1200,
+  arrows: false,
+  pauseOnHover: false
 };
 
 const formatDate = (date) => {
