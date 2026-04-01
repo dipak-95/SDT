@@ -92,35 +92,44 @@ exports.confirmBooking = async (req, res) => {
     if (!hotel)
       return res.status(404).json({ msg: "Hotel not found" });
 
-    const room = hotel.rooms.find(
-      r => r.type === booking.roomType
-    );
-    if (!room)
-      return res.status(404).json({ msg: "Room not found" });
+    // 🔥 HANDLE MULTIPLE ROOM TYPES IN COMBO
+    const types = booking.roomType.split(", ").map(t => t.trim());
+    
+    for (const type of types) {
+      const room = hotel.rooms.find(r => r.type === type);
+      if (!room) continue; // skip if type not found (shouldn't happen)
 
-    // 🔥 CHECK REAL-TIME AVAILABILITY FROM BOOKINGS COLLECTION
-    const overlapping = await Booking.find({
-      hotelId: booking.hotelId,
-      roomType: booking.roomType,
-      status: "confirmed",
-      checkIn: { $lt: booking.checkOut },
-      checkOut: { $gt: booking.checkIn }
-    });
-
-    const totalBooked = overlapping.reduce(
-      (sum, b) => sum + b.roomsBooked,
-      0
-    );
-
-    const availableRooms = room.totalRooms - totalBooked;
-
-    if (booking.roomsBooked > availableRooms) {
-      return res.status(400).json({
-        msg: "Rooms no longer available"
+      // Check real-time availability for this specific type
+      const overlapping = await Booking.find({
+        hotelId: booking.hotelId,
+        roomType: { $regex: type, $options: "i" }, // matches "2-bed" even in "2-bed, 4-bed"
+        status: "confirmed",
+        checkIn: { $lt: booking.checkOut },
+        checkOut: { $gt: booking.checkIn }
       });
+
+      const totalBooked = overlapping.reduce((sum, b) => {
+        // We need to parse roomCombo to get exact count for this type
+        // e.g. "2-bed x 1 + 4-bed x 1" -> find "2-bed x (\d+)"
+        const regex = new RegExp(`${type} x (\\d+)`, "i");
+        const match = b.roomCombo.match(regex);
+        return sum + (match ? parseInt(match[1]) : 0);
+      }, 0);
+
+      const availableRooms = room.totalRooms - totalBooked;
+
+      // Current booking's count for this type
+      const currentMatch = booking.roomCombo.match(new RegExp(`${type} x (\\d+)`, "i"));
+      const currentCount = currentMatch ? parseInt(currentMatch[1]) : 1;
+
+      if (currentCount > availableRooms) {
+        return res.status(400).json({
+          msg: `Room type "${type}" is no longer available`
+        });
+      }
     }
 
-    // ✅ JUST CONFIRM (NO bookedRooms UPDATE)
+    // ✅ JUST CONFIRM
     booking.status = "confirmed";
     await booking.save();
 

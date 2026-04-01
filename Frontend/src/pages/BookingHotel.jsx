@@ -339,8 +339,8 @@ export default function BookingHotel() {
     try {
       await axios.post(`${API_BASE}/bookings/create`, {
         hotelId: hotel._id,
-        // primary room for booking slot tracking
-        roomType: selectedSuggestion.primaryRoom.type,
+        // 🔥 FIX: Join all unique room types in the combo (e.g. "2-bed, 4-bed")
+        roomType: [...new Set(selectedSuggestion.parts.map(p => p.room.type))].join(", "),
         roomsBooked: selectedSuggestion.totalRooms,
         // full combo description for admin visibility
         roomCombo: selectedSuggestion.label,
