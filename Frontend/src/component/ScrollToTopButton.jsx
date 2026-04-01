@@ -54,8 +54,8 @@ export function ScrollToTopButton() {
       className="
         fixed
         bottom-6 sm:bottom-8
-        right-10 sm:right-12
-        z-50
+        right-5 sm:right-12
+        z-[100]
         cursor-pointer
       "
       initial={{ opacity: 0, scale: 0.85 }}

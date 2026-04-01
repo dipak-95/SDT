@@ -131,7 +131,7 @@ export default function Footer() {
         href={`https://wa.me/919979922797?text=${whatsappMessage}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-28 right-12 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl flex flex-row-reverse items-center group transition-all duration-300"
+        className="fixed bottom-[85px] sm:bottom-28 right-5 sm:right-12 z-[100] bg-[#25D366] text-white p-3 sm:p-4 rounded-full shadow-2xl flex flex-row-reverse items-center group transition-all duration-300"
         whileHover={{ scale: 1.05 }}
       >
         <motion.div
@@ -140,9 +140,9 @@ export default function Footer() {
           transition={{ repeat: Infinity, duration: 2 }}
         />
         
-        <FaWhatsapp className="text-2xl relative z-10 shrink-0" />
+        <FaWhatsapp className="text-xl sm:text-2xl relative z-10 shrink-0" />
         
-        <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-bold relative z-10 group-hover:max-w-[200px] group-hover:mr-3 transition-all duration-500 ease-in-out">
+        <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs sm:text-sm font-bold relative z-10 group-hover:max-w-[200px] group-hover:mr-3 transition-all duration-500 ease-in-out">
           Discuss on WhatsApp
         </span>
       </motion.a>
