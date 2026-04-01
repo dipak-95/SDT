@@ -109,13 +109,10 @@ export default function Home() {
   const activityRoutes = {
     "Religious Sites": "/activities/Relligious-site",
     "Beaches": "/activities/Beaches",
-    "Heritage Sites": "/activities/Heritages-sites",
+    "Heritage Sites": "/activities/Heritages-site",
     "Wildlife Sancturies": "/activities/Wildlife",
-    "Art & Craft": "/activities/ArtandCraft",
-    "Fair & Festival": "/activities/FairandFestival",
-    "Shopping in Gujrat": "/activities/ShoppinginGujarat",
-    "Flora-Fauna": "/activities/Flora-Fauna",
-    "Show & Glow Experience": "/activities/ShowandGlow"
+    "Shopping & Art": "/activities/ShoppinginGujarat",
+    "Hotels": "/hotels"
   };
   const destinationRoutes = {
     "Somnath Temple": "/destinations/Somnath",
@@ -178,175 +175,73 @@ export default function Home() {
     nextArrow: <NextArrow />,
   };
 
-  const glanceData = {
+  const [glanceData, setGlanceData] = useState({
     "Religious Sites": {
-      desc:
-        "Gujarat is a sacred land deeply rooted in spirituality and devotion. From ancient Jyotirlingas to revered Shakti Peeths, the state offers a profound spiritual journey through centuries of faith and tradition.",
-      tags: [
-        "Somnath Temple",
-        "Akshardham",
-        "Dwarkadhish Temple",
-        "Adalaj Trimandir",
-        "Ambaji Temple",
-        "Gangeshvar MahadevTemple",
-      ],
-      images: [
-        "/somnathmandir.webp",
-        "/AkshardhamTemple.webp",
-        "/Dwarkamandir.webp",
-        "/AdalajTrimandir.webp",
-        "/ambajimandir.webp",
-        "/gangeshvermahadev.webp",
-      ],
+      desc: "Gujarat is a sacred land deeply rooted in spirituality and devotion. From ancient Jyotirlingas to revered Shakti Peeths, the state offers a profound spiritual journey through centuries of faith and tradition.",
+      tags: ["Somnath Temple", "Akshardham", "Dwarkadhish Temple", "Adalaj Trimandir", "Ambaji Temple", "Gangeshvar MahadevTemple"],
+      images: ["/somnathmandir.webp", "/AkshardhamTemple.webp", "/Dwarkamandir.webp", "/AdalajTrimandir.webp", "/ambajimandir.webp", "/gangeshvermahadev.webp"],
     },
-
     "Wildlife Sancturies": {
-      desc:
-        "Home to diverse wildlife and rare species, Gujarat’s national parks offer thrilling encounters with nature, from Asiatic lions in Gir to migratory birds across scenic wetlands.",
-      tags: [
-        "Gir National Park",
-        "Porbandar Bird Sanctuary",
-        "Kutch Great Indian Bustard Sanctuary",
-        "Narayan Sarovar Wildlife Sanctuary",
-        "Kutch Desert Wildlife Sanctuary",
-      ],
-      images: [
-        "/Girforestnatinalpark.webp",
-        "/Narayansarovarsanctury.webp",
-        "/Kutchbustardsanctury.webp",
-        "/Porbandar-Bird-Sanctuary.webp",
-        "/Kutchdessertwildlife.webp",
-        "/Deer.webp",
-      ],
+      desc: "Home to diverse wildlife and rare species, Gujarat’s national parks offer thrilling encounters with nature, from Asiatic lions in Gir to migratory birds across scenic wetlands.",
+      tags: ["Gir National Park", "Porbandar Bird Sanctuary", "Kutch Great Indian Bustard Sanctuary", "Narayan Sarovar Wildlife Sanctuary", "Kutch Desert Wildlife Sanctuary"],
+      images: ["/Girforestnatinalpark.webp", "/Narayansarovarsanctury.webp", "/Kutchbustardsanctury.webp", "/Porbandar-Bird-Sanctuary.webp", "/Kutchdessertwildlife.webp", "/Deer.webp"],
     },
-
     "Beaches": {
-      desc:
-        "Gujarat’s coastline stretches along the Arabian Sea, offering serene beaches, golden sunsets, and peaceful coastal retreats away from crowded tourist hubs.",
-      tags: [
-        "Mandvi Beach",
-        "Shivrajpur Beach",
-        "Chorwad Beach",
-        "Dandi Beach",
-        "Madhavpur Beach",
-        "Dunny Point",
-      ],
-      images: [
-        "/Mandavibeach2.webp",
-        "/shivrajpurbeach.webp",
-        "/Chorvad2.webp",
-        "/Dandi2.webp",
-        "/MadhavpurBeach.webp",
-        "/Dunny2.webp",
-      ],
+      desc: "Gujarat’s coastline stretches along the Arabian Sea, offering serene beaches, golden sunsets, and peaceful coastal retreats away from crowded tourist hubs.",
+      tags: ["Mandvi Beach", "Shivrajpur Beach", "Chorwad Beach", "Dandi Beach", "Madhavpur Beach", "Dunny Point"],
+      images: ["/Mandavibeach2.webp", "/shivrajpurbeach.webp", "/Chorvad2.webp", "/Dandi2.webp", "/MadhavpurBeach.webp", "/Dunny2.webp"],
     },
     "Heritage Sites": {
-      desc:
-        "Gujarat’s heritage sites reflect centuries of architectural brilliance, ancient civilizations, and royal legacies, preserving the state’s rich history through forts, stepwells, and historic towns.",
-      tags: [
-        "Statue of Unity",
-        "Adalaj Stepwell",
-        "Ashoka Rock Edicts",
-        "Diu Fort",
-        "Uperkot Fort",
-        "Buddhist Caves of Junagadh",
-      ],
-      images: [
-        "/heroImg.webp",
-        "/AdalajStepwell.webp",
-        "/Uparkot2.webp",
-        "/DiuFort.webp",
-        "/Buddhistcave.webp",
-        "/Ashokalekh.webp",
-      ],
+      desc: "Gujarat’s heritage sites reflect centuries of architectural brilliance, ancient civilizations, and royal legacies, preserving the state’s rich history through forts, stepwells, and historic towns.",
+      tags: ["Statue of Unity", "Adalaj Stepwell", "Ashoka Rock Edicts", "Diu Fort", "Uperkot Fort", "Buddhist Caves of Junagadh"],
+      images: ["/heroImg.webp", "/AdalajStepwell.webp", "/Uparkot2.webp", "/DiuFort.webp", "/Buddhistcave.webp", "/Ashokalekh.webp"],
     },
-    "Shopping in Gujrat": {
-      desc:
-        "Shopping in Gujarat offers a vibrant mix of traditional markets and local crafts, featuring textiles, handicrafts, jewelry, and regional specialties unique to every region.",
-      tags: [
-        "Shopping in Surat",
-        "Shopping in Vadodara",
-        "Shopping in Ahmedabad",
-        "Shopping in Junagadh",
-        "Shopping in Kutch",
-        "Shopping in Jamnagar",
-        "Shopping in Dwarka",
-        "Shopping in Somnath",
-      ],
-      images: [
-        "/market1[1].jpg",
-        "/bazar1.webp",
-        "/market3[1].jpg",
-        "/bazar2.webp",
-        "/market5[1].jpg",
-        "/bazar3.webp",
-      ],
+    "Hotels": {
+      desc: "Experience world-class hospitality in Gujarat. From luxury stays near the Statue of Unity to cozy heritage hotels in Kutch, find the perfect place to rest during your journey.",
+      tags: [], // Will be dynamic
+      images: ["/hotel1.webp", "/hotel2.webp", "/hotel3.webp", "/hotel4.webp"],
     },
-    "Fair & Festival": {
-      desc:
-        "Gujarat’s fairs and festivals celebrate culture, devotion, and joy, showcasing colorful traditions, folk music, dance, and community gatherings throughout the year.",
-      tags: [
-        "Vital Facts on Bhavnath Mahadev Mela",
-        "Important Facts About Modhera Dance Festival",
-        "Key Highlights of Navratri Festival",
-        "Essential Information on Rann Utsav",
-        "Important Facts About Tarnetar Fair",
-        "Quick Facts About Uttarayan (Kite Festival)",
-        "Important Facts About Janmashtami in Dwarka",
-        "Essential Facts on Gujarat’s Cultural Festivals"
-      ],
-      images: [
-        "/Ranutsav.webp",
-        "/janmastmi.webp",
-        "/Diwali.webp",
-        "/Kite.webp",
-        "/modhera.webp",
-        "/Tarnetar.webp",
-      ],
-    },
-    "Art & Craft": {
-      desc:
-        "Gujarat is renowned for its rich art and craft heritage, including intricate embroidery, pottery, handloom textiles, and traditional designs passed down through generations.",
-      tags: [
-        "Bandhani",
-        "Patola",
-        "Rogan Art",
-        "Kutchi Embroidery",
-        "Lippan Kaam",
-        "Pithora Painting",
-        "Mata ni Pachedi",
-        "Terracotta Craft",
-      ],
-      images: [
-        "/craft1.webp",
-        "/patola.webp",
-        "/craft3.webp",
-        "/Jawellry.webp",
-        "/craft2.webp",
-        "/craft7.webp",
-      ],
-    },
-  };
+    "Shopping & Art": {
+      desc: "Gujarat is a treasure trove of textiles, handicrafts, and artistic brilliance. Discover Bandhani, Patola, and traditional Kutch embroidery across our vibrant local markets.",
+      tags: ["Bandhani", "Patola", "Rogan Art", "Kutchi Embroidery", "Ahmedabad Market", "Surat Textile"],
+      images: ["/market1[1].jpg", "/patola.webp", "/market3[1].jpg", "/craft1.webp", "/bazar1.webp"],
+    }
+  });
+
   const categories = Object.keys(glanceData);
   const [active, setActive] = useState(categories[0]);
   const [delayedActive, setDelayedActive] = useState(categories[0]);
   const [visible, setVisible] = useState(true);
   const [open, setOpen] = useState(false);
 
-  const current = glanceData[active];
+  useEffect(() => {
+    const fetchHotelCities = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/hotels`);
+        const uniqueCities = [...new Set(res.data.map(h => h.city))].map(c => c.charAt(0).toUpperCase() + c.slice(1).toLowerCase());
+        setGlanceData(prev => ({
+          ...prev,
+          "Hotels": {
+            ...prev["Hotels"],
+            tags: uniqueCities.length > 0 ? uniqueCities : ["Somsnath", "Dwarka", "Kutch", "Sasan Gir", "Vadodara"]
+          }
+        }));
+      } catch (err) {
+        console.error("Hotel City Fetch Error:", err);
+      }
+    };
+    fetchHotelCities();
+  }, []);
 
+  const current = glanceData[active];
   const delayedCurrent = glanceData[delayedActive];
 
   useEffect(() => {
-    // 1️⃣ Hide content immediately
     setVisible(false);
-
-    // 2️⃣ After 0.5s, change content & show again
     const timer = setTimeout(() => {
       setDelayedActive(active);
       setVisible(true);
-    }, 300); // ⏱ 0.5 second
-
+    }, 300);
     return () => clearTimeout(timer);
   }, [active]);
 
@@ -890,7 +785,9 @@ export default function Home() {
                     key={tag}
                     onClick={() => {
                       const route = activityRoutes[active];
-                      if (route) {
+                      if (active === "Hotels") {
+                        navigate(`/hotels/${tag.toLowerCase()}`);
+                      } else if (route) {
                         navigate(`${route}?place=${encodeURIComponent(tag)}`);
                       }
                     }}

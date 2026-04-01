@@ -14,6 +14,10 @@ export default function Cars() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
 
+  // 🔥 NEW FILTERS
+  const [maxPrice, setMaxPrice] = useState(100); // Default high-ish
+  const [seats, setSeats] = useState("all");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,7 +40,12 @@ export default function Cars() {
     const matchesType = type === "all" ? true
       : car.type?.toLowerCase() === type?.toLowerCase();
     const matchesSearch = car.name.toLowerCase().includes(search.toLowerCase());
-    return matchesType && matchesSearch;
+
+    // 🔥 Apply Price and Seat filters
+    const matchesPrice = Number(car.pricePerKm) <= maxPrice;
+    const matchesSeats = seats === "all" ? true : Number(car.seats) === Number(seats);
+
+    return matchesType && matchesSearch && matchesPrice && matchesSeats;
   });
 
   return (
@@ -78,30 +87,67 @@ export default function Cars() {
       </div>
 
       {/* ── SEARCH & FILTER BAR ── */}
-      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+      <div className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-20 py-4 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-4">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            {/* Search */}
+            <div className="relative w-full lg:w-[320px]">
+              <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                placeholder="Search vehicles..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50/50 text-sm focus:ring-2 focus:ring-orange-500/20 outline-none"
+              />
+            </div>
 
-          {/* Search */}
-          <div className="relative w-full sm:w-[380px]">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              placeholder="Search vehicle name or model..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-orange-200 bg-orange-50
-                         focus:ring-2 focus:ring-[#F4612B]/30 focus:outline-none focus:border-[#F4612B]
-                         text-sm text-gray-700 placeholder-gray-400 transition"
-            />
+            {/* 🔥 FILTERS UI */}
+            <div className="flex flex-wrap gap-3 items-center w-full lg:w-auto">
+              <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 shrink-0">
+                <span className="text-xs font-bold text-gray-400">SEATS</span>
+                <select 
+                  value={seats} 
+                  onChange={e => setSeats(e.target.value)}
+                  className="bg-transparent text-sm font-bold text-gray-700 outline-none cursor-pointer"
+                >
+                  <option value="all">All</option>
+                  <option value="4">4 Seater</option>
+                  <option value="5">5 Seater</option>
+                  <option value="6">6 Seater</option>
+                  <option value="7">7 Seater</option>
+                </select>
+              </div>
+
+              <div className="flex flex-1 lg:w-48 items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+                <span className="text-xs font-bold text-gray-400 whitespace-nowrap">PRICE ≤</span>
+                <input 
+                  type="range" min="10" max="250" step="5"
+                  value={maxPrice}
+                  onChange={e => setMaxPrice(e.target.value)}
+                  className="w-full h-1.5 bg-orange-200 rounded-lg appearance-none cursor-pointer accent-[#F4612B]"
+                />
+                <span className="text-sm font-bold text-[#F4612B] min-w-[30px]">₹{maxPrice}</span>
+              </div>
+              
+              {(search || type !== "all" || seats !== "all" || maxPrice < 250) && (
+                <button 
+                  onClick={() => { setSearch(""); setType("all"); setSeats("all"); setMaxPrice(250); }}
+                  className="text-xs font-bold text-orange-600 hover:underline"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Category tabs — horizontally scrollable */}
-          <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 max-w-full scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-1 max-w-full no-scrollbar pt-2 border-t border-gray-50">
             <button
               onClick={() => setType("all")}
-              className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap
+              className={`shrink-0 px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap
                 ${type === "all"
-                  ? "bg-[#F4612B] text-white shadow-md shadow-orange-200"
-                  : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-[#F4612B]"
+                  ? "bg-[#F4612B] text-white shadow-lg shadow-orange-100"
+                  : "bg-white border border-gray-200 text-gray-600 hover:border-orange-200"
                 }`}
             >
               All Vehicles
@@ -110,10 +156,10 @@ export default function Cars() {
               <button
                 key={c._id}
                 onClick={() => setType(c.name)}
-                className={`shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap capitalize
+                className={`shrink-0 px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap capitalize
                   ${type?.toLowerCase() === c.name?.toLowerCase()
-                    ? "bg-[#F4612B] text-white shadow-md shadow-orange-200"
-                    : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-[#F4612B]"
+                    ? "bg-[#F4612B] text-white shadow-lg shadow-orange-100"
+                    : "bg-white border border-gray-200 text-gray-600 hover:border-orange-200"
                   }`}
               >
                 {c.name}

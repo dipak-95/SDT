@@ -1,22 +1,22 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { AlertCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import CarCanceletion from "../component/CarCanceletion";
 
-const BASE_URL = "https://api.sdtour.online";
+const API_BASE = "https://api.sdtour.online";
 
 export default function BookCar() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [car, setCar] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
-    persons: "",
     startDate: "",
     endDate: ""
   });
@@ -24,277 +24,141 @@ export default function BookCar() {
   const [days, setDays] = useState(0);
   const [total, setTotal] = useState(0);
 
-  /* ================= FETCH CAR ================= */
   useEffect(() => {
-    axios
-      .get(`${BASE_URL}/cars/${id}`)
+    axios.get(`${API_BASE}/cars/${id}`)
       .then(res => setCar(res.data))
       .catch(() => toast.error("Failed to load car details"));
   }, [id]);
 
-  /* ================= CALCULATE BILL ================= */
   useEffect(() => {
     if (!car || !form.startDate || !form.endDate) return;
-
     const start = new Date(form.startDate);
     const end = new Date(form.endDate);
-    if (end < start) return;
-
-    const diff =
-      Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
+    if (end < start) {
+      setDays(0);
+      setTotal(0);
+      return;
+    }
+    const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
     setDays(diff);
     setTotal(diff * 300 * car.pricePerKm);
   }, [form.startDate, form.endDate, car]);
 
-  /* ================= SUBMIT ================= */
- const submit = async () => {
-  if (
-    !form.name ||
-    !form.email ||
-    !form.phone ||
-    !form.startDate ||
-    !form.endDate
-  ) {
-    toast.error("Please fill all required fields");
-    return;
-  }
+  const handleSubmit = async () => {
+    if (!form.name || !form.phone || !form.startDate || !form.endDate) {
+      return toast.error("Please fill all required fields");
+    }
+    setLoading(true);
+    try {
+      await axios.post(`${API_BASE}/car-booking/book`, {
+        carId: car._id,
+        userName: form.name,
+        email: form.email,
+        phone: form.phone,
+        startDate: form.startDate,
+        endDate: form.endDate,
+        days,
+        pricePerKm: car.pricePerKm,
+        total
+      });
+      toast.success("Enquiry submitted successfully 🚗");
+      navigate("/rental-car");
+    } catch (err) {
+      toast.error("Failed to submit enquiry");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  try {
-    await axios.post(`${BASE_URL}/car-booking/book`, {
-      carId: car._id,
-
-      userName: form.name,
-      email: form.email,
-      phone: form.phone,
-
-      startDate: form.startDate,
-      endDate: form.endDate,
-      days,
-
-      pricePerKm: car.pricePerKm,
-      total
-    });
-
-    toast.success("Enquiry submitted successfully 🚗");
-
-    /* ✅ RESET FORM AFTER SUCCESS */
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      persons: "",
-      startDate: "",
-      endDate: ""
-    });
-
-    setDays(0);
-    setTotal(0);
-
-  } catch (err) {
-    console.error(err.response?.data);
-    toast.error("Failed to submit enquiry");
-  }
-};
-
-
-  /* ================= LOADING ================= */
-  if (!car) {
-    return (
-      <div className="h-[60vh] flex flex-col items-center justify-center gap-3">
-        <div className="w-10 h-10 border-4 border-[#F4612B]/30 border-t-[#F4612B]
-          rounded-full animate-spin" />
-        <p className="text-gray-500">Loading car details...</p>
-      </div>
-    );
-  }
+  if (!car) return <div className="h-96 flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="w-full bg-[#fafafa]">
-
-      {/* ================= HERO ================= */}
-      <div className="relative w-full h-[65vh] overflow-hidden">
-        <img
-          src="/BookCar.webp"
-          alt={car.name}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r
-          from-black/70 via-black/40 to-transparent" />
-
-        <div className="relative z-10 max-w-7xl mx-auto h-full px-6 flex items-center">
-          <div className="text-white space-y-4 max-w-xl">
-            <span className="inline-block bg-[#F4612B] px-4 py-1 rounded-full
-              text-sm font-semibold uppercase">
-              {car.type}
-            </span>
-
-            <h1 className="text-3xl md:text-5xl font-extrabold">
-              {car.name}
-            </h1>
-
-            <div className="flex gap-6 text-sm md:text-base">
-              <span>👥 {car.seats} Seats</span>
-              <span>💰 ₹{car.pricePerKm} / KM</span>
-            </div>
-
-            <p className="text-white/80 text-sm">
-              Comfortable, reliable & perfect for your journey.
-            </p>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* HERO */}
+      <div className="relative h-[45vh] md:h-[55vh] w-full overflow-hidden">
+        <img src="/BookCar.webp" alt={car.name} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 flex items-center">
+          <div className="max-w-7xl mx-auto px-6 w-full text-white">
+            <span className="bg-orange-600 px-3 py-1 rounded-full text-xs font-bold uppercase">{car.type}</span>
+            <h1 className="text-3xl md:text-5xl font-extrabold mt-3">{car.name}</h1>
+            <p className="mt-2 text-gray-300">Comfortable • Safe • Reliable</p>
           </div>
         </div>
       </div>
 
-      {/* ================= CONTENT ================= */}
-      <div className="py-10">
-        <div className="max-w-8xl mx-auto px-15 grid lg:grid-cols-3">
-
-          {/* ================= FORM ================= */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-2 bg-white rounded-3xl shadow-xl shadow-gray-100 p-8 md:p-10 border border-gray-100 h-fit"
-          >
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-1.5 h-8 bg-[#F4612B] rounded-full" />
-              <h2 className="text-2xl font-bold text-gray-900">
-                Confirm Your Journey
-              </h2>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 -mt-10 md:-mt-20 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* FORM */}
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-gray-100">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8">Confirm Your Journey</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+            <div className="md:col-span-2 space-y-1">
+              <label className="font-bold text-gray-400 uppercase text-[10px]">Full Name</label>
+              <input 
+                className="w-full bg-gray-50 border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-4 outline-none font-semibold transition-all"
+                placeholder="Enter Name" value={form.name} onChange={e => setForm({...form, name: e.target.value})}
+              />
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* PRIMARY DETAILS */}
-              <div className="md:col-span-2 space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
-                <input
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                  placeholder="Enter your name"
-                  value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
-                <input
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                  placeholder="WhatsApp Number"
-                  value={form.phone}
-                  onChange={e => setForm({ ...form, phone: e.target.value.replace(/\D/g, "") })}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
-                <input
-                  className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                  placeholder="example@mail.com"
-                  value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
-                />
-              </div>
-
-              {/* DATE SELECTION */}
-              <div className="md:col-span-2 pt-4">
-                <div className="h-px bg-gray-100 w-full mb-8" />
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 block ml-1">Pick Journey Dates</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                     <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">Start Date</span>
-                     <input
-                      type="date"
-                      min={new Date().toISOString().split("T")[0]}
-                      className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                      value={form.startDate}
-                      onChange={e => setForm({ ...form, startDate: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase ml-1">End Date</span>
-                    <input
-                      type="date"
-                      min={form.startDate || new Date().toISOString().split("T")[0]}
-                      className="w-full bg-gray-50 border-2 border-transparent focus:border-[#F4612B] focus:bg-white px-5 py-4 rounded-2xl outline-none transition-all font-semibold text-gray-700"
-                      value={form.endDate}
-                      onChange={e => setForm({ ...form, endDate: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <button
-                onClick={submit}
-                className="md:col-span-2 w-full py-5 rounded-3xl font-bold text-white
-                bg-[#F4612B] hover:bg-[#e14c1f] shadow-xl shadow-orange-100 
-                active:scale-[0.98] transition-all text-lg mt-4"
-              >
-                Book This Journey
-              </button>
+            <div className="space-y-1">
+              <label className="font-bold text-gray-400 uppercase text-[10px]">Phone Number</label>
+              <input 
+                className="w-full bg-gray-50 border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-4 outline-none font-semibold transition-all"
+                placeholder="WhatsApp Number" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
+              />
             </div>
-          </motion.div>
-
-          {/* ================= RIGHT ================= */}
-          <div className="space-y-6 lg:ml-8 mt-10 lg:mt-0">
-
-            {/* SUMMARY */}
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-white rounded-3xl shadow-xl shadow-gray-100 p-8 border border-gray-50"
+            <div className="space-y-1">
+              <label className="font-bold text-gray-400 uppercase text-[10px]">Email (optional)</label>
+              <input 
+                className="w-full bg-gray-50 border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-4 outline-none font-semibold transition-all"
+                placeholder="Email Address" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="font-bold text-gray-400 uppercase text-[10px]">Start Date</label>
+              <input type="date" className="w-full bg-gray-50 border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-4 outline-none font-semibold"
+                value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="font-bold text-gray-400 uppercase text-[10px]">End Date</label>
+              <input type="date" className="w-full bg-gray-50 border-2 border-transparent focus:border-orange-500 rounded-2xl px-5 py-4 outline-none font-semibold"
+                value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} min={form.startDate}
+              />
+            </div>
+            <button 
+              onClick={handleSubmit} disabled={loading}
+              className="md:col-span-2 w-full py-5 bg-orange-600 text-white font-bold rounded-2xl shadow-xl hover:bg-orange-700 transition-all uppercase tracking-widest mt-4"
             >
-              <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span className="p-2 bg-orange-50 text-[#F4612B] rounded-xl text-lg">📝</span>
-                Fare Details
-              </h3>
-
-              <div className="space-y-4">
-                <div className="flex justify-between items-center pb-3 border-b border-gray-50">
-                  <span className="text-gray-500 font-medium">Applied Rate</span>
-                  <span className="font-bold text-gray-900">₹{car.pricePerKm} / KM</span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                  <span className="text-gray-500 font-medium">Daily Limit</span>
-                  <span className="font-bold text-gray-900">300 KM / Day</span>
-                </div>
-
-                <div className="flex justify-between items-center pb-3 border-b border-gray-100">
-                  <span className="text-gray-500 font-medium">Duration</span>
-                  <span className="font-bold text-gray-900">{days} Days</span>
-                </div>
-                
-                {days > 0 && (
-                  <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-2">
-                    <p className="text-[10px] font-bold text-orange-400 uppercase tracking-widest">Calculation Breakdown</p>
-                    <div className="flex justify-between items-center text-xs">
-                       <span className="text-gray-600 font-medium">Maximum Distance ({days} × 300)</span>
-                       <span className="font-bold text-gray-800">{days * 300} KM</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xs">
-                       <span className="text-gray-600 font-medium">Estimation ({days * 300} × {car.pricePerKm})</span>
-                       <span className="font-bold text-gray-800">₹{total}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center pt-2">
-                  <div className="space-y-1">
-                    <span className="text-sm font-bold text-gray-900">Final Summary</span>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold">* Excluding Toll & Parking</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="block text-2xl font-black text-[#F4612B]">
-                      ₹{total.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* POLICY */}
-            <CarCanceletion />
-
+              {loading ? "Submitting..." : "Book This Journey"}
+            </button>
           </div>
+        </div>
+
+        {/* SUMMARY */}
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-900 mb-6">Fare Summary</h3>
+            <div className="space-y-4 text-sm">
+              <div className="flex justify-between border-b pb-3">
+                <span className="text-gray-500">Rate</span>
+                <span className="font-bold text-gray-900">₹{car.pricePerKm} / KM</span>
+              </div>
+              <div className="flex justify-between border-b pb-3">
+                <span className="text-gray-500">Daily Min Limit</span>
+                <span className="font-bold text-gray-900">300 KM</span>
+              </div>
+              <div className="flex justify-between border-b pb-3">
+                <span className="text-gray-500">Duration</span>
+                <span className="font-bold text-gray-900">{days} Days</span>
+              </div>
+              <div className="flex justify-between items-center bg-orange-50 p-4 rounded-2xl">
+                <span className="text-orange-800 font-bold">Estimated Total</span>
+                <span className="text-2xl font-black text-orange-600">₹{total.toLocaleString()}</span>
+              </div>
+              <p className="text-[10px] text-gray-400 text-center">* Toll, Taxes & Parking extra</p>
+            </div>
+          </div>
+          <CarCanceletion />
         </div>
       </div>
     </div>

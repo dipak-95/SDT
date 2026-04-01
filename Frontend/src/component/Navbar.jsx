@@ -318,15 +318,17 @@ useEffect(() => {
                   >
                     <p className="text-[11px] uppercase font-bold text-gray-400 mb-3 px-1 text-center">Select Destination City</p>
                     <div className="grid grid-cols-2 gap-2">
-                      {["Somnath","Dwarka","Ahmedabad","Rajkot","Sasan","Junagadh","Diu","Surat"].map(city => (
+                      {cities.length > 0 ? cities.map(city => (
                         <Link 
-                          key={city} to={`/hotels/${city.toLowerCase()}`} 
+                          key={city._id} to={`/hotels/${city.name.toLowerCase().trim()}`} 
                           onClick={() => setDropdown(null)}
                           className="py-2.5 px-4 bg-orange-50 border border-orange-100 rounded-xl text-xs font-bold text-[#F4612B] text-center"
                         >
-                          {city}
+                          {city.name}
                         </Link>
-                      ))}
+                      )) : (
+                        <p className="col-span-full text-center text-[10px] text-gray-400">Loading cities...</p>
+                      )}
                     </div>
                   </motion.div>
                 )}
