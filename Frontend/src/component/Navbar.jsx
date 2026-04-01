@@ -239,8 +239,16 @@ useEffect(() => {
 
           <div className="max-w-[1350px] mx-auto px-4 md:px-6">
             {/* MOBILE HEADER */}
-            <div className="flex items-center justify-between md:hidden py-1 px-1">
-              <img src="/logo.webp" alt="Logo" className="h-9" />
+            <div className="flex items-center justify-between md:hidden py-2 px-2">
+              {/* Logo + Branding */}
+              <div className="flex items-center gap-2">
+                <img src="/logo.webp" alt="Logo" className="h-8" />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-[13px] font-black text-[#F4612B] tracking-tight">Saurashtra</span>
+                  <span className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">Darshan Tours</span>
+                </div>
+              </div>
+              {/* Icons */}
               <div className="flex items-center gap-3">
                 <FiSearch
                   onClick={() => setSearchOpen((p) => !p)}

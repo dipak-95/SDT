@@ -184,7 +184,7 @@ export default function App() {
       <Navbar />
 
       {/* SPACER FOR FIXED NAVBAR */}
-      <div className="h-[55px] md:h-[110px]" />
+      <div className="h-[46px] md:h-[110px]" />
 
       {/* ROUTES */}
       <Routes>
