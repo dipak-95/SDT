@@ -73,24 +73,25 @@ export default function BookCar() {
   if (!car) return <div className="h-96 flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-20 overflow-x-hidden">
       {/* HERO */}
-      <div className="relative h-[45vh] md:h-[55vh] w-full overflow-hidden">
+      <div className="relative h-[40vh] md:h-[55vh] w-full overflow-hidden">
         <img src="/BookCar.webp" alt={car.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="absolute inset-0 flex items-center">
-          <div className="max-w-7xl mx-auto px-6 w-full text-white">
-            <span className="bg-orange-600 px-3 py-1 rounded-full text-xs font-bold uppercase">{car.type}</span>
-            <h1 className="text-3xl md:text-5xl font-extrabold mt-3">{car.name}</h1>
-            <p className="mt-2 text-gray-300">Comfortable • Safe • Reliable</p>
+        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 flex items-center justify-center text-center">
+          <div className="max-w-4xl mx-auto px-6 w-full text-white">
+            <span className="bg-orange-600 px-3 py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest">{car.type}</span>
+            <h1 className="text-3xl md:text-6xl font-black mt-4 uppercase tracking-tighter drop-shadow-lg">{car.name}</h1>
+            <div className="h-1 w-20 bg-orange-500 mx-auto mt-4 rounded-full"></div>
+            <p className="mt-4 text-sm md:text-lg text-gray-300 font-medium lowercase italic opacity-80 decoration-orange-500">Premium • Reliable • Comfortable</p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-6 -mt-10 md:-mt-20 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 -mt-16 md:-mt-24 relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* FORM */}
-        <div className="lg:col-span-2 bg-white rounded-3xl shadow-xl p-6 md:p-10 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Confirm Your Journey</h2>
+        <div className="lg:col-span-2 bg-white rounded-[2rem] shadow-2xl p-6 md:p-12 border border-white">
+          <h2 className="text-2xl md:text-4xl font-black text-gray-900 mb-8 tracking-tight">Confirm Your <span className="text-orange-600">Booking</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
             <div className="md:col-span-2 space-y-1">
               <label className="font-bold text-gray-400 uppercase text-[10px]">Full Name</label>
