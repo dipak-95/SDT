@@ -302,19 +302,19 @@ const AdminGroupTour = () => {
               initial={{ scale: 0.9, y: 40 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 40 }}
-              className="bg-white w-full max-w-lg rounded-2xl p-6"
+              className="bg-white w-full max-w-lg rounded-2xl p-6 max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
-              <div className="flex justify-between mb-4">
+              <div className="flex justify-between items-center mb-6 sticky top-0 bg-white z-10 pb-2 border-b">
                 <h2 className="text-xl font-bold text-[#f4612b]">
                   {editingId ? "Edit Group Tour" : "Add Group Tour"}
                 </h2>
                 <X
-                  className="cursor-pointer"
+                  className="cursor-pointer hover:text-red-500 transition-colors"
                   onClick={() => setOpen(false)}
                 />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <input
                   placeholder="Title"
                   value={form.title}
