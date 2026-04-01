@@ -10,9 +10,9 @@ export default function CarCanceletion() {
       viewport={{ once: true }}
       className="
         bg-white rounded-2xl shadow-xl
-        p-6 md:p-6
+        p-4 md:p-6
         border border-orange-100
-        w-100
+        w-full
       "
     >
       {/* Header */}
@@ -28,7 +28,7 @@ export default function CarCanceletion() {
           bg-orange-50 p-4 rounded-xl
           border-l-4 border-[#F46B12]
         ">
-          <FiCheckCircle className="text-[#F46B12] text-xl mt-0.5" />
+          <FiCheckCircle className="text-[#F46B12] text-xl mt-0.5 shrink-0" />
           <p className="text-sm text-gray-700">
             Cancel the Car <b>2 days or more</b> before the departure date
             and get a <b className="text-green-600">100% refund</b>.
@@ -41,7 +41,7 @@ export default function CarCanceletion() {
           bg-red-50 p-4 rounded-xl
           border-l-4 border-red-400
         ">
-          <FiAlertCircle className="text-red-500 text-3xl mt-0.5" />
+          <FiAlertCircle className="text-red-500 text-2xl sm:text-3xl mt-0.5 shrink-0" />
           <p className="text-sm text-gray-700">
             If you cancel the tour <b>2 days or less</b> before departure,
             <b className="text-red-600"> 30% of the tour amount</b> will be
