@@ -141,7 +141,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 pb-24 md:pb-0">
 
       {/* Hero Section */}
       <div className="relative h-[280px] sm:h-[340px] md:h-[420px] lg:h-[480px] overflow-hidden">

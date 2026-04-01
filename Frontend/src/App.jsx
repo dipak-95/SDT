@@ -186,9 +186,10 @@ export default function App() {
       {/* SPACER FOR FIXED NAVBAR */}
       <div className="h-[46px] md:h-[110px]" />
 
-      {/* ROUTES */}
-      <Routes>
-        <Route path="/" element={<Home />} />
+      {/* ROUTES — bottom padding on mobile for fixed bottom tab bar */}
+      <div className="pb-20 md:pb-0">
+        <Routes>
+          <Route path="/" element={<Home />} />
         <Route path="/rentalcar" element={<RentalCar />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/contact" element={<Contact />} />
@@ -247,7 +248,8 @@ export default function App() {
 
         {/* OTHER */}
         <Route path="/pastjournies" element={<Memorablehjournys />} />
-      </Routes>
+        </Routes>
+      </div>
 
       {/* FOOTER */}
       <Footer />
