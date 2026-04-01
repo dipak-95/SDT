@@ -156,6 +156,7 @@ useEffect(() => {
   ];
 
   return (
+    <>
     <div style={{ fontFamily: "Poppins" }}>
       <div
      className={`
@@ -259,81 +260,7 @@ useEffect(() => {
               </div>
             </div>
 
-            {/* MOBILE QUICK CATEGORIES */}
-            <div className="md:hidden pt-1 pb-3 px-2">
-              <div className="flex justify-between gap-2.5">
-                <button 
-                  onClick={() => setDropdown(dropdown === "mobile-tours" ? null : "mobile-tours")}
-                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 shadow-sm
-                    ${dropdown === "mobile-tours" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
-                >
-                  <div className="text-3xl mb-1">🚌</div>
-                  <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Tours</span>
-                </button>
-                
-                <button 
-                  onClick={() => setDropdown(dropdown === "mobile-hotels" ? null : "mobile-hotels")}
-                  className={`flex-1 flex flex-col items-center justify-center p-3 rounded-2xl border transition-all active:scale-95 shadow-sm
-                    ${dropdown === "mobile-hotels" ? "bg-orange-100 border-orange-300 shadow-inner" : "bg-orange-50/40 border-orange-100"}`}
-                >
-                  <div className="text-3xl mb-1">🏨</div>
-                  <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Hotels</span>
-                </button>
 
-                <Link 
-                  to="/rentalcar" 
-                  className="flex-1 flex flex-col items-center justify-center p-3 rounded-2xl bg-orange-50/40 border border-orange-100 active:scale-95 transition shadow-sm"
-                >
-                  <div className="text-3xl mb-1">🚗</div>
-                  <span className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Rental</span>
-                </Link>
-              </div>
-
-              {/* MOBILE QUICK MENU DROPDOWN LISTS */}
-              <AnimatePresence>
-                {/* Tours Submenu */}
-                {dropdown === "mobile-tours" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }} 
-                    animate={{ height: "auto", opacity: 1 }} 
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-white border border-orange-100 rounded-2xl mt-3 p-3 flex gap-3 shadow-md"
-                  >
-                    <Link to="/tours/group" onClick={() => setDropdown(null)} className="flex-1 py-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
-                      Group Tours
-                    </Link>
-                    <Link to="/tours/indivisual" onClick={() => setDropdown(null)} className="flex-1 py-4 bg-orange-50 rounded-xl text-center text-xs font-bold text-[#F4612B] border border-orange-200">
-                      Individual Tours
-                    </Link>
-                  </motion.div>
-                )}
-
-                {/* Hotels (Cities) Submenu - Grid layout */}
-                {dropdown === "mobile-hotels" && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }} 
-                    animate={{ height: "auto", opacity: 1 }} 
-                    exit={{ height: 0, opacity: 0 }}
-                    className="overflow-hidden bg-white border border-orange-100 rounded-2xl mt-3 p-4 shadow-md"
-                  >
-                    <p className="text-[11px] uppercase font-bold text-gray-400 mb-3 px-1 text-center">Select Destination City</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {cities.length > 0 ? cities.map(city => (
-                        <Link 
-                          key={city._id} to={`/hotels/${city.name.toLowerCase().trim()}`} 
-                          onClick={() => setDropdown(null)}
-                          className="py-2.5 px-4 bg-orange-50 border border-orange-100 rounded-xl text-xs font-bold text-[#F4612B] text-center"
-                        >
-                          {city.name}
-                        </Link>
-                      )) : (
-                        <p className="col-span-full text-center text-[10px] text-gray-400">Loading cities...</p>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
 
             {/* MOBILE SEARCH (smooth animated) */}
             <AnimatePresence>
@@ -550,12 +477,118 @@ useEffect(() => {
           open={enquiryOpen}
           onClose={() => setEnquiryOpen(false)}
         />
-        {/* 🔍 SEARCH OVERLAY (THIS WAS MISSING) */}
         <SearchOverlay
           open={searchOpen}
           onClose={() => setSearchOpen(false)}
         />
       </div>
     </div>
+
+    {/* ══════════════════════════════════════════
+        MOBILE BOTTOM TAB BAR (fixed, outside navbar)
+    ══════════════════════════════════════════ */}
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9998]" style={{ fontFamily: "Poppins" }}>
+
+      {/* ── TOUR SUBMENU (pops up above bar) ── */}
+      <AnimatePresence>
+        {dropdown === "mobile-tours" && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.22 }}
+            className="mx-3 mb-1 bg-white rounded-2xl shadow-2xl border border-orange-100 p-4 flex gap-3"
+          >
+            <Link
+              to="/tours/group"
+              onClick={() => setDropdown(null)}
+              className="flex-1 py-3.5 bg-orange-50 rounded-xl text-center text-xs font-black text-[#F4612B] border border-orange-200 active:scale-95 transition-all"
+            >
+              🚌 Group Tours
+            </Link>
+            <Link
+              to="/tours/indivisual"
+              onClick={() => setDropdown(null)}
+              className="flex-1 py-3.5 bg-orange-50 rounded-xl text-center text-xs font-black text-[#F4612B] border border-orange-200 active:scale-95 transition-all"
+            >
+              🧳 Individual Tours
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── HOTEL CITIES SUBMENU ── */}
+      <AnimatePresence>
+        {dropdown === "mobile-hotels" && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.22 }}
+            className="mx-3 mb-1 bg-white rounded-2xl shadow-2xl border border-orange-100 p-4"
+          >
+            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 text-center">
+              Select City
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {cities.length > 0 ? cities.map(city => (
+                <Link
+                  key={city._id}
+                  to={`/hotels/${city.name.toLowerCase().trim()}`}
+                  onClick={() => setDropdown(null)}
+                  className="py-2 px-1 bg-orange-50 border border-orange-100 rounded-xl text-[10px] font-black text-[#F4612B] text-center active:scale-95 transition-all capitalize"
+                >
+                  {city.name}
+                </Link>
+              )) : (
+                <p className="col-span-3 text-center text-[10px] text-gray-400 py-2">Loading...</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── BOTTOM TAB BAR ── */}
+      <div className="bg-white border-t border-gray-100 shadow-[0_-4px_24px_-4px_rgba(0,0,0,0.10)] px-4 py-2 flex items-center justify-around safe-bottom">
+        {/* Tours */}
+        <button
+          onClick={() => setDropdown(dropdown === "mobile-tours" ? null : "mobile-tours")}
+          className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all active:scale-95 ${dropdown === "mobile-tours" ? "text-[#F4612B]" : "text-gray-500"}`}
+        >
+          <span className="text-2xl leading-none">🚌</span>
+          <span className={`text-[9px] font-black uppercase tracking-wider mt-0.5 ${dropdown === "mobile-tours" ? "text-[#F4612B]" : "text-gray-500"}`}>Tours</span>
+          {dropdown === "mobile-tours" && <span className="block w-1 h-1 bg-[#F4612B] rounded-full mt-0.5" />}
+        </button>
+
+        {/* Hotels */}
+        <button
+          onClick={() => setDropdown(dropdown === "mobile-hotels" ? null : "mobile-hotels")}
+          className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all active:scale-95 ${dropdown === "mobile-hotels" ? "text-[#F4612B]" : "text-gray-500"}`}
+        >
+          <span className="text-2xl leading-none">🏨</span>
+          <span className={`text-[9px] font-black uppercase tracking-wider mt-0.5 ${dropdown === "mobile-hotels" ? "text-[#F4612B]" : "text-gray-500"}`}>Hotels</span>
+          {dropdown === "mobile-hotels" && <span className="block w-1 h-1 bg-[#F4612B] rounded-full mt-0.5" />}
+        </button>
+
+        {/* Car Rental */}
+        <Link
+          to="/rentalcar"
+          className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-gray-500 active:scale-95 transition-all"
+        >
+          <span className="text-2xl leading-none">🚗</span>
+          <span className="text-[9px] font-black uppercase tracking-wider mt-0.5 text-gray-500">Rental</span>
+        </Link>
+
+        {/* Contact */}
+        <Link
+          to="/contact"
+          className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-gray-500 active:scale-95 transition-all"
+        >
+          <span className="text-2xl leading-none">📞</span>
+          <span className="text-[9px] font-black uppercase tracking-wider mt-0.5 text-gray-500">Contact</span>
+        </Link>
+      </div>
+    </div>
+    </>
   );
 }
