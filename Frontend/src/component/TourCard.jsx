@@ -212,22 +212,17 @@ transition-shadow
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col sm:flex-row gap-2">
+        <div className="mt-5 flex flex-row gap-2">
           <button
             onClick={() => setOpenEnquiry(true)}
-            className="w-full sm:w-1/2 py-2 border border-[#F4612B]
-             text-[#F4612B] rounded-full
-             hover:bg-[#F4612B] hover:text-white transition"
+            className="flex-1 py-3 text-[11px] font-bold border border-[#F4612B] text-[#F4612B] rounded-full hover:bg-[#F4612B] hover:text-white transition-all shadow-sm active:scale-95"
           >
             Quick Inquiry
           </button>
 
-
           <button
             onClick={handleView}
-            className=" sm:w-1/2 w-full py-2 bg-[#F4612B] text-white
-                   border border-[#F4612B] rounded-full
-                   hover:bg-white hover:text-[#F4612B] transition"
+            className="flex-1 py-3 text-[11px] font-bold bg-[#F4612B] text-white border border-[#F4612B] rounded-full hover:bg-white hover:text-[#F4612B] transition-all shadow-sm active:scale-95"
           >
             View Tour
           </button>
