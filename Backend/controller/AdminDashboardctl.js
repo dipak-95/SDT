@@ -1,88 +1,104 @@
-const Order = require("../model/Dashboard");
+const TourBooking = require("../model/BookingSchema");
+const HotelBooking = require("../model/HotelBooking");
+const CarBooking = require("../model/CarBooking");
 
 module.exports.getDashboardStats = async (req, res) => {
   try {
     /* ================= COUNTS ================= */
 
-    const groupBookings = await Order.countDocuments({
-      serviceType: { $regex: /^group$/i },
+    const groupBookings = await TourBooking.countDocuments({
+      tourType: { $regex: /^group$/i },
       status: { $regex: /^confirmed$/i },
     });
 
-    const individualBookings = await Order.countDocuments({
-      serviceType: { $regex: /^individual$/i },
+    const individualBookings = await TourBooking.countDocuments({
+      tourType: { $regex: /^individual$/i },
       status: { $regex: /^confirmed$/i },
     });
 
-    const hotelBookings = await Order.countDocuments({
-      serviceType: { $regex: /^hotel$/i },
+    const hotelBookingsCount = await HotelBooking.countDocuments({
       status: { $regex: /^confirmed$/i },
     });
 
-    const carBookings = await Order.countDocuments({
-      serviceType: { $regex: /^car$/i },
+    const carBookingsCount = await CarBooking.countDocuments({
       status: { $regex: /^confirmed$/i },
     });
 
-    const carEnquiries = await Order.countDocuments({
-      serviceType: { $regex: /^car$/i },
-      status: { $regex: /^enquiry$/i },
+    const carEnquiries = await CarBooking.countDocuments({
+      status: { $regex: /^pending$/i },
+    });
+    
+    const hotelEnquiries = await HotelBooking.countDocuments({
+      status: { $regex: /^pending$/i },
     });
 
     /* ================= TOTAL REVENUE ================= */
 
-    const revenueAgg = await Order.aggregate([
-      {
-        $match: {
-          status: { $regex: /^confirmed$/i },
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$amount" },
-        },
-      },
+    // 1. Tour Revenue
+    const tourRevAgg = await TourBooking.aggregate([
+      { $match: { status: { $regex: /^confirmed$/i } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
     ]);
 
-    const totalRevenue = revenueAgg.length
-      ? revenueAgg[0].total
-      : 0;
-
-    /* ================= MONTHLY REVENUE ================= */
-
-    const monthlyAgg = await Order.aggregate([
-      {
-        $match: {
-          status: { $regex: /^confirmed$/i },
-        },
-      },
-      {
-        $group: {
-          _id: { $month: "$createdAt" },
-          revenue: { $sum: "$amount" },
-        },
-      },
-      { $sort: { "_id": 1 } },
+    // 2. Hotel Revenue
+    const hotelRevAgg = await HotelBooking.aggregate([
+      { $match: { status: { $regex: /^confirmed$/i } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
     ]);
+
+    // 3. Car Revenue
+    const carRevAgg = await CarBooking.aggregate([
+      { $match: { status: { $regex: /^confirmed$/i } } },
+      { $group: { _id: null, total: { $sum: "$total" } } },
+    ]);
+
+    const totalRevenue = (tourRevAgg[0]?.total || 0) + 
+                         (hotelRevAgg[0]?.total || 0) + 
+                         (carRevAgg[0]?.total || 0);
+
+    /* ================= MONTHLY REVENUE (Combined) ================= */
+    
+    const fetchMonthly = async (Model, amountField) => {
+      return await Model.aggregate([
+        { $match: { status: { $regex: /^confirmed$/i } } },
+        { $group: { _id: { $month: "$createdAt" }, revenue: { $sum: `$${amountField}` } } }
+      ]);
+    };
+
+    const [tourMonthly, hotelMonthly, carMonthly] = await Promise.all([
+      fetchMonthly(TourBooking, "totalAmount"),
+      fetchMonthly(HotelBooking, "totalAmount"),
+      fetchMonthly(CarBooking, "total")
+    ]);
+
+    const monthlyMap = {};
+    const mergeMonthly = (results) => {
+      results.forEach(item => {
+        monthlyMap[item._id] = (monthlyMap[item._id] || 0) + item.revenue;
+      });
+    };
+
+    mergeMonthly(tourMonthly);
+    mergeMonthly(hotelMonthly);
+    mergeMonthly(carMonthly);
 
     const monthNames = [
       "Jan", "Feb", "Mar", "Apr", "May", "Jun",
       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
     ];
 
-    const monthlyRevenue = monthlyAgg.map(item => ({
-      month: monthNames[item._id - 1],
-      revenue: item.revenue,
-    }));
+    const monthlyRevenue = Object.keys(monthlyMap).map(mIdx => ({
+      month: monthNames[parseInt(mIdx) - 1],
+      revenue: monthlyMap[mIdx],
+    })).sort((a, b) => monthNames.indexOf(a.month) - monthNames.indexOf(b.month));
 
     /* ================= RESPONSE ================= */
 
     res.status(200).json({
       groupBookings,
       individualBookings,
-      hotelBookings,
-      carBookings,
+      hotelBookings: hotelBookingsCount,
+      carBookings: carBookingsCount,
       carEnquiries,
       totalRevenue,
       monthlyRevenue,
