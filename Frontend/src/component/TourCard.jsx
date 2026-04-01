@@ -191,13 +191,13 @@ const TourCard = ({ tour, type }) => {
           <div className="mt-3 flex gap-2" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setOpenEnquiry(true)}
-              className="flex-1 py-2.5 text-[11px] lg:text-[13px] font-black tracking-wide border-2 border-[#F4612B] text-[#F4612B] rounded-xl hover:bg-[#F4612B] hover:text-white transition-all active:scale-95"
+              className="flex-1 py-2.5 text-[12px] lg:text-[15px] font-black tracking-wide border-2 border-[#F4612B] text-[#F4612B] rounded-xl hover:bg-[#F4612B] hover:text-white transition-all active:scale-95"
             >
               Quick Inquiry
             </button>
             <button
               onClick={handleView}
-              className="flex-1 py-2.5 text-[11px] lg:text-[13px] font-black tracking-wide bg-[#F4612B] text-white rounded-xl border-2 border-[#F4612B] hover:bg-white hover:text-[#F4612B] transition-all active:scale-95"
+              className="flex-1 py-2.5 text-[12px] lg:text-[15px] font-black tracking-wide bg-[#F4612B] text-white rounded-xl border-2 border-[#F4612B] hover:bg-white hover:text-[#F4612B] transition-all active:scale-95"
             >
               View Tour →
             </button>
