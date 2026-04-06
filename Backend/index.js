@@ -6,13 +6,26 @@ const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
 
+const compression = require("compression");
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
+/* ================= PERFORMANCE & SECURITY ================= */
+app.use(compression()); // Gzip all responses
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(cors({ origin: "*" }));
+
+// ✨ Cache images/uploads for 7 days to speed up page loads
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+  maxAge: '7d',
+  immutable: true
+}));
+
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 /* ================= DB CONNECTION ================= */
 connectDB();
@@ -20,6 +33,15 @@ connectDB();
 /* ================= ROUTES ================= */
 app.get("/", (req, res) => {
   res.send("🚀 Backend is running successfully");
+});
+
+// Health check for monitoring tools
+app.get("/api/status", (req, res) => {
+  res.json({ 
+    status: "online", 
+    uptime: process.uptime(),
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  });
 });
 
 app.use("/admin", require("./routes/route"));

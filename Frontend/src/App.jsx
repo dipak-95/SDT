@@ -49,7 +49,7 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1300); // smooth brand reveal
+    }, 700); // quick brand reveal
 
     return () => clearTimeout(timer);
   }, []);

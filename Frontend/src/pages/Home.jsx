@@ -271,6 +271,8 @@ export default function Home() {
         <video
           className="absolute top-0 left-0 w-full h-full object-cover"
           autoPlay muted loop playsInline
+          poster="/heroImg.webp"
+          preload="auto"
         >
           <source src="/videos/Saurastra Darshan.mp4" type="video/mp4" />
         </video>
