@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import BrandLoader from "./BrandLoader";
 import "react-toastify/dist/ReactToastify.css";
 
 const AdminLayout = () => {
@@ -31,7 +32,9 @@ const AdminLayout = () => {
 
         {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto p-4">
-          <Outlet />
+          <Suspense fallback={<BrandLoader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
 

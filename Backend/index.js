@@ -1,32 +1,55 @@
-require("dotenv").config(); // works locally, ignored on Render
-
+require("dotenv").config();
 const express = require("express");
 const connectDB = require("./config/db");
 const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
-
+const fs = require("fs");
 const helmet = require("helmet");
 const compression = require("compression");
 const app = express();
 
+/* ================= AUTO CREATING DIRECTORIES ================= */
+const uploadDirs = [
+  "uploads",
+  "uploads/group-tours",
+  "uploads/individual-tours",
+  "uploads/hotels",
+  "uploads/cars",
+  "uploads/users"
+];
+uploadDirs.forEach(dir => {
+  const fullPath = path.join(__dirname, dir);
+  if (!fs.existsSync(fullPath)) {
+    fs.mkdirSync(fullPath, { recursive: true });
+    console.log(`📁 Created directory: ${dir}`);
+  }
+});
+
 /* ================= PERFORMANCE & SECURITY ================= */
+// 🔒 CORS must be high up
+app.use(cors({ origin: "*" }));
+
+// 🛡️ Helmet (configured to not block Cross-Origin images & data)
 app.use(helmet({ 
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(compression()); // Gzip all responses
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "*" }));
 
-// ✨ Cache images/uploads for 7 days to speed up page loads
+app.use(compression()); // Gzip all responses
+
+// 📏 Increase limits for many high-res images
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// ✨ Caching & Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   maxAge: '7d',
-  immutable: true
+  immutable: true,
+  etag: true
 }));
 
-// Request Logger
+// Simple Request Logger
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   next();
