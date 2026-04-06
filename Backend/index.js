@@ -6,10 +6,15 @@ const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
 
+const helmet = require("helmet");
 const compression = require("compression");
 const app = express();
 
 /* ================= PERFORMANCE & SECURITY ================= */
+app.use(helmet({ 
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(compression()); // Gzip all responses
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,11 +41,12 @@ app.get("/", (req, res) => {
 });
 
 // Health check for monitoring tools
-app.get("/api/status", (req, res) => {
+app.get("/api/health", (req, res) => {
   res.json({ 
     status: "online", 
     uptime: process.uptime(),
-    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+    db: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+    version: "1.2.0"
   });
 });
 
