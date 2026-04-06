@@ -1,8 +1,9 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
+
 const express = require("express");
 const connectDB = require("./config/db");
 const cors = require("cors");
-const path = require("path");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const helmet = require("helmet");
