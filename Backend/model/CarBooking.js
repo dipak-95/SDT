@@ -16,7 +16,7 @@ const carBookingSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: true
+      required: false
     },
     phone: {
       type: String,

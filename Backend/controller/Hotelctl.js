@@ -175,7 +175,7 @@ exports.saveMonthPrices = async (req, res) => {
     if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
     prices.forEach(p => {
-      const targetDate = new Date(p.date).toISOString().split("T")[0];
+      const targetDate = p.date.split("T")[0]; // Use raw string directly
       const index = hotel.datePrices.findIndex(
         dp =>
           dp.roomType === roomType &&
@@ -193,6 +193,7 @@ exports.saveMonthPrices = async (req, res) => {
       }
     });
 
+    hotel.markModified('datePrices');
     await hotel.save();
     res.json({ msg: "Month prices saved successfully" });
   } catch (err) {
@@ -207,12 +208,11 @@ exports.getMonthPrices = async (req, res) => {
     const hotel = await Hotel.findById(hotelId);
     if (!hotel) return res.status(404).json({ msg: "Hotel not found" });
 
-    // Use string-based comparisons for month filtering to avoid timezone shifts
     const prefix = `${year}-${String(month).padStart(2, "0")}`;
 
     const prices = hotel.datePrices.filter(dp =>
       dp.roomType === roomType &&
-      new Date(dp.date).toISOString().includes(prefix)
+      new Date(dp.date).toISOString().split("T")[0].startsWith(prefix)
     );
 
     res.json(prices);
