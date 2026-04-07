@@ -11,6 +11,7 @@ const bookingSchema = new mongoose.Schema(
     tourTitle: String,
     tourType: String, // group | individual
 
+    travelDate: String,
     pricePerPerson: Number,
     persons: Number,
     totalAmount: Number,

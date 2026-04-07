@@ -60,8 +60,6 @@ const AdminImageSlider = ({ images }) => {
 const emptyForm = {
   title: "",
   description: "",
-  startDate: "",
-  endDate: "",
   days: "",
   nights: "",
   location: "",
@@ -72,21 +70,9 @@ const emptyForm = {
   ticketInput: ""
 };
 
-const formatInputDate = (d) =>
-  d ? new Date(d).toISOString().split("T")[0] : "";
-
-const daysNights = (s, e) => {
-  const diff = Math.abs(new Date(e) - new Date(s));
-  const days = Math.ceil(diff / 86400000) + 1;
-  return `${days} Days / ${days - 1} Nights`;
+const formatDuration = (d, n) => {
+  return `${d} Days / ${n} Nights`;
 };
-
-const formatDate = (date) =>
-  new Date(date).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  });
 
 /* ================= MAIN ================= */
 const AdminIndividualTour = () => {
@@ -173,8 +159,6 @@ const AdminIndividualTour = () => {
     setForm({
       title: tour.title,
       description: tour.description,
-      startDate: formatInputDate(tour.startDate),
-      endDate: formatInputDate(tour.endDate),
       days: tour.days,
       nights: tour.nights,
       location: tour.location,
@@ -226,11 +210,8 @@ const AdminIndividualTour = () => {
 
             <h2 className="font-bold">{t.title}</h2>
             <p className="text-sm text-gray-600">{t.description}</p>
-            <p className="text-sm mt-2">
-              📅 {formatDate(t.startDate)} → {formatDate(t.endDate)}
-            </p>
-            <p className="text-sm mt-1">
-              ⏱ {daysNights(t.startDate, t.endDate)}
+            <p className="text-sm mt-1 font-semibold text-orange-600">
+              ⏱ {formatDuration(t.days, t.nights)}
             </p>
             <p className="text-sm text-gray-500">📍 {t.location}</p>
 
@@ -312,26 +293,7 @@ const AdminIndividualTour = () => {
                   className="w-full border p-2 rounded"
                 />
 
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="date"
-                    value={form.startDate}
-                    onChange={(e) =>
-                      setForm({ ...form, startDate: e.target.value })
-                    }
-                    required
-                    className="border p-2 rounded"
-                  />
-                  <input
-                    type="date"
-                    value={form.endDate}
-                    onChange={(e) =>
-                      setForm({ ...form, endDate: e.target.value })
-                    }
-                    required
-                    className="border p-2 rounded"
-                  />
-                </div>
+
 
                 <div className="grid grid-cols-2 gap-3">
                   <input

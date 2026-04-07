@@ -99,9 +99,16 @@ const Bookings = () => {
             <div className="space-y-1">
               <p className="text-sm text-gray-400">Tour</p>
               <p className="text-lg font-semibold">{b.tourTitle}</p>
-              <span className="inline-block text-sm bg-orange-100 text-[#F4612B] px-3 py-1 rounded-full capitalize">
-                {b.tourType} tour
-              </span>
+              <div className="flex flex-col gap-1">
+                <span className="inline-block text-xs bg-orange-100 text-[#F4612B] px-3 py-1 rounded-full capitalize w-fit">
+                  {b.tourType} tour
+                </span>
+                {b.travelDate && (
+                  <p className="text-xs font-bold text-gray-700 mt-1">
+                    📅 Travel: <span className="text-[#F4612B]">{new Date(b.travelDate).toLocaleDateString("en-IN", { day:'2-digit', month:'short', year:'numeric' })}</span>
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* PERSONS */}

@@ -37,7 +37,8 @@ export default function BookTour() {
     email: "",
     phone: "",
     persons: "",
-    note: ""
+    note: "",
+    travelDate: ""
   });
 
 
@@ -161,6 +162,7 @@ export default function BookTour() {
         tourId: tour._id,
         tourTitle: tour.title,
         tourType: type, // group | individual
+        travelDate: type === "individual" ? form.travelDate : null,
         pricePerPerson,
         totalAmount,
         paymentType,
@@ -277,6 +279,21 @@ export default function BookTour() {
                 className="w-full border p-3 rounded-lg focus:outline-[#f4612b] mb-6"
               />
 
+              {/* TRAVEL DATE (INDIVIDUAL ONLY) */}
+              {type === "individual" && (
+                <div className="mb-6">
+                  <label className="text-xs font-bold text-gray-500 mb-1.5 block">Select Travel Date *</label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    value={form.travelDate}
+                    onChange={e => setForm({ ...form, travelDate: e.target.value })}
+                    required
+                    className="w-full border p-3 rounded-lg focus:outline-[#f4612b]"
+                  />
+                </div>
+              )}
+
               {/* ===== PERSONS FIELD (SELF-CONTAINED SPACING) ===== */}
               <div className="mb-4">
                 <input
@@ -383,7 +400,18 @@ export default function BookTour() {
                     <div className="flex justify-between">
                       <span>Duration</span>
                       <span>
-                        {getDaysNights(tour.startDate, tour.endDate)}
+                        {type === "individual" 
+                          ? `${tour.days} Days / ${tour.nights} Nights`
+                          : getDaysNights(tour.startDate, tour.endDate)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span>Travel Date</span>
+                      <span className="font-semibold">
+                        {type === "individual" 
+                          ? (form.travelDate ? new Date(form.travelDate).toLocaleDateString("en-IN") : "Select date")
+                          : new Date(tour.startDate).toLocaleDateString("en-IN")}
                       </span>
                     </div>
 

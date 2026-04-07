@@ -58,7 +58,9 @@ const TourCard = ({ tour, type }) => {
       (Number(tour.oldPrice || 0) * Number(tour.discount || 0)) / 100
     );
 
-  const { days, nights } = tour.startDate && tour.endDate
+  const { days, nights } = tour.days && tour.nights
+    ? { days: tour.days, nights: tour.nights }
+    : tour.startDate && tour.endDate
     ? daysNights(tour.startDate, tour.endDate)
     : { days: 0, nights: 0 };
 
@@ -128,8 +130,14 @@ const TourCard = ({ tour, type }) => {
           <div className="mt-2.5 flex items-center justify-between text-[11px] text-gray-500 font-semibold">
             <div className="flex items-center gap-1.5">
               <FaCalendarAlt className="text-[#F4612B] shrink-0" />
-              <span>{formatDate(tour.startDate)}</span>
-              {tour.endDate && <><span className="text-gray-300">→</span><span>{formatDate(tour.endDate)}</span></>}
+              {type === "individual" ? (
+                <span className="text-orange-600 font-bold uppercase tracking-wider">Flexible Dates</span>
+              ) : (
+                <>
+                  <span>{formatDate(tour.startDate)}</span>
+                  {tour.endDate && <><span className="text-gray-300">→</span><span>{formatDate(tour.endDate)}</span></>}
+                </>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
               <FaMapMarkerAlt className="text-[#F4612B] shrink-0" />
