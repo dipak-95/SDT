@@ -20,40 +20,56 @@ function bedsPerRoom(type) {
 function buildSuggestions(rooms, adults) {
   if (!rooms?.length || !adults) return [];
 
-  // Build unique room types with capacity
-  const types = rooms
-    .map(r => ({ room: r, cap: bedsPerRoom(r.type) }))
-    .filter(t => t.cap >= 1);
+  // Group rooms by capacity to handle combinations accurately
+  const capGroups = {};
+  rooms.forEach(r => {
+    const cap = bedsPerRoom(r.type);
+    if (cap >= 1) {
+      if (!capGroups[cap]) capGroups[cap] = r;
+    }
+  });
+
+  const types = Object.keys(capGroups).map(cap => ({
+    cap: Number(cap),
+    room: capGroups[cap]
+  })).sort((a, b) => b.cap - a.cap); // Try bigger rooms first
 
   if (!types.length) return [];
 
   const results = [];
   const seen = new Set();
 
-  // DFS / backtracking to generate ALL combinations
   function dfs(idx, counts, totalCap) {
-    // pruning: no point going beyond 3× adults capacity
-    if (totalCap > adults * 3) return;
+    // Pruning: Don't show options with more than 2 extra spots or excessive rooms
+    if (totalCap >= adults + 3) return;
+    
+    const totalRooms = counts.reduce((a, b) => a + b, 0);
+    if (totalRooms > Math.max(adults, 4)) return; 
 
     if (idx === types.length) {
-      if (totalCap < adults) return; // can't cover all guests
+      if (totalCap < adults) return;
+      
       const parts = counts
         .map((n, i) => n > 0 ? { room: types[i].room, count: n, cap: types[i].cap } : null)
         .filter(Boolean);
+      
       if (!parts.length) return;
-      // dedupe key sorted by room type
+
       const key = parts.map(p => `${p.room.type}×${p.count}`).sort().join("|");
       if (!seen.has(key)) {
         seen.add(key);
-        results.push({ parts, waste: totalCap - adults, totalCapacity: totalCap });
+        results.push({ 
+          parts, 
+          waste: totalCap - adults, 
+          totalCapacity: totalCap,
+          totalRooms 
+        });
       }
       return;
     }
 
-    const remaining = adults - totalCap;
-    // try 0 rooms up to the minimum needed to cover remaining guests (+ 1 for slight overfit)
-    const maxN = Math.max(0, Math.ceil(remaining / types[idx].cap)) + 1;
-
+    // Heuristic for max rooms of this type
+    const maxN = Math.min(4, Math.ceil((adults + 2) / types[idx].cap));
     for (let n = 0; n <= maxN; n++) {
       counts[idx] = n;
       dfs(idx + 1, counts, totalCap + n * types[idx].cap);
@@ -63,26 +79,16 @@ function buildSuggestions(rooms, adults) {
 
   dfs(0, new Array(types.length).fill(0), 0);
 
-  if (!results.length) return [];
-
-  // Prefer exact fits (waste === 0); fallback to min-waste
-  const exactFits = results.filter(r => r.waste === 0);
-  const minWaste = results.reduce((m, r) => Math.min(m, r.waste), Infinity);
-  const valid = exactFits.length > 0
-    ? exactFits
-    : results.filter(r => r.waste === minWaste);
-
-  // Sort: fewest total rooms first, then by waste
-  return valid
-    .sort((a, b) => {
-      const ra = a.parts.reduce((s, p) => s + p.count, 0);
-      const rb = b.parts.reduce((s, p) => s + p.count, 0);
-      return ra - rb || a.waste - b.waste;
-    })
+  // Sorting logic:
+  // 1. Least waste first (Perfect fits to the top)
+  // 2. Fewest rooms second (1 big room is better than 4 small rooms)
+  return results
+    .sort((a, b) => a.waste - b.waste || a.totalRooms - b.totalRooms)
+    .slice(0, 10) // Show top 10 logical suggestions
     .map(opt => ({
-      parts: opt.parts,                                            // [{room, count, cap}]
-      primaryRoom: opt.parts[0].room,                              // for price ref
-      totalRooms: opt.parts.reduce((s, p) => s + p.count, 0),
+      parts: opt.parts,
+      primaryRoom: opt.parts[0].room,
+      totalRooms: opt.totalRooms,
       waste: opt.waste,
       totalCapacity: opt.totalCapacity,
       label: opt.parts.map(p => `${p.room.type} × ${p.count}`).join(" + "),
