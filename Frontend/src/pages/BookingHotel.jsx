@@ -79,12 +79,16 @@ function buildSuggestions(rooms, adults) {
 
   dfs(0, new Array(types.length).fill(0), 0);
 
-  // Sorting logic:
-  // 1. Least waste first (Perfect fits to the top)
-  // 2. Fewest rooms second (1 big room is better than 4 small rooms)
-  return results
-    .sort((a, b) => a.waste - b.waste || a.totalRooms - b.totalRooms)
-    .slice(0, 10) // Show top 10 logical suggestions
+  // Filtering: If we have perfect fits (waste 0), only show those.
+  // Otherwise, show the ones with minimum waste.
+  const exactFits = results.filter(r => r.waste === 0);
+  const finalResults = exactFits.length > 0 
+    ? exactFits 
+    : results.sort((a,b) => a.waste - b.waste).slice(0, 6);
+
+  return finalResults
+    .sort((a, b) => a.totalRooms - b.totalRooms) // Fewer rooms is usually better
+    .slice(0, 10)
     .map(opt => ({
       parts: opt.parts,
       primaryRoom: opt.parts[0].room,
