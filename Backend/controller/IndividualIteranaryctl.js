@@ -64,7 +64,7 @@ exports.saveFullItinerary = async (req, res) => {
 exports.getTourItinerary = async (req, res) => {
   try {
     const doc = await IndividualTourItinerary.findOne({
-      tourId: req.params.id
+      tourId: new mongoose.Types.ObjectId(req.params.id)
     });
 
     res.json(doc ? doc.itinerary : []);

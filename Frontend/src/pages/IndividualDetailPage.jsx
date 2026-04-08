@@ -62,13 +62,9 @@ const IndividualDetailPage = () => {
     );
   }
 
-    const getDaysNights = (startDate, endDate) => {
-    if (!startDate || !endDate) return "";
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const days =
-      Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-    return `${days} Days / ${days - 1} Nights`;
+    const getDuration = (days, nights) => {
+    if (!days) return "";
+    return `${days} Days / ${nights || days - 1} Nights`;
   };
   return (
     <div className="w-full">
@@ -95,7 +91,7 @@ const IndividualDetailPage = () => {
               {tour.title}
             </h1>
              <p className="mt-3 text-gray-200">
-              {getDaysNights(tour.startDate, tour.endDate)} • {tour.location}
+              {getDuration(tour.days, tour.nights)} • {tour.location}
             </p>
           </div>
         </motion.div>
