@@ -90,8 +90,12 @@ export default function BookTour() {
   };
 
   /* ===== BILL CALCULATION ===== */
-  const pricePerPerson = tour?.price || tour?.oldPrice || 0;
-  const totalAmount = pricePerPerson * Number(form.persons);
+  const basePrice = tour?.price || tour?.oldPrice || 0;
+  const discountVal = tour?.discount || 0;
+  const computedFinal = Math.round(basePrice - (basePrice * discountVal) / 100);
+  const pricePerPerson = tour?.finalPrice || computedFinal;
+  
+  const totalAmount = pricePerPerson * Number(form.persons || 0);
 
   const advanceAmount = Math.round(totalAmount * 0.3);
   const payableAmount =
