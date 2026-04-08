@@ -176,12 +176,20 @@ const AdminGroupTour = () => {
 
   /* EDIT */
   const handleEdit = (tour) => {
+    let calcDays = tour.days;
+    let calcNights = tour.nights;
+    if (!calcDays && tour.startDate && tour.endDate) {
+       calcDays = Math.ceil(Math.abs(new Date(tour.endDate) - new Date(tour.startDate)) / 86400000) + 1;
+       calcNights = calcDays - 1;
+    }
+
     setForm({
       title: tour.title,
       description: tour.description,
       startDate: formatInputDate(tour.startDate),
       endDate: formatInputDate(tour.endDate),
-      // price: tour.price,
+      days: calcDays || "",
+      nights: calcNights || "",
       oldPrice: tour.oldPrice,
       discount: tour.discount,
       location: tour.location,
@@ -190,7 +198,7 @@ const AdminGroupTour = () => {
     });
     setEditingId(tour._id);
     setCreatedTourId(tour._id); // So itinerary knows which tour
-    setItineraryDays(Number(tour.days));
+    setItineraryDays(Number(calcDays) || 0);
     setModalStep("details");
     setOpen(true);
   };

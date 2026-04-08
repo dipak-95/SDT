@@ -16,17 +16,81 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
       : "/group-tours/itinerary";
 
   /* ✅ ADD stay FIELD */
-  const [daysData, setDaysData] = useState(
-    Array.from({ length: totalDays }, (_, i) => ({
+  const [daysData, setDaysData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
+
+  // Auto-generate empty form based on totalDays if no data exists
+  const generateEmptyDays = (daysCount) => {
+    return Array.from({ length: daysCount }, (_, i) => ({
       day: i + 1,
       title: "",
-      stay: "",        // 👈 NEW
+      stay: "",
       points: "",
       images: null
-    }))
-  );
+    }));
+  };
 
-  const [loading, setLoading] = useState(false);
+  /* ---------------- FETCH EXISTING ITINERARY ---------------- */
+  useEffect(() => {
+    const fetchExistingItinerary = async () => {
+      try {
+        const getEndpoint =
+          type === "individual"
+            ? `/individual-tours/${tourId}/individualitinerary`
+            : `/group-tours/${tourId}/itinerary`;
+            
+        const res = await axios.get(`${BASE_URL}${getEndpoint}`);
+        
+        // Handle array response (itinerary array directly)
+        const fetchedData = Array.isArray(res.data) ? res.data : (res.data?.itinerary || []);
+        
+        if (fetchedData && fetchedData.length > 0) {
+          // Pre-fill form with existing data
+          const mappedData = fetchedData.map(d => ({
+            day: d.day,
+            title: d.title || "",
+            stay: d.stay || "",
+            points: Array.isArray(d.points) ? d.points.join("\n") : (d.points || ""),
+            images: null // File inputs cannot be pre-filled
+          }));
+          
+          // Ensure we merge with totalDays if they changed the days count
+          const finalData = [];
+          for (let i = 1; i <= Math.max(totalDays || 0, mappedData.length); i++) {
+            const existing = mappedData.find(m => m.day === i);
+            if (existing) {
+              finalData.push(existing);
+            } else {
+              finalData.push({
+                day: i,
+                title: "",
+                stay: "",
+                points: "",
+                images: null
+              });
+            }
+          }
+          setDaysData(finalData);
+        } else {
+          // No existing data, use default totalDays
+          setDaysData(generateEmptyDays(totalDays || 0));
+        }
+      } catch (err) {
+        console.error("Failed to fetch existing itinerary:", err);
+        setDaysData(generateEmptyDays(totalDays || 0));
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    
+    if (tourId) {
+      fetchExistingItinerary();
+    } else {
+      setDaysData(generateEmptyDays(totalDays || 0));
+      setIsFetching(false);
+    }
+  }, [tourId, totalDays, type]);
 
   /* ---------------- UPDATE DAY ---------------- */
   const updateDay = (index, field, value) => {
@@ -104,14 +168,21 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
           <div className="flex justify-between mb-4">
             <h2 className="text-xl font-bold text-[#f4612b]">
               {type === "individual"
-                ? "Add Individual Tour Itinerary"
-                : "Add Group Tour Itinerary"}
+                ? "Manage Individual Tour Itinerary"
+                : "Manage Group Tour Itinerary"}
             </h2>
             <X className="cursor-pointer" onClick={onClose} />
           </div>
 
-          {/* DAYS */}
-          <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+          {isFetching ? (
+            <div className="flex flex-col items-center justify-center py-10 space-y-3">
+               <div className="w-8 h-8 border-4 border-[#f4612b] border-t-transparent rounded-full animate-spin"></div>
+               <p className="text-gray-500 font-medium animate-pulse">Loading existing itinerary...</p>
+            </div>
+          ) : (
+            <>
+              {/* DAYS */}
+              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
             {daysData.map((day, index) => (
               <div key={day.day} className="border rounded-xl p-4">
                 <h3 className="font-semibold text-[#f4612b] mb-3">
@@ -170,6 +241,8 @@ const AdminItinerary = ({ tourId, totalDays, type, onClose }) => {
           >
             {loading ? "Saving..." : "Save Full Itinerary"}
           </button>
+            </>
+          )}
         </motion.div>
       </motion.div>
     </AnimatePresence>
