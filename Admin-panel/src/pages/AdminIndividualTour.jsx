@@ -234,6 +234,14 @@ const AdminIndividualTour = () => {
                 className="text-blue-600 flex gap-1 text-sm">
                 <Edit size={16} /> Edit
               </button>
+              <button onClick={() => {
+                setCreatedTourId(t._id);
+                setItineraryDays(Number(t.days));
+                setShowItinerary(true);
+              }}
+                className="text-orange-600 flex gap-1 text-sm items-center">
+                <Edit size={16} /> Itinerary
+              </button>
               <button onClick={() => handleDelete(t._id)}
                 className="text-red-600 flex gap-1 text-sm">
                 <Trash2 size={16} /> Delete
