@@ -108,6 +108,7 @@ const AdminGroupTour = () => {
   const [showItinerary, setShowItinerary] = useState(false);
   const [createdTourId, setCreatedTourId] = useState(null);
   const [itineraryDays, setItineraryDays] = useState(0);
+  const [modalStep, setModalStep] = useState("details"); // "details" | "itinerary"
 
 
   /* FETCH */
@@ -150,30 +151,18 @@ const AdminGroupTour = () => {
       let res;
 
       if (editingId) {
-        /* UPDATE TOUR */
-        res = await axios.put(
-          `${BASE_URL}/group-tours/${editingId}`,
-          fd
-        );
-        toast.success("Group tour updated ✅", { theme: "light" });
-      } else {
-        /* ADD TOUR */
-        res = await axios.post(
-          `${BASE_URL}/group-tours`,
-          fd
-        );
-        toast.success("Group tour added 🎉", { theme: "light" });
-
-        /* 🔥 IMPORTANT: OPEN ITINERARY FORM */
-        setCreatedTourId(res.data._id);
-        setShowItinerary(true);
-        setItineraryDays(Number(form.days));
+        res = await axios.put(`${BASE_URL}/group-tours/${editingId}`, fd);
+        toast.success("Group tour updated ✅");
         setOpen(false);
+      } else {
+        res = await axios.post(`${BASE_URL}/group-tours`, fd);
+        toast.success("Group tour added 🎉");
+
+        setCreatedTourId(res.data._id);
+        setItineraryDays(Number(form.days));
+        setModalStep("itinerary");
       }
 
-      setOpen(false);
-      setForm(emptyForm);
-      setEditingId(null);
       fetchTours();
 
     } catch (error) {
@@ -200,6 +189,9 @@ const AdminGroupTour = () => {
       includedTickets: tour.includedTickets || []
     });
     setEditingId(tour._id);
+    setCreatedTourId(tour._id); // So itinerary knows which tour
+    setItineraryDays(Number(tour.days));
+    setModalStep("details");
     setOpen(true);
   };
 
@@ -274,25 +266,16 @@ const AdminGroupTour = () => {
             <div className="flex gap-4 mt-3">
               <button
                 onClick={() => handleEdit(t)}
-                className="text-blue-600 flex gap-1 text-sm items-center"
+                className="bg-blue-50 text-blue-600 flex-1 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors"
               >
-                <Edit size={16} /> Edit
-              </button>
-              <button
-                onClick={() => {
-                  setCreatedTourId(t._id);
-                  setItineraryDays(Number(t.days));
-                  setShowItinerary(true);
-                }}
-                className="text-orange-600 flex gap-1 text-sm items-center"
-              >
-                <Edit size={16} /> Itinerary
+                <Edit size={16} /> Edit Tour
               </button>
               <button
                 onClick={() => handleDelete(t._id)}
-                className="flex items-center gap-1 text-red-600 text-sm"
+                className="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors"
+                aria-label="Delete tour"
               >
-                <Trash2 size={16} /> Delete
+                <Trash2 size={16} />
               </button>
             </div>
           </div>
@@ -315,17 +298,37 @@ const AdminGroupTour = () => {
               exit={{ scale: 0.9, y: 40 }}
               className="bg-white w-full max-w-lg rounded-2xl p-6 max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
-              <div className="flex justify-between items-center mb-6 sticky top-0 bg-white z-10 pb-2 border-b">
-                <h2 className="text-xl font-bold text-[#f4612b]">
-                  {editingId ? "Edit Group Tour" : "Add Group Tour"}
-                </h2>
+              <div className="flex justify-between items-center mb-4 sticky top-0 bg-white z-10 pb-2 border-b">
+                <div className="flex gap-4">
+                   <button 
+                     onClick={() => setModalStep("details")}
+                     className={`text-lg font-bold transition-colors ${modalStep === "details" ? "text-[#f4612b]" : "text-gray-400 hover:text-gray-600"}`}
+                   >
+                     {editingId ? "Edit Tour" : "Add Tour"}
+                   </button>
+                   { (editingId || createdTourId) && (
+                     <button 
+                       onClick={() => setModalStep("itinerary")}
+                       className={`text-lg font-bold transition-colors ${modalStep === "itinerary" ? "text-[#f4612b]" : "text-gray-400 hover:text-gray-600"}`}
+                     >
+                       Manage Itinerary
+                     </button>
+                   )}
+                </div>
                 <X
                   className="cursor-pointer hover:text-red-500 transition-colors"
-                  onClick={() => setOpen(false)}
+                  onClick={() => {
+                    setOpen(false);
+                    setForm(emptyForm);
+                    setEditingId(null);
+                    setCreatedTourId(null);
+                    setModalStep("details");
+                  }}
                 />
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              {modalStep === "details" ? (
+                <form onSubmit={handleSubmit} className="space-y-5">
                 <input
                   placeholder="Title"
                   value={form.title}
@@ -490,25 +493,24 @@ const AdminGroupTour = () => {
                   {loading ? "Saving..." : "Save Tour"}
                 </button>
               </form>
+              ) : (
+                <AdminIteranary
+                  tourId={createdTourId}
+                  totalDays={itineraryDays}
+                  type="group"
+                  onClose={() => {
+                    setOpen(false);
+                    setForm(emptyForm);
+                    setEditingId(null);
+                    setCreatedTourId(null);
+                    setModalStep("details");
+                  }}
+                />
+              )}
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-        {showItinerary && (
-          <AdminIteranary
-            tourId={createdTourId}
-            totalDays={itineraryDays}
-              type="group"
-            endpointPath="/group-tours/itinerary"
-            onClose={() => {
-              setShowItinerary(false);
-              setForm(emptyForm);
-              fetchTours();
-            }}
-          />
-        )}
-
-
     </div>
   );
 };
