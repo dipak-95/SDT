@@ -50,11 +50,8 @@ exports.getTourItinerary = async (req, res) => {
 
     const itineraryDoc = await GroupTourItinerary.findOne({ tourId });
 
-    if (!itineraryDoc) {
-      return res.json({ itinerary: [] }); // ✅ FIX
-    }
-
-    res.json({ itinerary: itineraryDoc.itinerary }); // ✅ FIX
+    if (!itineraryDoc) return res.json([]);
+    res.json(itineraryDoc.itinerary);
   } catch (err) {
     console.error("GET ITINERARY ERROR:", err.message);
     res.status(500).json({ msg: "Server error" });

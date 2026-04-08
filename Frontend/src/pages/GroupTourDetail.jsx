@@ -34,14 +34,12 @@ const GroupTourDetail = () => {
 
   const fetchItinerary = async () => {
     try {
-      const res = await axios.get(
-        `${BASE_URL}/group-tours/${id}/itinerary`
-      );
-      // Backend returns { itinerary: [...] }
-      const days = res.data?.itinerary || res.data;
-      setItinerary(Array.isArray(days) ? days : []);
+      const res = await axios.get(`${BASE_URL}/group-tours/${id}/itinerary`);
+      // Backend now returns just the array [...]
+      const daysData = res.data?.itinerary || res.data;
+      setItinerary(Array.isArray(daysData) ? daysData : []);
     } catch (err) {
-      console.error("Itinerary fetch error", err);
+      console.error("Group itinerary fetch error", err);
       setItinerary([]);
     }
   };
