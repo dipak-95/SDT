@@ -11,17 +11,15 @@ const tourSchema = new mongoose.Schema(
       required: true
     },
     startDate: {
-      type: Date,
-      required: true
+      type: Date
     },
     endDate: {
-      type: Date,
-      required: true
+      type: Date
     },
-    day: {
+    days: {
       type: Number
     },
-    night: {
+    nights: {
       type: Number
     },
     oldPrice: {

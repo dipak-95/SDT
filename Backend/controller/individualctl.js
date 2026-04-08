@@ -33,8 +33,13 @@ exports.updateTour = async (req, res) => {
     // UPDATE OTHER FIELDS
     tour.title = req.body.title;
     tour.description = req.body.description;
-    tour.startDate = req.body.startDate;
-    tour.endDate = req.body.endDate;
+    
+    if (req.body.startDate) tour.startDate = req.body.startDate;
+    if (req.body.endDate) tour.endDate = req.body.endDate;
+
+    tour.days = req.body.days;
+    tour.nights = req.body.nights;
+    
     tour.oldPrice = Number(req.body.oldPrice);
     tour.discount = Number(req.body.discount || 0);
     tour.location = req.body.location;
