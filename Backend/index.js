@@ -1,4 +1,4 @@
-const path = require("path");
+﻿const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const express = require("express");
@@ -23,15 +23,15 @@ uploadDirs.forEach(dir => {
   const fullPath = path.join(__dirname, dir);
   if (!fs.existsSync(fullPath)) {
     fs.mkdirSync(fullPath, { recursive: true });
-    console.log(`📁 Created directory: ${dir}`);
+    console.log(`ðŸ“ Created directory: ${dir}`);
   }
 });
 
 /* ================= PERFORMANCE & SECURITY ================= */
-// 🔒 CORS must be high up
+// ðŸ”’ CORS must be high up
 app.use(cors({ origin: "*" }));
 
-// 🛡️ Helmet (configured to not block Cross-Origin images & data)
+// ðŸ›¡ï¸ Helmet (configured to not block Cross-Origin images & data)
 app.use(helmet({ 
   contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: "cross-origin" }
@@ -39,11 +39,11 @@ app.use(helmet({
 
 app.use(compression()); // Gzip all responses
 
-// 📏 Increase limits for many high-res images
+// ðŸ“ Increase limits for many high-res images
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// ✨ Caching & Static Files
+// âœ¨ Caching & Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   maxAge: '7d',
   immutable: true,
@@ -61,7 +61,7 @@ connectDB();
 
 /* ================= ROUTES ================= */
 app.get("/", (req, res) => {
-  res.send("🚀 Backend is running successfully");
+  res.send("ðŸš€ Backend is running successfully");
 });
 
 // Health check for monitoring tools
@@ -95,10 +95,11 @@ app.use("/car-facilities", require("./routes/CarFacilityRoute"));
 const PORT = process.env.PORT || 7345;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server started on port ${PORT}`);
+  console.log(`ðŸš€ Server started on port ${PORT}`);
   console.log("=== REGISTERED MODELS ===");
   mongoose.modelNames().forEach((name) => {
     const m = mongoose.model(name);
     console.log(`${name} -> ${m.collection.name}`);
   });
 });
+

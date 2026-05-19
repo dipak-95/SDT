@@ -38,9 +38,6 @@ const IndividualDetailPage = lazy(() => import("./pages/IndividualDetailPage"));
 const BookTour = lazy(() => import("./pages/BookTour"));
 const RentalCar = lazy(() => import("./pages/RentalCar"));
 const BookCar = lazy(() => import("./pages/BookCar"));
-const Hotel = lazy(() => import("./pages/Hotel"));
-const BookingHotel = lazy(() => import("./pages/BookingHotel"));
-
 
 export default function App() {
   const [loading, setLoading] = useState(true);
@@ -131,11 +128,6 @@ export default function App() {
             {/* BOOKINGS */}
             <Route path="/book-tour/:id" element={<BookTour />} />
             <Route path="/car-book/:id" element={<BookCar />} />
-
-            {/* HOTELS */}
-            <Route path="/hotels" element={<Hotel />} />
-            <Route path="/hotels/:city" element={<Hotel />} />
-            <Route path="/hotels/:hotelId/book" element={<BookingHotel />} />
 
             {/* OTHER */}
             <Route path="/pastjournies" element={<Memorablehjournys />} />

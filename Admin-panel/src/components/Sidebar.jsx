@@ -1,10 +1,9 @@
-import { NavLink } from "react-router-dom";
+﻿import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   ClipboardList,
   Map,
   PlusSquare,
-  Hotel,
   X,
   CarTaxiFront,
   MessageSquare,
@@ -44,8 +43,6 @@ const Sidebar = ({ open, setOpen }) => {
         <Menu link="/admin/bookings" icon={<ClipboardList />} text="Tour Booking" setOpen={setOpen} />
         <Menu link="/admin/grouptours" icon={<Map />} text="Group Tours" setOpen={setOpen} />
         <Menu link="/admin/individualtours" icon={<PlusSquare />} text="Individual Tours" setOpen={setOpen} />
-        <Menu link="/admin/hotel" icon={<Hotel />} text="Hotels" setOpen={setOpen} />
-        <Menu link="/admin/hotel-booking" icon={<ClipboardList />} text="Hotel Booking" setOpen={setOpen} />
         <Menu link="/admin/ContactEnquiry" icon={<MessageSquare />} text="Contact Enquiry" setOpen={setOpen} />
         <Menu link="/admin/QuickEnquiry" icon={<Bell />} text="Quick Enquiry" setOpen={setOpen} />
         <Menu link="/admin/Car" icon={<CarTaxiFront />} text="Car Rental" setOpen={setOpen} />
@@ -74,3 +71,4 @@ const Menu = ({ link, icon, text, setOpen }) => (
 );
 
 export default Sidebar;
+

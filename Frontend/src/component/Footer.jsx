@@ -26,7 +26,6 @@ export default function Footer() {
 
   const companyLinks = [
     { label: "How To Book", path: "/tours/group" },
-    { label: "Hotel Booking", path: "/hotels" },
     { label: "Car Rental", path: "/rentalcar" },
     { label: "Payment Options", path: "/payment-options" },
     { label: "Our Journey", path: "/pastjournies" },

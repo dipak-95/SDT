@@ -9,13 +9,11 @@ import BrandLoader from "./components/BrandLoader"; // Reusable loader from fron
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Bookings = lazy(() => import("./pages/Bookings"));
-const Hotel = lazy(() => import("./pages/Hotel"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminGroupTour = lazy(() => import("./pages/AdminGroupTour"));
 const AdminIndividualTour = lazy(() => import("./pages/AdminIndividualTour"));
 const AdminGroupIteranary = lazy(() => import("./pages/AdminGroupIteranary"));
 const AdmincarBooking = lazy(() => import("./pages/AdmincarBooking"));
-const AdminHotelBooking = lazy(() => import("./pages/AdminHotelBooking"));
 const ContactEnquiry = lazy(() => import("./pages/ContactEnquiry"));
 const QuickEnquiry = lazy(() => import("./pages/QuickEnquiry"));
 const AdminCar = lazy(() => import("./pages/AdminCar"));
@@ -39,10 +37,8 @@ function App() {
               <Route path="/admin/bookings" element={<Bookings />} />
               <Route path="/admin/grouptours" element={<AdminGroupTour />} />
               <Route path="/admin/individualtours" element={<AdminIndividualTour />} />
-              <Route path="/admin/hotel" element={<Hotel />} />
               <Route path="/admin/add-group-iteranary" element={<AdminGroupIteranary />} />
               <Route path="/admin/car-bookings" element={<AdmincarBooking />} />
-              <Route path="/admin/hotel-booking" element={<AdminHotelBooking />} />
               <Route path="/admin/ContactEnquiry" element={<ContactEnquiry />} />
               <Route path="/admin/QuickEnquiry" element={<QuickEnquiry />} />
               <Route path="/admin/Car" element={<AdminCar />} />

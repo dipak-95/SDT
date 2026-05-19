@@ -111,8 +111,7 @@ export default function Home() {
     "Beaches": "/activities/Beaches",
     "Heritage Sites": "/activities/Heritages-site",
     "Wildlife Sancturies": "/activities/Wildlife",
-    "Shopping & Art": "/activities/ShoppinginGujarat",
-    "Hotels": "/hotels"
+    "Shopping & Art": "/activities/ShoppinginGujarat"
   };
   const destinationRoutes = {
     "Somnath Temple": "/destinations/Somnath",
@@ -195,11 +194,7 @@ export default function Home() {
       desc: "Gujarat’s heritage sites reflect centuries of architectural brilliance, ancient civilizations, and royal legacies, preserving the state’s rich history through forts, stepwells, and historic towns.",
       tags: ["Statue of Unity", "Adalaj Stepwell", "Ashoka Rock Edicts", "Diu Fort", "Uperkot Fort", "Buddhist Caves of Junagadh"],
       images: ["/heroImg.webp", "/AdalajStepwell.webp", "/Uparkot2.webp", "/DiuFort.webp", "/Buddhistcave.webp", "/Ashokalekh.webp"],
-    },
-    "Hotels": {
-      desc: "Experience world-class hospitality in Gujarat. From luxury stays near the Statue of Unity to cozy heritage hotels in Kutch, find the perfect place to rest during your journey.",
-      tags: [], // Will be dynamic
-      images: ["/hotel1.webp", "/hotel2.webp", "/hotel3.webp", "/hotel4.webp"],
+
     },
     "Shopping & Art": {
       desc: "Gujarat is a treasure trove of textiles, handicrafts, and artistic brilliance. Discover Bandhani, Patola, and traditional Kutch embroidery across our vibrant local markets.",
@@ -214,24 +209,6 @@ export default function Home() {
   const [visible, setVisible] = useState(true);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchHotelCities = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/hotels`);
-        const uniqueCities = [...new Set(res.data.map(h => h.city))].map(c => c.charAt(0).toUpperCase() + c.slice(1).toLowerCase());
-        setGlanceData(prev => ({
-          ...prev,
-          "Hotels": {
-            ...prev["Hotels"],
-            tags: uniqueCities.length > 0 ? uniqueCities : ["Somsnath", "Dwarka", "Kutch", "Sasan Gir", "Vadodara"]
-          }
-        }));
-      } catch (err) {
-        console.error("Hotel City Fetch Error:", err);
-      }
-    };
-    fetchHotelCities();
-  }, []);
 
   const current = glanceData[active];
   const delayedCurrent = glanceData[delayedActive];
@@ -787,9 +764,7 @@ export default function Home() {
                     key={tag}
                     onClick={() => {
                       const route = activityRoutes[active];
-                      if (active === "Hotels") {
-                        navigate(`/hotels/${tag.toLowerCase()}`);
-                      } else if (route) {
+                      if (route) {
                         navigate(`${route}?place=${encodeURIComponent(tag)}`);
                       }
                     }}

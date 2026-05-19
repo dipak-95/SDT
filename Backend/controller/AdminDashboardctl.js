@@ -1,33 +1,29 @@
-const TourBooking = require("../model/BookingSchema");
-const HotelBooking = require("../model/HotelBooking");
+﻿const TourBooking = require("../model/BookingSchema");
 const CarBooking  = require("../model/CarBooking");
 
 module.exports.getDashboardStats = async (req, res) => {
   try {
 
-    /* ================= INQUIRY COUNTS (ALL — pending + confirmed + cancelled) ================= */
+    /* ================= INQUIRY COUNTS (ALL â€” pending + confirmed + cancelled) ================= */
 
-    // Group Tour — all inquiries
+    // Group Tour â€” all inquiries
     const groupInquiries = await TourBooking.countDocuments({
       tourType: { $regex: /^group$/i },
     });
 
-    // Individual Tour — all inquiries
+    // Individual Tour â€” all inquiries
     const individualInquiries = await TourBooking.countDocuments({
       tourType: { $regex: /^individual$/i },
     });
 
-    // Hotel — all inquiries
-    const hotelInquiries = await HotelBooking.countDocuments({});
-
-    // Car — all inquiries
+    // Hotel â€” all inquiries
+    // Car â€” all inquiries
     const carInquiries = await CarBooking.countDocuments({});
 
     /* ================= CONFIRMED COUNTS (for reference) ================= */
 
     const groupConfirmed      = await TourBooking.countDocuments({ tourType: { $regex: /^group$/i },      status: { $regex: /^confirmed$/i } });
     const individualConfirmed = await TourBooking.countDocuments({ tourType: { $regex: /^individual$/i }, status: { $regex: /^confirmed$/i } });
-    const hotelConfirmed      = await HotelBooking.countDocuments({ status: { $regex: /^confirmed$/i } });
     const carConfirmed        = await CarBooking.countDocuments({ status: { $regex: /^confirmed$/i } });
 
     /* ================= TOTAL REVENUE (only confirmed) ================= */
@@ -36,12 +32,6 @@ module.exports.getDashboardStats = async (req, res) => {
       { $match: { status: { $regex: /^confirmed$/i } } },
       { $group: { _id: null, total: { $sum: "$totalAmount" } } },
     ]);
-
-    const hotelRevAgg = await HotelBooking.aggregate([
-      { $match: { status: { $regex: /^confirmed$/i } } },
-      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
-    ]);
-
     const carRevAgg = await CarBooking.aggregate([
       { $match: { status: { $regex: /^confirmed$/i } } },
       { $group: { _id: null, total: { $sum: "$total" } } },
@@ -49,7 +39,6 @@ module.exports.getDashboardStats = async (req, res) => {
 
     const totalRevenue =
       (tourRevAgg[0]?.total  || 0) +
-      (hotelRevAgg[0]?.total || 0) +
       (carRevAgg[0]?.total   || 0);
 
     /* ================= MONTHLY REVENUE (confirmed only) ================= */
@@ -66,9 +55,8 @@ module.exports.getDashboardStats = async (req, res) => {
       ]);
     };
 
-    const [tourMonthly, hotelMonthly, carMonthly] = await Promise.all([
+    const [tourMonthly, carMonthly] = await Promise.all([
       fetchMonthly(TourBooking, "totalAmount"),
-      fetchMonthly(HotelBooking, "totalAmount"),
       fetchMonthly(CarBooking,   "total"),
     ]);
 
@@ -79,7 +67,6 @@ module.exports.getDashboardStats = async (req, res) => {
       });
     };
     mergeMonthly(tourMonthly);
-    mergeMonthly(hotelMonthly);
     mergeMonthly(carMonthly);
 
     const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -93,19 +80,19 @@ module.exports.getDashboardStats = async (req, res) => {
     /* ================= RESPONSE ================= */
 
     res.status(200).json({
-      // ── Inquiry counts (ALL bookings regardless of status) ──
+      // â”€â”€ Inquiry counts (ALL bookings regardless of status) â”€â”€
       groupInquiries,
       individualInquiries,
-      hotelInquiries,
+      hotelInquiries: 0,
       carInquiries,
 
-      // ── Confirmed counts ──
+      // â”€â”€ Confirmed counts â”€â”€
       groupBookings:      groupConfirmed,
       individualBookings: individualConfirmed,
-      hotelBookings:      hotelConfirmed,
+      hotelBookings: 0,
       carBookings:        carConfirmed,
 
-      // ── Revenue (confirmed only) ──
+      // â”€â”€ Revenue (confirmed only) â”€â”€
       totalRevenue,
       monthlyRevenue,
     });
@@ -115,3 +102,4 @@ module.exports.getDashboardStats = async (req, res) => {
     res.status(500).json({ message: "Dashboard fetch failed", error: error.message });
   }
 };
+

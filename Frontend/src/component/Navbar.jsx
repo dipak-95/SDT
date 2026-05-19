@@ -16,36 +16,10 @@ export default function Navbar() {
   const [hasScrolledOnce, setHasScrolledOnce] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showTopBar, setShowTopBar] = useState(true);
-  const [cities, setCities] = useState([]);
-
-useEffect(() => {
-  const handleScroll = () => {
-    setShowTopBar(window.scrollY <= 20);
-  };
-
-  window.addEventListener("scroll", handleScroll, { passive: true });
-  return () => window.removeEventListener("scroll", handleScroll);
-}, []);
-
-// 🔹 Fetch Cities dynamically
-useEffect(() => {
-  const fetchCities = async () => {
-    try {
-      const res = await axios.get("https://api.sdtour.online/cities");
-      setCities(res.data);
-    } catch (err) {
-      console.error("Fetch cities failed", err);
-    }
-  };
-  fetchCities();
-}, []);
 
 
-
-  // 🔹 Typewriter state
   const typePhrases = [
     "Search Tours...",
-    "Search Hotels...",
     "Search Destinations...",
     "Search Activities...",
   ];
@@ -142,15 +116,7 @@ useEffect(() => {
         { label: "Art & Craft", url: "/activities/ArtandCraft" },
       ],
     },
-    {
-      name: "Hotels ▾",
-      submenu: cities.length > 0
-        ? cities.map(city => ({
-            label: city.name,
-            url: `/hotels/${city.name.toLowerCase().trim()}`
-          }))
-        : [{ label: "Loading...", url: "#" }],
-    },
+
     { name: "Car Rental", url: "/rentalcar" },
     { name: "Memorable Journeys", url: "/pastjournies" },
   ];
@@ -525,58 +491,7 @@ useEffect(() => {
         )}
       </AnimatePresence>
 
-      {/* ── HOTEL CITIES SUBMENU ── */}
-      <AnimatePresence>
-        {dropdown === "mobile-hotels" && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 16 }}
-            transition={{ duration: 0.22 }}
-            className="mx-3 mb-1 bg-white rounded-2xl shadow-2xl border border-orange-100 p-4"
-          >
-            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3 text-center">
-              Select City
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {cities.length > 0 ? cities.map(city => (
-                <Link
-                  key={city._id}
-                  to={`/hotels/${city.name.toLowerCase().trim()}`}
-                  onClick={() => setDropdown(null)}
-                  className="py-2 px-1 bg-orange-50 border border-orange-100 rounded-xl text-[10px] font-black text-[#F4612B] text-center active:scale-95 transition-all capitalize"
-                >
-                  {city.name}
-                </Link>
-              )) : (
-                <p className="col-span-3 text-center text-[10px] text-gray-400 py-2">Loading...</p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* ── BOTTOM TAB BAR ── */}
-      <div className="bg-white border-t border-gray-100 shadow-[0_-4px_24px_-4px_rgba(0,0,0,0.10)] px-4 py-2 flex items-center justify-around safe-bottom">
-        {/* Tours */}
-        <button
-          onClick={() => setDropdown(dropdown === "mobile-tours" ? null : "mobile-tours")}
-          className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all active:scale-95 ${dropdown === "mobile-tours" ? "text-[#F4612B]" : "text-gray-500"}`}
-        >
-          <span className="text-2xl leading-none">🚌</span>
-          <span className={`text-[9px] font-black uppercase tracking-wider mt-0.5 ${dropdown === "mobile-tours" ? "text-[#F4612B]" : "text-gray-500"}`}>Tours</span>
-          {dropdown === "mobile-tours" && <span className="block w-1 h-1 bg-[#F4612B] rounded-full mt-0.5" />}
-        </button>
-
-        {/* Hotels */}
-        <button
-          onClick={() => setDropdown(dropdown === "mobile-hotels" ? null : "mobile-hotels")}
-          className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all active:scale-95 ${dropdown === "mobile-hotels" ? "text-[#F4612B]" : "text-gray-500"}`}
-        >
-          <span className="text-2xl leading-none">🏨</span>
-          <span className={`text-[9px] font-black uppercase tracking-wider mt-0.5 ${dropdown === "mobile-hotels" ? "text-[#F4612B]" : "text-gray-500"}`}>Hotels</span>
-          {dropdown === "mobile-hotels" && <span className="block w-1 h-1 bg-[#F4612B] rounded-full mt-0.5" />}
-        </button>
 
         {/* Car Rental */}
         <Link
