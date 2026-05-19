@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { FiPhone, FiSearch, FiMenu, FiX } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,7 +28,7 @@ export default function Navbar() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [typedText, setTypedText] = useState("");
 
-  // 🔹 Resize listener (fix refresh issue between mobile/tablet/desktop)
+  // ðŸ”¹ Resize listener (fix refresh issue between mobile/tablet/desktop)
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
@@ -45,7 +45,7 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 🔹 Typewriter effect for search placeholder
+  // ðŸ”¹ Typewriter effect for search placeholder
   useEffect(() => {
     const currentPhrase = typePhrases[phraseIndex];
     const speed = isDeleting ? 55 : 110;
@@ -81,14 +81,14 @@ export default function Navbar() {
   const menuItems = [
     { name: "Home", url: "/" },
     {
-      name: "Tours ▾",
+      name: "Tours â–¾",
       submenu: [
         { label: "Gujrat Group Tours", url: "/tours/group" },
         { label: "Gujrat Indivisual Tours", url: "/tours/indivisual" },
       ],
     },
     {
-      name: "Destinations ▾",
+      name: "Destinations â–¾",
       submenu: [
         { label: "Ahmedabad", url: "/destinations/Ahmedabad" },
         { label: "Vadodara", url: "/destinations/Vadodara" },
@@ -103,7 +103,7 @@ export default function Navbar() {
       ],
     },
     {
-      name: "Activities ▾",
+      name: "Activities â–¾",
       submenu: [
         { label: "Beaches", url: "/activities/Beaches" },
         { label: "Religious Sites", url: "/activities/Relligious-site" },
@@ -133,7 +133,7 @@ export default function Navbar() {
       : "bg-white"}
   `}
       >
-        {/* 🔹 FIRST NAVBAR (Desktop + Tablet) */}
+        {/* ðŸ”¹ FIRST NAVBAR (Desktop + Tablet) */}
         <div className="bg-[#F4612B] shadow-sm hidden md:block">
           <AnimatePresence>
   {showTopBar && (
@@ -200,7 +200,7 @@ export default function Navbar() {
 </AnimatePresence>
         </div>
 
-        {/* 🔸 SECOND NAVBAR */}
+        {/* ðŸ”¸ SECOND NAVBAR */}
         <nav className="backdrop-blur-xl bg-white/70 shadow-md">
 
           <div className="max-w-[1350px] mx-auto px-4 md:px-6">
@@ -356,7 +356,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* MOBILE MENU (with + / − and dash in submenu) */}
+          {/* MOBILE MENU (with + / âˆ’ and dash in submenu) */}
           {/* MOBILE MENU */}
           <AnimatePresence>
             {open && (
@@ -370,7 +370,7 @@ export default function Navbar() {
                 <ul className="flex flex-col gap-3 text-[#F4612B] font-medium text-[16px]">
                   {menuItems.map((m) => (
                     <li key={m.name}>
-                      {/* ✅ IF SUBMENU → BUTTON */}
+                      {/* âœ… IF SUBMENU â†’ BUTTON */}
                       {m.submenu ? (
                         <>
                           <button
@@ -381,9 +381,9 @@ export default function Navbar() {
                               )
                             }
                           >
-                            <span>{m.name.replace(" ▾", "")}</span>
+                            <span>{m.name.replace(" â–¾", "")}</span>
                             <span className="text-lg font-bold">
-                              {dropdown === m.name ? "−" : "+"}
+                              {dropdown === m.name ? "âˆ’" : "+"}
                             </span>
                           </button>
 
@@ -411,7 +411,7 @@ export default function Navbar() {
                           </AnimatePresence>
                         </>
                       ) : (
-                        /* ✅ IF NO SUBMENU → LINK */
+                        /* âœ… IF NO SUBMENU â†’ LINK */
                         <Link
                           to={m.url}
                           onClick={() => setOpen(false)}
@@ -458,12 +458,12 @@ export default function Navbar() {
       </div>
     </div>
 
-    {/* ══════════════════════════════════════════
+    {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         MOBILE BOTTOM TAB BAR (fixed, outside navbar)
-    ══════════════════════════════════════════ */}
+    â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-[9998]" style={{ fontFamily: "Poppins" }}>
 
-      {/* ── TOUR SUBMENU (pops up above bar) ── */}
+      {/* â”€â”€ TOUR SUBMENU (pops up above bar) â”€â”€ */}
       <AnimatePresence>
         {dropdown === "mobile-tours" && (
           <motion.div
@@ -478,27 +478,37 @@ export default function Navbar() {
               onClick={() => setDropdown(null)}
               className="flex-1 py-3.5 bg-orange-50 rounded-xl text-center text-xs font-black text-[#F4612B] border border-orange-200 active:scale-95 transition-all"
             >
-              🚌 Group Tours
+              ðŸšŒ Group Tours
             </Link>
             <Link
               to="/tours/indivisual"
               onClick={() => setDropdown(null)}
               className="flex-1 py-3.5 bg-orange-50 rounded-xl text-center text-xs font-black text-[#F4612B] border border-orange-200 active:scale-95 transition-all"
             >
-              🧳 Individual Tours
+              ðŸ§³ Individual Tours
             </Link>
           </motion.div>
         )}
       </AnimatePresence>
 
-
+      {/* �� BOTTOM TAB BAR -- */}
+      <div className="bg-white border-t border-gray-100 shadou-[0_-4px_24px_-4px_rgba(0,0,0,0.10)] px-4 py-2 flex items-center justify-around safe-bottom">
+        {/* Tours */}
+        <button
+          onClick={() => setDropdown(dropdown === "mobile-tours" ? null : "mobile-tours") }
+          className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all active:scale-95 ${dropdown === "mobile-tours" ? "text-[#F4612B]" : "text-gray-500"}`}
+        >
+          <span className="text-2xl leading-none">??</span>
+          <span className={`text-[9px] font-black uppercase tracking-wider mt-0.5 ${dropdown === "mobile-tours" ? "text-[#F4612B]" : "text-gray-500"}`}>Tours</span>
+          {dropdown === "mobile-tours" && <span className="block w-1 h-1 bg-[#F4612B] rounded-full mt-0.5" />}
+        </button>
 
         {/* Car Rental */}
         <Link
           to="/rentalcar"
           className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-gray-500 active:scale-95 transition-all"
         >
-          <span className="text-2xl leading-none">🚗</span>
+          <span className="text-2xl leading-none">??</span>
           <span className="text-[9px] font-black uppercase tracking-wider mt-0.5 text-gray-500">Rental</span>
         </Link>
 
@@ -507,7 +517,7 @@ export default function Navbar() {
           to="/contact"
           className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl text-gray-500 active:scale-95 transition-all"
         >
-          <span className="text-2xl leading-none">📞</span>
+          <span className="text-2xl leading-none">??</span>
           <span className="text-[9px] font-black uppercase tracking-wider mt-0.5 text-gray-500">Contact</span>
         </Link>
       </div>
@@ -515,3 +525,4 @@ export default function Navbar() {
     </>
   );
 }
+
