@@ -117,12 +117,29 @@ const Bookings = () => {
               <p className="text-2xl font-bold">{b.persons}</p>
             </div>
 
-            {/* AMOUNT */}
-            <div className="text-center">
-              <p className="text-sm text-gray-400">Total</p>
-              <p className="text-2xl font-bold text-[#F4612B]">
-                ₹{b.totalAmount}
-              </p>
+            {/* AMOUNT & PAYMENT DETAILS */}
+            <div className="space-y-1">
+              <p className="text-sm text-gray-400 text-center">Payment Details</p>
+              <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-xs space-y-1 shadow-sm">
+                <div className="flex justify-between gap-4">
+                  <span className="text-gray-500 font-medium">Total Price:</span>
+                  <span className="font-bold text-gray-800">₹{b.totalAmount}</span>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <span className="text-gray-500 font-medium">
+                    Paid ({b.paymentType === "advance" ? "30% Adv" : "100% Full"}):
+                  </span>
+                  <span className="font-bold text-green-600">
+                    ₹{b.payableAmount !== undefined ? b.payableAmount : b.totalAmount}
+                  </span>
+                </div>
+                <div className="flex justify-between gap-4 border-t border-dashed border-orange-200 pt-1 mt-1">
+                  <span className="text-gray-500 font-semibold">Remaining:</span>
+                  <span className={`font-bold ${b.remainingAmount > 0 ? "text-red-500" : "text-gray-700"}`}>
+                    ₹{b.remainingAmount !== undefined ? b.remainingAmount : 0}
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* STATUS */}

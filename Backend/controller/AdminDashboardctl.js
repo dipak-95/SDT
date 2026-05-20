@@ -1,4 +1,4 @@
-﻿const TourBooking = require("../model/BookingSchema");
+const TourBooking = require("../model/BookingSchema");
 const CarBooking  = require("../model/CarBooking");
 
 module.exports.getDashboardStats = async (req, res) => {
@@ -30,7 +30,20 @@ module.exports.getDashboardStats = async (req, res) => {
 
     const tourRevAgg = await TourBooking.aggregate([
       { $match: { status: { $regex: /^confirmed$/i } } },
-      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+      {
+        $group: {
+          _id: null,
+          total: {
+            $sum: {
+              $cond: {
+                if: { $gt: ["$payableAmount", 0] },
+                then: "$payableAmount",
+                else: "$totalAmount"
+              }
+            }
+          }
+        }
+      },
     ]);
     const carRevAgg = await CarBooking.aggregate([
       { $match: { status: { $regex: /^confirmed$/i } } },
@@ -43,21 +56,32 @@ module.exports.getDashboardStats = async (req, res) => {
 
     /* ================= MONTHLY REVENUE (confirmed only) ================= */
 
-    const fetchMonthly = async (Model, amountField) => {
-      return await Model.aggregate([
-        { $match: { status: { $regex: /^confirmed$/i } } },
-        {
-          $group: {
-            _id: { $month: "$createdAt" },
-            revenue: { $sum: `$${amountField}` },
+    const carMonthly = await CarBooking.aggregate([
+      { $match: { status: { $regex: /^confirmed$/i } } },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          revenue: { $sum: "$total" },
+        },
+      },
+    ]);
+
+    const tourMonthly = await TourBooking.aggregate([
+      { $match: { status: { $regex: /^confirmed$/i } } },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          revenue: {
+            $sum: {
+              $cond: {
+                if: { $gt: ["$payableAmount", 0] },
+                then: "$payableAmount",
+                else: "$totalAmount"
+              }
+            }
           },
         },
-      ]);
-    };
-
-    const [tourMonthly, carMonthly] = await Promise.all([
-      fetchMonthly(TourBooking, "totalAmount"),
-      fetchMonthly(CarBooking,   "total"),
+      },
     ]);
 
     const monthlyMap = {};

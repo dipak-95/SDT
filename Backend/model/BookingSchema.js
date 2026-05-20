@@ -17,6 +17,18 @@ const bookingSchema = new mongoose.Schema(
     totalAmount: Number,
 
     note: String,
+    paymentType: {
+      type: String,
+      default: "full"
+    },
+    payableAmount: {
+      type: Number,
+      default: 0
+    },
+    remainingAmount: {
+      type: Number,
+      default: 0
+    },
 
     status: {
       type: String,
