@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import {
   FaShieldAlt,
   FaRupeeSign,
@@ -105,11 +105,12 @@ const WhyChooseUs = ({ tourId, type }) => {
           transition
         "
       >
-        Enquiry This Tour
+        Book This Tour
       </button>
     </motion.div>
   );
 };
 
 export default WhyChooseUs;
+
 
