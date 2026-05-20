@@ -1,4 +1,4 @@
-﻿const path = require("path");
+const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const express = require("express");
@@ -78,16 +78,12 @@ app.use("/admin", require("./routes/route"));
 app.use("/bookingtour", require("./routes/Bookingroute"));
 app.use("/group-tours", require("./routes/GroupTourroute"));
 app.use("/individual-tours", require("./routes/individualtourroute"));
-app.use("/hotels", require("./routes/Hotelroute"));
 app.use("/car-booking", require("./routes/CarBookingroute"));
-app.use("/bookings", require("./routes/HotelBookingroute"));
 app.use("/Contact", require("./routes/Contactroute"));
 app.use("/Enquiry", require("./routes/QiuckEnquiryroute"));
 app.use("/Dashboard", require("./routes/Dashboardroute"));
 app.use("/order", require("./routes/orderroute"));
 app.use("/cars", require("./routes/CarRoute"));
-app.use("/cities", require("./routes/CityRoute"));
-app.use("/facilities", require("./routes/FacilityRoute"));
 app.use("/car-categories", require("./routes/CarCategoryRoute"));
 app.use("/car-facilities", require("./routes/CarFacilityRoute"));
 
