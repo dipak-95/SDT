@@ -17,6 +17,7 @@ const AdmincarBooking = lazy(() => import("./pages/AdmincarBooking"));
 const ContactEnquiry = lazy(() => import("./pages/ContactEnquiry"));
 const QuickEnquiry = lazy(() => import("./pages/QuickEnquiry"));
 const AdminCar = lazy(() => import("./pages/AdminCar"));
+const AdminGroupTourSeats = lazy(() => import("./pages/AdminGroupTourSeats"));
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
               <Route path="/admin/dashboard" element={<Dashboard />} />
               <Route path="/admin/bookings" element={<Bookings />} />
               <Route path="/admin/grouptours" element={<AdminGroupTour />} />
+              <Route path="/admin/group-tour-seats" element={<AdminGroupTourSeats />} />
               <Route path="/admin/individualtours" element={<AdminIndividualTour />} />
               <Route path="/admin/add-group-iteranary" element={<AdminGroupIteranary />} />
               <Route path="/admin/car-bookings" element={<AdmincarBooking />} />

@@ -1,4 +1,4 @@
-﻿import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -7,7 +7,8 @@ import {
   X,
   CarTaxiFront,
   MessageSquare,
-  Bell
+  Bell,
+  Armchair
 } from "lucide-react";
 
 const Sidebar = ({ open, setOpen }) => {
@@ -42,6 +43,7 @@ const Sidebar = ({ open, setOpen }) => {
         <Menu link="/admin/dashboard" icon={<LayoutDashboard />} text="Dashboard" setOpen={setOpen} />
         <Menu link="/admin/bookings" icon={<ClipboardList />} text="Tour Booking" setOpen={setOpen} />
         <Menu link="/admin/grouptours" icon={<Map />} text="Group Tours" setOpen={setOpen} />
+        <Menu link="/admin/group-tour-seats" icon={<Armchair />} text="Group Tour Seats" setOpen={setOpen} />
         <Menu link="/admin/individualtours" icon={<PlusSquare />} text="Individual Tours" setOpen={setOpen} />
         <Menu link="/admin/ContactEnquiry" icon={<MessageSquare />} text="Contact Enquiry" setOpen={setOpen} />
         <Menu link="/admin/QuickEnquiry" icon={<Bell />} text="Quick Enquiry" setOpen={setOpen} />

@@ -1,6 +1,24 @@
 const GroupTour = require("../model/GroupTourShema");
 const { deleteImagesFromDisk } = require("../utils/fileHelper");
 
+const syncSeatsCount = (tour) => {
+  const total = tour.totalSeats || 49;
+  if (!tour.seats) tour.seats = [];
+  if (tour.seats.length < total) {
+    const currentLen = tour.seats.length;
+    for (let i = currentLen + 1; i <= total; i++) {
+      tour.seats.push({
+        seatNumber: i,
+        status: "available",
+        bookingName: "",
+        phone: ""
+      });
+    }
+  } else if (tour.seats.length > total) {
+    tour.seats = tour.seats.slice(0, total);
+  }
+  tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
+};
 
 exports.addGroupTour = async (req, res) => {
   try {
@@ -11,7 +29,7 @@ exports.addGroupTour = async (req, res) => {
       ? req.files.map((file) => `/uploads/group-tours/${file.filename}`)
       : [];
 
-    const tour = await GroupTour.create({
+    const tour = new GroupTour({
       title: req.body.title,
       description: req.body.description,
       startDate: req.body.startDate,
@@ -26,19 +44,37 @@ exports.addGroupTour = async (req, res) => {
             : [req.body.includedTickets])
         : [],
       totalSeats: req.body.totalSeats !== undefined ? Number(req.body.totalSeats) : 49,
-      bookedSeats: req.body.bookedSeats !== undefined ? Number(req.body.bookedSeats) : 0
     });
 
+    syncSeatsCount(tour);
+
+    // If admin set bookedSeats during creation
+    const initBooked = req.body.bookedSeats !== undefined ? Number(req.body.bookedSeats) : 0;
+    if (initBooked > 0) {
+      let count = 0;
+      for (let i = 0; i < tour.seats.length; i++) {
+        if (tour.seats[i].status === "available") {
+          tour.seats[i].status = "booked_offline";
+          tour.seats[i].bookingName = "Offline Booking";
+          count++;
+          if (count >= initBooked) break;
+        }
+      }
+      tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
+    }
+
+    await tour.save();
     res.status(201).json(tour);
-  }catch (err) {
-  console.log("================================");
-  console.log("❌ ERROR NAME:", err.name);
-  console.log("❌ ERROR MESSAGE:", err.message);
-  console.log("❌ STACK:", err.stack);
-  console.log("================================");
-  res.status(500).json({ msg: err.message });
-}
+  } catch (err) {
+    console.log("================================");
+    console.log("❌ ERROR NAME:", err.name);
+    console.log("❌ ERROR MESSAGE:", err.message);
+    console.log("❌ STACK:", err.stack);
+    console.log("================================");
+    res.status(500).json({ msg: err.message });
+  }
 };
+
 exports.updateTour = async (req, res) => {
   try {
     const tour = await GroupTour.findById(req.params.id);
@@ -58,7 +94,6 @@ exports.updateTour = async (req, res) => {
         (file) => `/uploads/group-tours/${file.filename}`
       );
     }
-    // else → keep old images automatically
 
     /* ================= TEXT UPDATE ================= */
     tour.title = req.body.title;
@@ -71,11 +106,41 @@ exports.updateTour = async (req, res) => {
     tour.location = req.body.location;
     
     if (req.body.totalSeats !== undefined) tour.totalSeats = Number(req.body.totalSeats);
-    if (req.body.bookedSeats !== undefined) tour.bookedSeats = Number(req.body.bookedSeats);
+    
+    syncSeatsCount(tour);
+
+    // Align manually modified bookedSeats counts
+    if (req.body.bookedSeats !== undefined) {
+      const targetBooked = Number(req.body.bookedSeats);
+      const currentBookedCount = tour.seats.filter(s => s.status !== "available").length;
+
+      if (targetBooked > currentBookedCount) {
+        let diff = targetBooked - currentBookedCount;
+        for (let i = 0; i < tour.seats.length; i++) {
+          if (tour.seats[i].status === "available") {
+            tour.seats[i].status = "booked_offline";
+            tour.seats[i].bookingName = "Offline Booking";
+            diff--;
+            if (diff === 0) break;
+          }
+        }
+      } else if (targetBooked < currentBookedCount) {
+        let diff = currentBookedCount - targetBooked;
+        for (let i = tour.seats.length - 1; i >= 0; i--) {
+          if (tour.seats[i].status === "booked_offline") {
+            tour.seats[i].status = "available";
+            tour.seats[i].bookingName = "";
+            tour.seats[i].phone = "";
+            diff--;
+            if (diff === 0) break;
+          }
+        }
+      }
+      tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
+    }
 
     // 🔥 HANDLE TICKETS
     if (req.body.includedTickets) {
-      // if it's a string (only 1 item), convert to array
       const tickets = Array.isArray(req.body.includedTickets)
         ? req.body.includedTickets
         : [req.body.includedTickets];
@@ -131,9 +196,98 @@ exports.getSingleGroupTour = async (req, res) => {
     if (!tour) {
       return res.status(404).json({ msg: "Tour not found" });
     }
+    // Also sync and save if seats aren't initialized yet
+    if (!tour.seats || tour.seats.length === 0) {
+      syncSeatsCount(tour);
+      await tour.save();
+    }
     res.json(tour);
   } catch (err) {
     res.status(500).json({ msg: "Server error" });
+  }
+};
+
+exports.getTourSeats = async (req, res) => {
+  try {
+    const tour = await GroupTour.findById(req.params.id);
+    if (!tour) {
+      return res.status(404).json({ msg: "Tour not found" });
+    }
+    
+    syncSeatsCount(tour);
+    await tour.save();
+
+    res.json({
+      totalSeats: tour.totalSeats,
+      bookedSeats: tour.bookedSeats,
+      seats: tour.seats
+    });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+exports.bookSeatOffline = async (req, res) => {
+  try {
+    const { seatNumber, bookingName, phone } = req.body;
+    const tour = await GroupTour.findById(req.params.id);
+    if (!tour) {
+      return res.status(404).json({ msg: "Tour not found" });
+    }
+
+    syncSeatsCount(tour);
+
+    const seat = tour.seats.find(s => s.seatNumber === Number(seatNumber));
+    if (!seat) {
+      return res.status(400).json({ msg: "Invalid seat number" });
+    }
+
+    if (seat.status !== "available") {
+      return res.status(400).json({ msg: "Seat is already booked" });
+    }
+
+    seat.status = "booked_offline";
+    seat.bookingName = bookingName || "Offline Booking";
+    seat.phone = phone || "";
+    
+    tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
+    await tour.save();
+
+    res.json({ msg: "Seat booked successfully", tour });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
+  }
+};
+
+exports.releaseSeatOffline = async (req, res) => {
+  try {
+    const { seatNumber } = req.body;
+    const tour = await GroupTour.findById(req.params.id);
+    if (!tour) {
+      return res.status(404).json({ msg: "Tour not found" });
+    }
+
+    syncSeatsCount(tour);
+
+    const seat = tour.seats.find(s => s.seatNumber === Number(seatNumber));
+    if (!seat) {
+      return res.status(400).json({ msg: "Invalid seat number" });
+    }
+
+    if (seat.status !== "booked_offline") {
+      return res.status(400).json({ msg: "Only offline booked seats can be released manually" });
+    }
+
+    seat.status = "available";
+    seat.bookingName = "";
+    seat.phone = "";
+
+    tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
+    await tour.save();
+
+    res.json({ msg: "Seat released successfully", tour });
+  } catch (err) {
+    res.status(500).json({ msg: err.message });
   }
 };
 

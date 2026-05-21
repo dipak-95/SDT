@@ -60,6 +60,22 @@ const tourSchema = new mongoose.Schema(
     bookedSeats: {
       type: Number,
       default: 0
+    },
+    seats: {
+      type: [
+        {
+          seatNumber: Number,
+          status: {
+            type: String,
+            enum: ["available", "booked_online", "booked_offline"],
+            default: "available"
+          },
+          bookingName: String,
+          phone: String,
+          bookingId: mongoose.Schema.Types.ObjectId
+        }
+      ],
+      default: []
     }
   },
   { timestamps: true }

@@ -64,10 +64,43 @@ module.exports.verifyPayment = async (req, res) => {
         const booking = await Booking.findByIdAndUpdate(bookingId, { status: "confirmed" }, { new: true });
         if (booking && booking.tourType && booking.tourType.toLowerCase() === "group" && booking.tourId) {
           const GroupTour = require("../model/GroupTourShema");
-          await GroupTour.findByIdAndUpdate(booking.tourId, {
-            $inc: { bookedSeats: booking.persons || 0 }
-          });
-          console.log(`✅ Automatically incremented bookedSeats by ${booking.persons} for Group Tour ${booking.tourId}`);
+          const tour = await GroupTour.findById(booking.tourId);
+          if (tour) {
+            // Sync seats first
+            const total = tour.totalSeats || 49;
+            if (!tour.seats || tour.seats.length === 0) {
+              const seats = [];
+              for (let i = 1; i <= total; i++) {
+                seats.push({ seatNumber: i, status: "available", bookingName: "", phone: "" });
+              }
+              tour.seats = seats;
+            }
+            if (tour.seats.length < total) {
+              const currentLen = tour.seats.length;
+              for (let i = currentLen + 1; i <= total; i++) {
+                tour.seats.push({ seatNumber: i, status: "available", bookingName: "", phone: "" });
+              }
+            } else if (tour.seats.length > total) {
+              tour.seats = tour.seats.slice(0, total);
+            }
+
+            // Assign first N available seats
+            let assigned = 0;
+            const toAssign = booking.persons || 0;
+            for (let i = 0; i < tour.seats.length; i++) {
+              if (tour.seats[i].status === "available") {
+                tour.seats[i].status = "booked_online";
+                tour.seats[i].bookingName = booking.userName || "Online Booking";
+                tour.seats[i].phone = booking.phone || "";
+                tour.seats[i].bookingId = booking._id;
+                assigned++;
+                if (assigned >= toAssign) break;
+              }
+            }
+            tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
+            await tour.save();
+            console.log(`✅ Automatically booked ${assigned} seats online and synced bookedSeats to ${tour.bookedSeats} for Group Tour ${booking.tourId}`);
+          }
         }
       }
 
