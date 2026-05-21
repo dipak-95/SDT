@@ -80,7 +80,9 @@ const emptyForm = {
   location: "",
   images: null,
   includedTickets: [],
-  ticketInput: ""
+  ticketInput: "",
+  totalSeats: 49,
+  bookedSeats: 0
 };
 
 const formatInputDate = (d) =>
@@ -136,6 +138,8 @@ const AdminGroupTour = () => {
     fd.append("location", form.location);
     fd.append("oldPrice", form.oldPrice);
     fd.append("discount", form.discount);
+    fd.append("totalSeats", form.totalSeats !== undefined ? form.totalSeats : 49);
+    fd.append("bookedSeats", form.bookedSeats !== undefined ? form.bookedSeats : 0);
 
     if (form.images) {
       Array.from(form.images).forEach((img) =>
@@ -194,7 +198,9 @@ const AdminGroupTour = () => {
       discount: tour.discount,
       location: tour.location,
       images: null,
-      includedTickets: tour.includedTickets || []
+      includedTickets: tour.includedTickets || [],
+      totalSeats: tour.totalSeats !== undefined ? tour.totalSeats : 49,
+      bookedSeats: tour.bookedSeats !== undefined ? tour.bookedSeats : 0
     });
     setEditingId(tour._id);
     setCreatedTourId(tour._id); // So itinerary knows which tour
@@ -267,6 +273,24 @@ const AdminGroupTour = () => {
                   {t.discount}% OFF
                 </span>
               )}
+            </div>
+            
+            {/* SEATS INFO CARD */}
+            <div className="mt-2.5 bg-orange-50 border border-orange-100 rounded-lg p-2.5 text-xs space-y-1">
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Total Seats:</span>
+                <span className="font-bold text-gray-700">{t.totalSeats || 49}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500 font-medium">Booked Seats:</span>
+                <span className="font-bold text-orange-600">{t.bookedSeats || 0}</span>
+              </div>
+              <div className="flex justify-between border-t border-dashed border-orange-200 pt-1 mt-1 font-semibold">
+                <span className="text-gray-600">Available Seats:</span>
+                <span className={`font-bold ${(t.totalSeats || 49) - (t.bookedSeats || 0) <= 5 ? "text-red-500" : "text-green-600"}`}>
+                  {(t.totalSeats || 49) - (t.bookedSeats || 0)} left
+                </span>
+              </div>
             </div>
 
 
@@ -442,6 +466,35 @@ const AdminGroupTour = () => {
                   }
                   className="w-full border p-2 rounded"
                 />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold block mb-1">Total Seats</label>
+                    <input
+                      type="number"
+                      placeholder="Total Seats (Default 49)"
+                      value={form.totalSeats !== undefined ? form.totalSeats : 49}
+                      onChange={(e) =>
+                        setForm({ ...form, totalSeats: Number(e.target.value) })
+                      }
+                      required
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold block mb-1">Booked Seats</label>
+                    <input
+                      type="number"
+                      placeholder="Booked Seats (Default 0)"
+                      value={form.bookedSeats !== undefined ? form.bookedSeats : 0}
+                      onChange={(e) =>
+                        setForm({ ...form, bookedSeats: Number(e.target.value) })
+                      }
+                      required
+                      className="w-full border p-2 rounded"
+                    />
+                  </div>
+                </div>
 
                 <input type="file" multiple
                   onChange={(e) => setForm({ ...form, images: e.target.files })}

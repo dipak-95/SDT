@@ -52,6 +52,14 @@ const tourSchema = new mongoose.Schema(
     includedTickets: {
       type: [String],
       default: []
+    },
+    totalSeats: {
+      type: Number,
+      default: 49
+    },
+    bookedSeats: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: true }

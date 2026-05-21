@@ -89,8 +89,14 @@ export default function BookTour() {
     else if (!/^\d{10}$/.test(form.phone))
       e.phone = "Phone must be 10 digits";
 
-    if (form.persons < 1 || form.persons > 20)
-      e.persons = "Persons must be 1–20";
+    const availSeats = type === "group" ? (tour?.totalSeats || 49) - (tour?.bookedSeats || 0) : 100;
+    if (form.persons < 2) {
+      e.persons = "Minimum 2 persons required";
+    } else if (type === "group" && Number(form.persons) > availSeats) {
+      e.persons = `Only ${availSeats} seats left!`;
+    } else if (form.persons > 20) {
+      e.persons = "Persons must be 2-20";
+    }
 
     if (form.note.length > 50)
       e.note = "Note max 50 characters";
@@ -270,8 +276,9 @@ export default function BookTour() {
     );
   }
 
+  const availSeats = type === "group" ? (tour?.totalSeats || 49) - (tour?.bookedSeats || 0) : 100;
   const isPersonsInvalid =
-    form.persons === "" || Number(form.persons) < 2;
+    form.persons === "" || Number(form.persons) < 2 || (type === "group" && Number(form.persons) > availSeats);
 
   return (
     <>
@@ -402,7 +409,9 @@ export default function BookTour() {
         text-xs text-orange-700
       "
                   >
-                    Minimum 2 persons allowed for this tour
+                    {type === "group" && Number(form.persons) > availSeats
+                      ? `⚠️ Only ${availSeats} seats left! You cannot book for ${form.persons} persons.`
+                      : "Minimum 2 persons allowed for this tour"}
                   </p>
                 </motion.div>
               </div>
@@ -461,6 +470,15 @@ export default function BookTour() {
                       <span>Tour</span>
                       <span className="font-semibold">{tour.title}</span>
                     </div>
+
+                    {type === "group" && (
+                      <div className="flex justify-between items-center text-xs bg-orange-50 text-[#F4612B] p-2.5 rounded-lg border border-orange-100 mt-1">
+                        <span className="font-medium flex items-center gap-1">🔥 Seats Remaining</span>
+                        <span className="font-bold">
+                          {availSeats} / {tour.totalSeats || 49} Left
+                        </span>
+                      </div>
+                    )}
 
                     <div className="flex justify-between">
                       <span>Duration</span>

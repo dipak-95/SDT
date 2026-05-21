@@ -24,7 +24,9 @@ exports.addGroupTour = async (req, res) => {
         ? (Array.isArray(req.body.includedTickets)
             ? req.body.includedTickets
             : [req.body.includedTickets])
-        : []
+        : [],
+      totalSeats: req.body.totalSeats !== undefined ? Number(req.body.totalSeats) : 49,
+      bookedSeats: req.body.bookedSeats !== undefined ? Number(req.body.bookedSeats) : 0
     });
 
     res.status(201).json(tour);
@@ -67,6 +69,9 @@ exports.updateTour = async (req, res) => {
     tour.oldPrice = req.body.oldPrice;
     tour.discount = req.body.discount;
     tour.location = req.body.location;
+    
+    if (req.body.totalSeats !== undefined) tour.totalSeats = Number(req.body.totalSeats);
+    if (req.body.bookedSeats !== undefined) tour.bookedSeats = Number(req.body.bookedSeats);
 
     // 🔥 HANDLE TICKETS
     if (req.body.includedTickets) {

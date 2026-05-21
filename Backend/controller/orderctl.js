@@ -1,4 +1,4 @@
-﻿const Razorpay = require("razorpay");
+const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Order = require("../model/Dashboard");
 const Booking = require("../model/BookingSchema");
@@ -61,7 +61,14 @@ module.exports.verifyPayment = async (req, res) => {
 
     if (razorpay_signature === expectedSign) {
       if (bookingId) {
-        await Booking.findByIdAndUpdate(bookingId, { status: "confirmed" });
+        const booking = await Booking.findByIdAndUpdate(bookingId, { status: "confirmed" }, { new: true });
+        if (booking && booking.tourType && booking.tourType.toLowerCase() === "group" && booking.tourId) {
+          const GroupTour = require("../model/GroupTourShema");
+          await GroupTour.findByIdAndUpdate(booking.tourId, {
+            $inc: { bookedSeats: booking.persons || 0 }
+          });
+          console.log(`✅ Automatically incremented bookedSeats by ${booking.persons} for Group Tour ${booking.tourId}`);
+        }
       }
 
       return res.status(200).json({
