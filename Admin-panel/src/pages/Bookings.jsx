@@ -119,25 +119,43 @@ const Bookings = () => {
 
             {/* AMOUNT & PAYMENT DETAILS */}
             <div className="space-y-1">
-              <p className="text-sm text-gray-400 text-center">Payment Details</p>
-              <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-xs space-y-1 shadow-sm">
-                <div className="flex justify-between gap-4">
-                  <span className="text-gray-500 font-medium">Total Price:</span>
-                  <span className="font-bold text-gray-800">₹{b.totalAmount}</span>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <span className="text-gray-500 font-medium">
-                    Paid ({b.paymentType === "advance" ? "30% Adv" : "100% Full"}):
-                  </span>
-                  <span className="font-bold text-green-600">
-                    ₹{b.payableAmount !== undefined ? b.payableAmount : b.totalAmount}
-                  </span>
-                </div>
-                <div className="flex justify-between gap-4 border-t border-dashed border-orange-200 pt-1 mt-1">
-                  <span className="text-gray-500 font-semibold">Remaining:</span>
-                  <span className={`font-bold ${b.remainingAmount > 0 ? "text-red-500" : "text-gray-700"}`}>
-                    ₹{b.remainingAmount !== undefined ? b.remainingAmount : 0}
-                  </span>
+              <p className="text-sm text-gray-400 text-center font-semibold">Payment Details</p>
+              <div className="bg-orange-50 border border-orange-100 rounded-xl p-3 text-xs space-y-2 shadow-sm">
+                
+                {/* Dynamic Status Badge */}
+                {b.paymentType === "full" || !b.remainingAmount || b.remainingAmount === 0 ? (
+                  <div className="bg-green-100 text-green-700 text-center py-1 px-2 rounded-lg font-bold flex items-center justify-center gap-1 border border-green-200">
+                    <span>✅</span> Full Payment Received
+                  </div>
+                ) : (
+                  <div className="bg-amber-100 text-amber-800 text-center py-1 px-2 rounded-lg font-bold flex items-center justify-center gap-1 border border-amber-200">
+                    <span>⏳</span> Partial (30%) Received
+                  </div>
+                )}
+
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between gap-4">
+                    <span className="text-gray-500 font-medium">Total Price:</span>
+                    <span className="font-bold text-gray-800">₹{b.totalAmount}</span>
+                  </div>
+                  
+                  {b.paymentType === "advance" && b.remainingAmount > 0 ? (
+                    <>
+                      <div className="flex justify-between gap-4">
+                        <span className="text-gray-500 font-medium">Paid (30%):</span>
+                        <span className="font-bold text-green-600">₹{b.payableAmount}</span>
+                      </div>
+                      <div className="flex justify-between gap-4 border-t border-dashed border-orange-200 pt-1 mt-1">
+                        <span className="text-gray-500 font-semibold">Remaining:</span>
+                        <span className="font-bold text-red-500">₹{b.remainingAmount}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between gap-4">
+                      <span className="text-gray-500 font-medium">Paid:</span>
+                      <span className="font-bold text-green-600">₹{b.totalAmount}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
