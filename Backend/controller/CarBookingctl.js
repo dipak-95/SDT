@@ -3,7 +3,21 @@ const CarBooking = require("../model/CarBooking");
 /* ================= USER – CREATE BOOKING ================= */
 exports.createCarBooking = async (req, res) => {
   try {
-    const booking = await CarBooking.create(req.body);
+    const {
+      carId, userName, email, phone, startDate, endDate,
+      days, pricePerKm, total, note,
+      paymentType, payableAmount, remainingAmount
+    } = req.body;
+
+    const booking = await CarBooking.create({
+      carId, userName, email, phone, startDate, endDate,
+      days, pricePerKm, total, note,
+      paymentType: paymentType || "advance",
+      payableAmount: payableAmount || 0,
+      remainingAmount: remainingAmount || 0,
+      status: "pending"
+    });
+
     res.status(201).json({
       msg: "Car booking created successfully",
       booking

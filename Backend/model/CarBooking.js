@@ -39,6 +39,20 @@ const carBookingSchema = new mongoose.Schema(
     pricePerKm: Number,
     total: Number,
 
+    /* 💰 PAYMENT */
+    paymentType: {
+      type: String,
+      default: "advance" // advance | full
+    },
+    payableAmount: {
+      type: Number,
+      default: 0
+    },
+    remainingAmount: {
+      type: Number,
+      default: 0
+    },
+
     note: String,
 
     /* 📌 STATUS */

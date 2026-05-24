@@ -229,7 +229,18 @@ exports.getTourSeats = async (req, res) => {
 
 exports.bookSeatOffline = async (req, res) => {
   try {
-    const { seatNumber, bookingName, phone } = req.body;
+    // Support both single seatNumber and array seatNumbers
+    const { seatNumber, seatNumbers, bookingName, phone } = req.body;
+    const numbersToBook = seatNumbers
+      ? seatNumbers.map(Number)
+      : seatNumber
+      ? [Number(seatNumber)]
+      : [];
+
+    if (numbersToBook.length === 0) {
+      return res.status(400).json({ msg: "No seat numbers provided" });
+    }
+
     const tour = await GroupTour.findById(req.params.id);
     if (!tour) {
       return res.status(404).json({ msg: "Tour not found" });
@@ -237,23 +248,23 @@ exports.bookSeatOffline = async (req, res) => {
 
     syncSeatsCount(tour);
 
-    const seat = tour.seats.find(s => s.seatNumber === Number(seatNumber));
-    if (!seat) {
-      return res.status(400).json({ msg: "Invalid seat number" });
+    const errors = [];
+    for (const sNum of numbersToBook) {
+      const seat = tour.seats.find(s => s.seatNumber === sNum);
+      if (!seat) { errors.push(`Seat ${sNum} not found`); continue; }
+      if (seat.status !== "available") { errors.push(`Seat ${sNum} already booked`); continue; }
+      seat.status = "booked_offline";
+      seat.bookingName = bookingName || "Offline Booking";
+      seat.phone = phone || "";
     }
 
-    if (seat.status !== "available") {
-      return res.status(400).json({ msg: "Seat is already booked" });
-    }
-
-    seat.status = "booked_offline";
-    seat.bookingName = bookingName || "Offline Booking";
-    seat.phone = phone || "";
-    
     tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
     await tour.save();
 
-    res.json({ msg: "Seat booked successfully", tour });
+    res.json({
+      msg: errors.length > 0 ? `Partially booked. Issues: ${errors.join(", ")}` : `${numbersToBook.length} seat(s) booked successfully`,
+      tour
+    });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
@@ -261,7 +272,18 @@ exports.bookSeatOffline = async (req, res) => {
 
 exports.releaseSeatOffline = async (req, res) => {
   try {
-    const { seatNumber } = req.body;
+    // Support both single seatNumber and array seatNumbers
+    const { seatNumber, seatNumbers } = req.body;
+    const numbersToRelease = seatNumbers
+      ? seatNumbers.map(Number)
+      : seatNumber
+      ? [Number(seatNumber)]
+      : [];
+
+    if (numbersToRelease.length === 0) {
+      return res.status(400).json({ msg: "No seat numbers provided" });
+    }
+
     const tour = await GroupTour.findById(req.params.id);
     if (!tour) {
       return res.status(404).json({ msg: "Tour not found" });
@@ -269,23 +291,18 @@ exports.releaseSeatOffline = async (req, res) => {
 
     syncSeatsCount(tour);
 
-    const seat = tour.seats.find(s => s.seatNumber === Number(seatNumber));
-    if (!seat) {
-      return res.status(400).json({ msg: "Invalid seat number" });
+    for (const sNum of numbersToRelease) {
+      const seat = tour.seats.find(s => s.seatNumber === sNum);
+      if (!seat || seat.status !== "booked_offline") continue;
+      seat.status = "available";
+      seat.bookingName = "";
+      seat.phone = "";
     }
-
-    if (seat.status !== "booked_offline") {
-      return res.status(400).json({ msg: "Only offline booked seats can be released manually" });
-    }
-
-    seat.status = "available";
-    seat.bookingName = "";
-    seat.phone = "";
 
     tour.bookedSeats = tour.seats.filter(s => s.status !== "available").length;
     await tour.save();
 
-    res.json({ msg: "Seat released successfully", tour });
+    res.json({ msg: `${numbersToRelease.length} seat(s) released successfully`, tour });
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
